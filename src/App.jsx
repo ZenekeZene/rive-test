@@ -10,7 +10,7 @@ function App() {
     stateMachines: "portrait state machine",
     // This is optional.Provides additional layout control.
     layout: new Layout({
-      fit: Fit.Layout, // Change to: rive.Fit.Contain, or Cover
+      fit: Fit.Contain, // Change to: rive.Fit.Contain, or Cover
       layoutScaleFactor: 1,
     }),
     // Autoplay the state machine
