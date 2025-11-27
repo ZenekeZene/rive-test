@@ -33,7 +33,7 @@ body {
   }
 
   .rive-container {
-    height: calc(100dvh - 20px) !important;
+    height: calc(100dvh) !important;
   }
 }
 
