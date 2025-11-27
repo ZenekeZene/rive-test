@@ -29,11 +29,11 @@ body {
   }
 
   #root {
-    height: calc(100dvh);
+    height: calc(100dvh - 20px);
   }
 
   .rive-container {
-    height: calc(100dvh) !important;
+    height: calc(100dvh - 20px) !important;
   }
 }
 
