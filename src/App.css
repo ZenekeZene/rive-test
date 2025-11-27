@@ -30,7 +30,7 @@ body {
 
   #root {
     position: fixed;
-    top: -20px;
+    top: 0;
     height: calc(100dvh - 20px);
   }
 
