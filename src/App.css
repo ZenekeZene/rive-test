@@ -29,7 +29,7 @@ body {
   }
 
   #root {
-    height: calc(100dvh - 20px);
+    height: calc(100dvh);
   }
 
   .rive-container {
