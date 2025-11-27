@@ -7,7 +7,7 @@ body {
 html,
 body {
   height: 100vh; /* Fallback para navegadores antiguos */
-  height: calc(100dvh - 1px); /* Dynamic viewport height con offset para iOS */
+  height: calc(100dvh - 20px); /* Dynamic viewport height con offset para iOS */
   overflow: hidden;
   /* Prevenir bounce en iOS */
   position: fixed;
