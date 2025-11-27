@@ -29,6 +29,8 @@ body {
   }
 
   #root {
+    position: fixed;
+    top: -20px;
     height: calc(100dvh - 20px);
   }
 
