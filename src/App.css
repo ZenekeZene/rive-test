@@ -6,13 +6,15 @@ body {
 
 html,
 body {
-  height: 100%;
+  height: 100vh; /* Fallback para navegadores antiguos */
+  height: 100dvh; /* Dynamic viewport height - se ajusta con la barra del navegador */
   overflow: hidden;
 }
 
 #root {
   width: 100%;
-  height: 100%;
+  height: 100vh; /* Fallback para navegadores antiguos */
+  height: 100dvh; /* Dynamic viewport height */
   margin: 0 auto;
   text-align: center;
 }
@@ -55,5 +57,6 @@ body {
 
 .rive-container {
   width: 100vw;
-  height: 100%;
+  height: 100vh; /* Fallback para navegadores antiguos */
+  height: 100dvh; /* Dynamic viewport height */
 }
