@@ -25,17 +25,17 @@ body {
 @supports (-webkit-touch-callout: none) {
   html,
   body {
-    height: calc(100dvh - 20px);
+    height: calc(100dvh);
   }
 
   #root {
     position: fixed;
     top: 0;
-    height: calc(100dvh - 20px);
+    height: calc(100dvh);
   }
 
   .rive-container {
-    height: calc(100dvh - 20px) !important;
+    height: calc(100dvh);
   }
 }
 
