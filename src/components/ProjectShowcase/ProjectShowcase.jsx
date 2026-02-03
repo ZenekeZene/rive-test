@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "./ProjectShowcase.module.css";
+import ColorfulTitle from "../ColorfulTitle/ColorfulTitle";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 function ProjectShowcase() {
@@ -29,7 +30,13 @@ function ProjectShowcase() {
 
       <div className={styles.projectContent}>
         <div className={styles.projectInfo}>
-          <h3 className={styles.projectName}>{currentProject.name}</h3>
+          <h3 className={styles.projectName}>
+            <ColorfulTitle
+              key={currentProject.id}
+              text={currentProject.name}
+              activeTab="code"
+            />
+          </h3>
           <p className={styles.projectDescription}>{currentProject.description}</p>
           <div className={styles.projectTech}>
             {currentProject.tech?.map((tech) => (

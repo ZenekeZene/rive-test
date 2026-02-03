@@ -2,13 +2,13 @@ export const translations = {
   en: {
     // Header
     heroTitle: "Zeneke",
-    subtitle: "Creative Developer & Digital Artist",
+    subtitle: "Creative developer & Digital artist",
 
     // Tabs
-    tabExperience: "Experience",
+    tabExperience: "About",
     tabCode: "Code",
     tabArt: "Art",
-    tabOthers: "Others",
+    tabOthers: "Contact",
 
     // Checkboxes
     rebotado: "Bounced",
@@ -95,44 +95,20 @@ export const translations = {
     // Interaction hint
     touchToInteract: "Touch to interact",
 
-    // Experience
-    experience: [
-      {
-        id: 1,
-        role: "Product Engineer",
-        company: "Genially",
-        dates: "Jul 2024 - Present",
-        description: "Remote",
-      },
-      {
-        id: 2,
-        role: "Frontend Engineer",
-        company: "idealista",
-        dates: "Jan 2023 - Jul 2024",
-        description: "Madrid · Remote",
-      },
-      {
-        id: 3,
-        role: "Senior Frontend Developer",
-        company: "unusuals",
-        dates: "Sep 2021 - Sep 2022",
-        description: "Madrid · Remote",
-      },
-      {
-        id: 4,
-        role: "Frontend Engineer",
-        company: "Init Services",
-        dates: "Sep 2017 - Aug 2021",
-        description: "Bilbao · Hybrid",
-      },
-      {
-        id: 5,
-        role: "UX & Frontend Engineer",
-        company: "Suggiero",
-        dates: "Nov 2015 - May 2017",
-        description: "Bilbao · On-site",
-      },
-    ],
+    // About
+    about: {
+      name: "Zeneke",
+      aka: "aka Héctor Villar",
+      greeting: "Hi, I'm Zeneke",
+      bio: "I'm a product engineer from Bilbao with 15 years of experience crafting software, illustration, and games. I love blending creativity with code to build things that feel alive.",
+      bioMobile: "And I'm a product engineer from Bilbao with 15 years of experience crafting software, illustration, and games. I love blending creativity with code to build things that feel alive.",
+      stats: [
+        { value: "15+", label: "Years", tooltip: "Of professional experience, because I'm older than that" },
+        { value: "Bilbao", label: "Based", tooltip: "Basque Country, in northern Spain. Have you heard of it?" },
+        { value: "3", label: "Disciplines" },
+      ],
+      skills: ["Software", "Illustration", "Games", "Creative Coding", "UI/UX", "Animation", "Rive", "Unity", "TS", "CSS"],
+    },
 
     // Code (legacy)
     code: [],
@@ -206,35 +182,30 @@ export const translations = {
       },
     ],
 
-    // Others
-    others: [
-      {
-        id: 1,
-        role: "Personal Project",
-        company: "Side Project",
-        dates: "2024",
-        description: "Temporary content",
-      },
-      {
-        id: 2,
-        role: "Collaboration",
-        company: "Open Source",
-        dates: "2023",
-        description: "Temporary content",
-      },
-    ],
+    // Contact
+    contact: {
+      intro: "Want to collaborate, say hi, or tell me about your cat? I'm all ears.",
+      nameLabel: "Your name",
+      namePlaceholder: "Batman, Frodo, or your real name",
+      messageLabel: "Your message",
+      messagePlaceholder: "Tell me something interesting...",
+      sendButton: "Send it!",
+      altText: "Not a fan of forms? Find me here:",
+      successTitle: "Message sent!",
+      successMessage: "I'll get back to you faster than you can say 'responsive design'.",
+    },
   },
 
   es: {
     // Header
     heroTitle: "Zeneke",
-    subtitle: "Desarrollador Creativo & Artista Digital",
+    subtitle: "Desarrollador creativo & Artista digital",
 
     // Tabs
-    tabExperience: "Experiencia",
+    tabExperience: "Sobre mí",
     tabCode: "Código",
     tabArt: "Arte",
-    tabOthers: "Otros",
+    tabOthers: "Contacto",
 
     // Checkboxes
     rebotado: "Rebotado",
@@ -321,44 +292,20 @@ export const translations = {
     // Interaction hint
     touchToInteract: "Toca para interactuar",
 
-    // Experience
-    experience: [
-      {
-        id: 1,
-        role: "Product Engineer",
-        company: "Genially",
-        dates: "Jul 2024 - Actualidad",
-        description: "Remoto",
-      },
-      {
-        id: 2,
-        role: "Frontend Engineer",
-        company: "idealista",
-        dates: "Ene 2023 - Jul 2024",
-        description: "Madrid · Remoto",
-      },
-      {
-        id: 3,
-        role: "Senior Frontend Developer",
-        company: "unusuals",
-        dates: "Sep 2021 - Sep 2022",
-        description: "Madrid · Remoto",
-      },
-      {
-        id: 4,
-        role: "Frontend Engineer",
-        company: "Init Services",
-        dates: "Sep 2017 - Ago 2021",
-        description: "Bilbao · Híbrido",
-      },
-      {
-        id: 5,
-        role: "UX & Frontend Engineer",
-        company: "Suggiero",
-        dates: "Nov 2015 - May 2017",
-        description: "Bilbao · Presencial",
-      },
-    ],
+    // About
+    about: {
+      name: "Zeneke",
+      aka: "aka Héctor Villar",
+      greeting: "Hola, me llamo Zeneke",
+      bio: "Soy un ingeniero de producto de Bilbao con 15 años de experiencia creando software, ilustración y juegos. Me encanta mezclar creatividad y código para construir cosas que cobren vida.",
+      bioMobile: "Y soy ingeniero de producto de Bilbao con 15 años de experiencia creando software, ilustración y juegos. Me encanta mezclar creatividad y código para construir cosas que cobren vida.",
+      stats: [
+        { value: "15+", label: "Años", tooltip: "De experiencia profesional, porque soy más viejo que esto" },
+        { value: "Bilbao", label: "Base", tooltip: "País Vasco, al norte de España, ¿lo conoces?" },
+        { value: "3", label: "Disciplinas" },
+      ],
+      skills: ["Software", "Ilustración", "Juegos", "Creative Coding", "UI/UX", "Animación", "Rive", "Unity", "TS", "CSS"],
+    },
 
     // Code (legacy)
     code: [],
@@ -432,23 +379,18 @@ export const translations = {
       },
     ],
 
-    // Others
-    others: [
-      {
-        id: 1,
-        role: "Proyecto Personal",
-        company: "Side Project",
-        dates: "2024",
-        description: "Contenido temporal",
-      },
-      {
-        id: 2,
-        role: "Colaboración",
-        company: "Open Source",
-        dates: "2023",
-        description: "Contenido temporal",
-      },
-    ],
+    // Contact
+    contact: {
+      intro: "¿Quieres colaborar, saludar, o contarme sobre tu gato? Soy todo oídos.",
+      nameLabel: "Tu nombre",
+      namePlaceholder: "Batman, Frodo, o tu nombre real",
+      messageLabel: "Tu mensaje",
+      messagePlaceholder: "Cuéntame algo interesante...",
+      sendButton: "¡Enviar!",
+      altText: "¿No te van los formularios? Encuéntrame aquí:",
+      successTitle: "¡Mensaje enviado!",
+      successMessage: "Te responderé más rápido de lo que puedes decir 'diseño responsive'.",
+    },
   },
 };
 

@@ -144,3 +144,22 @@ img {
     }
   }
 }
+
+/* View Transition API - Gallery image morph */
+::view-transition-group(gallery-image) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(gallery-image),
+::view-transition-new(gallery-image) {
+  animation: none;
+  mix-blend-mode: normal;
+  object-fit: cover;
+}
+
+/* Prevent default crossfade on root */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+}

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import styles from "./ContentPanel.module.css";
 import StateToggles from "../StateToggles/StateToggles";
 import TabbedSections from "../TabbedSections/TabbedSections";
@@ -7,12 +8,23 @@ import { useLanguage } from "../../i18n/LanguageContext";
 
 function ContentPanel({ toggleStates, onTabChange, activeTab }) {
   const { t } = useLanguage();
+  const [paintLevels, setPaintLevels] = useState("Zeneke".split("").map(() => 0));
+
+  // Reset paint levels when tab changes
+  useEffect(() => {
+    setPaintLevels("Zeneke".split("").map(() => 0));
+  }, [activeTab]);
 
   return (
     <section className={styles.contentPanel}>
       <header className={styles.header}>
         <h1 className={styles.heroTitle}>
-          <ColorfulTitle text="Zeneke" />
+          <ColorfulTitle
+            text="Zeneke"
+            activeTab={activeTab}
+            paintLevels={paintLevels}
+            onPaintChange={setPaintLevels}
+          />
         </h1>
         <p className={styles.subtitle}>{t("subtitle")}</p>
       </header>

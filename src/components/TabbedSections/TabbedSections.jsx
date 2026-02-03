@@ -1,8 +1,9 @@
 import { useState } from "react";
 import styles from "./TabbedSections.module.css";
-import Timeline from "../Timeline/Timeline";
+import AboutMe from "../AboutMe/AboutMe";
 import ImageGallery from "../ImageGallery/ImageGallery";
 import ProjectShowcase from "../ProjectShowcase/ProjectShowcase";
+import ContactForm from "../ContactForm/ContactForm";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 const TABS = [
@@ -23,23 +24,6 @@ function TabbedSections({ onTabChange }) {
     }
   };
 
-  const getData = () => {
-    switch (activeTab) {
-      case "experience":
-        return t("experience");
-      case "code":
-        return t("code");
-      case "art":
-        return t("art");
-      case "others":
-        return t("others");
-      default:
-        return t("experience");
-    }
-  };
-
-  const currentData = getData();
-
   return (
     <div className={styles.tabbedContainer}>
       <div className={styles.tabsHeader}>
@@ -55,13 +39,15 @@ function TabbedSections({ onTabChange }) {
         ))}
       </div>
       <div className={styles.tabContent}>
-        {activeTab === "art" ? (
+        {activeTab === "experience" ? (
+          <AboutMe />
+        ) : activeTab === "art" ? (
           <ImageGallery />
         ) : activeTab === "code" ? (
           <ProjectShowcase />
-        ) : (
-          <Timeline entries={currentData} />
-        )}
+        ) : activeTab === "others" ? (
+          <ContactForm />
+        ) : null}
       </div>
     </div>
   );

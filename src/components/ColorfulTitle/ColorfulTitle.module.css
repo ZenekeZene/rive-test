@@ -5,21 +5,11 @@
 }
 
 .letter {
-  display: inline-block;
-  font-size: var(--font-size-hero);
-  font-weight: var(--font-weight-black);
-  line-height: var(--line-height-hero);
-  letter-spacing: -0.02em;
+  display: inline;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
   color: var(--color-text);
-  transition: transform 0.15s ease;
-}
-
-.container:hover .letter {
-  transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-  .letter {
-    font-size: 3rem;
-  }
+  transition: color 0.15s ease;
 }

@@ -1,8 +1,16 @@
+.galleryContainer {
+  width: 100%;
+  overflow: hidden;
+}
+
 .gallery {
   display: flex;
-  gap: var(--space-md);
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: var(--space-sm);
   overflow-x: auto;
-  padding: var(--space-sm) 0;
+  overflow-y: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--color-text) var(--color-bg);
 }
@@ -23,21 +31,38 @@
 .imageButton {
   flex-shrink: 0;
   padding: 0;
-  border: var(--border-width-thick) solid var(--color-border);
+  border: none;
   background: none;
   cursor: pointer;
-  transition: transform 0.1s ease, border-color 0.1s ease;
+  transition: transform 0.1s ease;
 }
 
 .imageButton:hover {
-  transform: translateY(-4px);
+  transform: scale(1.02);
+  z-index: 1;
 }
 
 .thumbnail {
   display: block;
-  width: 150px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+}
+
+/* Size variants - designed for 2-row masonry */
+.imageButton.tall {
+  width: 160px;
+  height: calc(100% - var(--space-sm));
+}
+
+.imageButton.wide {
+  width: 220px;
+  height: calc(45% - var(--space-sm) / 2);
+}
+
+.imageButton.square {
+  width: 180px;
+  height: calc(55% - var(--space-sm) / 2);
 }
 
 .modal {
@@ -93,18 +118,42 @@
   border: var(--border-width-thick) solid var(--color-bg);
 }
 
+.imageInfo {
+  text-align: center;
+  max-width: 500px;
+}
+
 .imageTitle {
   color: var(--color-bg);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-label);
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.imageDescription {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  margin: 0;
 }
 
 @media (max-width: 768px) {
   .gallery {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    height: auto !important;
     gap: var(--space-sm);
     padding: var(--space-xs) 0;
+  }
+
+  .imageButton.tall,
+  .imageButton.wide,
+  .imageButton.square {
+    width: auto;
+    height: auto;
   }
 
   .thumbnail {
@@ -118,7 +167,15 @@
     height: 1.75rem;
   }
 
+  .imageInfo {
+    max-width: 280px;
+  }
+
   .imageTitle {
-    font-size: 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .imageDescription {
+    font-size: 0.6rem;
   }
 }

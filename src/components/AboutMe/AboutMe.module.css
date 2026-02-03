@@ -1,0 +1,145 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  max-width: 600px;
+}
+
+.intro {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.greeting {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.bio {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.bioMobile {
+  display: none;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.stats {
+  display: flex;
+  gap: var(--space-lg);
+  padding: var(--space-md) 0;
+  border-top: var(--border-width) solid var(--color-border);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  position: relative;
+}
+
+.stat.hasTooltip {
+  cursor: help;
+}
+
+.tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-regular);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  z-index: 10;
+}
+
+.stat.hasTooltip:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: var(--font-weight-black);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  opacity: 0.6;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.skill {
+  padding: 0.3rem 0.6rem;
+  border: var(--border-width) solid var(--color-border);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+}
+
+@media (max-width: 768px) {
+  .container {
+    gap: var(--space-md);
+  }
+
+  .intro {
+    display: flex;
+  }
+
+  .greeting {
+    font-size: 1.2rem;
+  }
+
+  .bio {
+    display: none;
+  }
+
+  .bioMobile {
+    display: block;
+    font-size: 0.95rem;
+  }
+
+  .stats {
+    gap: var(--space-md);
+  }
+
+  .statValue {
+    font-size: 1.5rem;
+  }
+
+  .tooltip {
+    display: none;
+  }
+
+  .stat.hasTooltip {
+    cursor: default;
+  }
+
+  .skill {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.5rem;
+  }
+}

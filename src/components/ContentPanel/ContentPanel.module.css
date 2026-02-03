@@ -17,6 +17,10 @@
 
 .heroTitle {
   margin: 0;
+  font-size: var(--font-size-hero);
+  font-weight: var(--font-weight-black);
+  line-height: var(--line-height-hero);
+  letter-spacing: -0.02em;
 }
 
 .subtitle {

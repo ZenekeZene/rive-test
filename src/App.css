@@ -16,7 +16,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-left: var(--border-width-thick) solid var(--color-border);
+  /* border-left: var(--border-width-thick) solid var(--color-border);*/
 }
 
 /* Mobile: Stacked layout */
@@ -46,17 +46,23 @@
   }
 }
 
-/* Hero maximized state */
+/* Hero maximized state - Desktop */
+.app.heroMaximized {
+  grid-template-columns: 1fr;
+}
+
 .app.heroMaximized .leftPanel {
-  grid-row: 1 / -1;
+  grid-column: 1 / -1;
 }
 
 .app.heroMaximized .rightPanel {
   display: none;
 }
 
+/* Hero maximized state - Mobile */
 @media (max-width: 768px) {
   .app.heroMaximized {
+    grid-template-columns: 1fr;
     grid-template-rows: 100dvh;
     height: 100dvh;
     min-height: 100dvh;
