@@ -3,7 +3,7 @@ import { useRive, Layout, Fit } from "@rive-app/react-webgl2";
 import styles from "./PortraitHero.module.css";
 import InteractionHint from "../InteractionHint/InteractionHint";
 
-function PortraitHero({ onRiveReady, isMaximized, title = "Zeneke" }) {
+function PortraitHero({ onRiveReady, isMaximized }) {
   const [showHint, setShowHint] = useState(true);
   const { RiveComponent, rive } = useRive({
     src: "/portrait.riv",
@@ -35,7 +35,6 @@ function PortraitHero({ onRiveReady, isMaximized, title = "Zeneke" }) {
 
   return (
     <section className={styles.portraitHero}>
-      <h1 className={`${styles.mobileTitle} ${isMaximized ? styles.hidden : ""}`}>{title}</h1>
       <div className={styles.riveWrapper}>
         <RiveComponent />
         {showHint && <InteractionHint onDismiss={() => setShowHint(false)} />}

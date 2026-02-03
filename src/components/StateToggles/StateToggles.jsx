@@ -29,15 +29,22 @@ function StateToggles({ states }) {
   // Auto-scroll to newly unlocked achievement
   useEffect(() => {
     const prev = previousStates.current;
+    const grid = gridRef.current;
 
     TOGGLE_IDS.forEach((id) => {
       if (prev[id] === false && states[id] === true) {
         const element = itemRefs.current[id];
-        if (element && window.innerWidth <= 768) {
-          element.scrollIntoView({
+        if (element && grid && window.innerWidth <= 768) {
+          // Calculate scroll position to center the element
+          const elementRect = element.getBoundingClientRect();
+          const gridRect = grid.getBoundingClientRect();
+          const elementCenter = element.offsetLeft + elementRect.width / 2;
+          const gridCenter = gridRect.width / 2;
+          const scrollTarget = elementCenter - gridCenter;
+
+          grid.scrollTo({
+            left: scrollTarget,
             behavior: "smooth",
-            block: "nearest",
-            inline: "center",
           });
         }
       }
