@@ -76,7 +76,30 @@
 }
 
 @media (max-width: 768px) {
+  .timeline {
+    padding-left: var(--space-md);
+  }
+
+  .marker {
+    left: calc(var(--space-md) * -1);
+    width: 0.5rem;
+    height: 0.5rem;
+    transform: translateX(calc((0.5rem - var(--border-width-thick)) / -2));
+  }
+
+  .entry {
+    padding-bottom: var(--space-md);
+  }
+
   .role {
-    font-size: 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  .meta {
+    font-size: 0.5rem;
+  }
+
+  .description {
+    font-size: 0.7rem;
   }
 }

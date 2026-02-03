@@ -1,7 +1,8 @@
 import { useState } from "react";
 import styles from "./TabbedSections.module.css";
 import Timeline from "../Timeline/Timeline";
-import InstagramWidget from "../InstagramWidget/InstagramWidget";
+import ImageGallery from "../ImageGallery/ImageGallery";
+import ProjectShowcase from "../ProjectShowcase/ProjectShowcase";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 const TABS = [
@@ -18,7 +19,7 @@ function TabbedSections({ onTabChange }) {
   const handleTabClick = (tab) => {
     setActiveTab(tab.id);
     if (onTabChange) {
-      onTabChange(tab.outfitValue);
+      onTabChange(tab.outfitValue, tab.id);
     }
   };
 
@@ -55,7 +56,9 @@ function TabbedSections({ onTabChange }) {
       </div>
       <div className={styles.tabContent}>
         {activeTab === "art" ? (
-          <InstagramWidget username="zenekezene" />
+          <ImageGallery />
+        ) : activeTab === "code" ? (
+          <ProjectShowcase />
         ) : (
           <Timeline entries={currentData} />
         )}

@@ -49,3 +49,22 @@
   opacity: 1;
   font-weight: var(--font-weight-medium);
 }
+
+@media (max-width: 768px) {
+  .togglesGrid {
+    gap: 0.2rem 0.6rem;
+  }
+
+  .toggleItem {
+    gap: 0.25rem;
+  }
+
+  .statusDot {
+    width: 0.35rem;
+    height: 0.35rem;
+  }
+
+  .labelText {
+    font-size: 0.55rem;
+  }
+}

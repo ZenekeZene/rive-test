@@ -8,9 +8,12 @@ const TOGGLE_IDS = [
   "enfadado",
   "muyEnfadado",
   "matrix",
-  "dibujante",
+  "neo",
+  "dibujado",
+  "artista",
   "desnudo",
   "relajado",
+  "despertado",
 ];
 
 function StateToggles({ states }) {

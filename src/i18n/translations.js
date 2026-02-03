@@ -17,9 +17,12 @@ export const translations = {
     enfadado: "Angry",
     muyEnfadado: "Very Angry",
     matrix: "Matrix",
-    dibujante: "Artist",
+    neo: "Neo",
+    dibujado: "Drawn",
+    artista: "Artist",
     desnudo: "Naked",
     relajado: "Relaxed",
+    despertado: "Awakened",
 
     // Achievements
     achievements: {
@@ -47,9 +50,21 @@ export const translations = {
         name: "Matrix",
         phrase: "There is no spoon. There is only CSS.",
       },
-      dibujante: {
-        name: "Artist",
+      neo: {
+        name: "Neo",
+        phrase: "You take the red pill, you stay in Wonderland.",
+      },
+      dibujado: {
+        name: "Drawn",
         phrase: "Picasso would be proud. Or confused. Probably confused.",
+      },
+      artista: {
+        name: "Artist",
+        phrase: "Every pixel is a brushstroke of the soul.",
+      },
+      despertado: {
+        name: "Awakened",
+        phrase: "Back to reality. Oh, there goes gravity.",
       },
       desnudo: {
         name: "Naked",
@@ -66,6 +81,9 @@ export const translations = {
 
     // Instagram
     viewFullProfile: "View Full Profile",
+
+    // Interaction hint
+    touchToInteract: "Touch to interact",
 
     // Experience
     experience: [
@@ -106,28 +124,50 @@ export const translations = {
       },
     ],
 
-    // Code
-    code: [
+    // Code (legacy)
+    code: [],
+
+    // Projects
+    projects: [
       {
         id: 1,
-        role: "React & TypeScript",
-        company: "Frontend",
-        dates: "2019 - Present",
-        description: "Modern web application development",
+        name: "Rive Portfolio",
+        description: "Interactive portfolio with Rive animations and real-time state machine control. Swiss brutalist design with achievement system.",
+        tech: ["React", "Rive", "CSS Modules"],
+        github: "https://github.com/zenekezene/rive-portfolio",
+        demo: null,
+        image: "https://picsum.photos/seed/riveproject/600/400",
+        embed: null,
       },
       {
         id: 2,
-        role: "Node.js",
-        company: "Backend",
-        dates: "2020 - Present",
-        description: "APIs and services",
+        name: "Parallax",
+        description: "Immersive parallax scrolling experience with layered depth effects and smooth animations.",
+        tech: ["JavaScript", "CSS", "GSAP"],
+        github: "https://github.com/zenekezene/parallax",
+        demo: null,
+        image: "https://picsum.photos/seed/parallax/600/400",
+        embed: null,
       },
       {
         id: 3,
-        role: "Rive & WebGL",
-        company: "Animation",
-        dates: "2023 - Present",
-        description: "Interactive experiences",
+        name: "Sleepy Spider",
+        description: "Relaxing idle game featuring a sleepy spider building its web. Cozy atmosphere with procedural web generation.",
+        tech: ["JavaScript", "Canvas", "Web Audio"],
+        github: "https://github.com/zenekezene/sleepy-spider",
+        demo: null,
+        image: "https://picsum.photos/seed/sleepyspider/600/400",
+        embed: null,
+      },
+      {
+        id: 4,
+        name: "Cultover",
+        description: "Dark strategy game where you manage a mysterious cult. Resource management meets narrative choices.",
+        tech: ["Unity", "C#", "Ink"],
+        github: "https://github.com/zenekezene/cultover",
+        demo: null,
+        image: "https://picsum.photos/seed/cultover/600/400",
+        embed: null,
       },
     ],
 
@@ -193,9 +233,12 @@ export const translations = {
     enfadado: "Enfadado",
     muyEnfadado: "Muy enfadado",
     matrix: "Matrix",
-    dibujante: "Dibujante",
+    neo: "Neo",
+    dibujado: "Dibujado",
+    artista: "Artista",
     desnudo: "Desnudo",
     relajado: "Relajado",
+    despertado: "Despertado",
 
     // Achievements
     achievements: {
@@ -223,9 +266,21 @@ export const translations = {
         name: "Matrix",
         phrase: "No hay cuchara. Solo hay CSS.",
       },
-      dibujante: {
-        name: "Dibujante",
+      neo: {
+        name: "Neo",
+        phrase: "Tomas la pastilla roja, te quedas en el País de las Maravillas.",
+      },
+      dibujado: {
+        name: "Dibujado",
         phrase: "Picasso estaría orgulloso. O confuso. Probablemente confuso.",
+      },
+      artista: {
+        name: "Artista",
+        phrase: "Cada píxel es una pincelada del alma.",
+      },
+      despertado: {
+        name: "Despertado",
+        phrase: "De vuelta a la realidad. Oh, ahí va la gravedad.",
       },
       desnudo: {
         name: "Desnudo",
@@ -242,6 +297,9 @@ export const translations = {
 
     // Instagram
     viewFullProfile: "Ver Perfil Completo",
+
+    // Interaction hint
+    touchToInteract: "Toca para interactuar",
 
     // Experience
     experience: [
@@ -282,28 +340,50 @@ export const translations = {
       },
     ],
 
-    // Code
-    code: [
+    // Code (legacy)
+    code: [],
+
+    // Projects
+    projects: [
       {
         id: 1,
-        role: "React & TypeScript",
-        company: "Frontend",
-        dates: "2019 - Actualidad",
-        description: "Desarrollo de aplicaciones web modernas",
+        name: "Rive Portfolio",
+        description: "Portfolio interactivo con animaciones Rive y control de máquina de estados en tiempo real. Diseño brutalista suizo con sistema de logros.",
+        tech: ["React", "Rive", "CSS Modules"],
+        github: "https://github.com/zenekezene/rive-portfolio",
+        demo: null,
+        image: "https://picsum.photos/seed/riveproject/600/400",
+        embed: null,
       },
       {
         id: 2,
-        role: "Node.js",
-        company: "Backend",
-        dates: "2020 - Actualidad",
-        description: "APIs y servicios",
+        name: "Parallax",
+        description: "Experiencia de scroll parallax inmersiva con efectos de profundidad en capas y animaciones fluidas.",
+        tech: ["JavaScript", "CSS", "GSAP"],
+        github: "https://github.com/zenekezene/parallax",
+        demo: null,
+        image: "https://picsum.photos/seed/parallax/600/400",
+        embed: null,
       },
       {
         id: 3,
-        role: "Rive & WebGL",
-        company: "Animación",
-        dates: "2023 - Actualidad",
-        description: "Experiencias interactivas",
+        name: "Sleepy Spider",
+        description: "Juego idle relajante con una araña dormilona construyendo su telaraña. Atmósfera acogedora con generación procedural de telarañas.",
+        tech: ["JavaScript", "Canvas", "Web Audio"],
+        github: "https://github.com/zenekezene/sleepy-spider",
+        demo: null,
+        image: "https://picsum.photos/seed/sleepyspider/600/400",
+        embed: null,
+      },
+      {
+        id: 4,
+        name: "Cultover",
+        description: "Juego de estrategia oscuro donde gestionas un culto misterioso. Gestión de recursos combinada con decisiones narrativas.",
+        tech: ["Unity", "C#", "Ink"],
+        github: "https://github.com/zenekezene/cultover",
+        demo: null,
+        image: "https://picsum.photos/seed/cultover/600/400",
+        embed: null,
       },
     ],
 

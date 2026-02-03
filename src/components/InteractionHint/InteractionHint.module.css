@@ -1,0 +1,120 @@
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: fadeIn 0.3s ease-out;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hintContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.hand {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: tap 1.5s ease-in-out infinite;
+}
+
+@keyframes tap {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(10px) scale(0.95);
+  }
+}
+
+.handIcon {
+  width: 60px;
+  height: 60px;
+  color: #ffffff;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  position: relative;
+  z-index: 2;
+}
+
+.ripple,
+.ripple2 {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: rippleEffect 1.5s ease-out infinite;
+}
+
+.ripple2 {
+  animation-delay: 0.3s;
+}
+
+@keyframes rippleEffect {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  50%, 100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+.hintText {
+  color: #ffffff;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 768px) {
+  .handIcon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .hand {
+    width: 60px;
+    height: 60px;
+  }
+
+  .ripple,
+  .ripple2 {
+    width: 30px;
+    height: 30px;
+  }
+}

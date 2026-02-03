@@ -39,9 +39,11 @@
 @media (max-width: 768px) {
   .contentPanel {
     padding: var(--space-lg);
+    overflow-y: visible;
+    height: auto;
   }
 
-  .heroTitle {
-    font-size: 3rem;
+  .header {
+    display: none;
   }
 }
