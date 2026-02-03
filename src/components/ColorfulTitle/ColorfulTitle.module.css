@@ -1,0 +1,25 @@
+.container {
+  display: inline-block;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.letter {
+  display: inline-block;
+  font-size: var(--font-size-hero);
+  font-weight: var(--font-weight-black);
+  line-height: var(--line-height-hero);
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  transition: transform 0.15s ease;
+}
+
+.container:hover .letter {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .letter {
+    font-size: 3rem;
+  }
+}

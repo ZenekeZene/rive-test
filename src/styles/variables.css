@@ -1,0 +1,46 @@
+:root {
+  /* Colors - Pure B&W */
+  --color-bg: #FFFFFF;
+  --color-text: #000000;
+  --color-border: #000000;
+
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Font Sizes */
+  --font-size-hero: 6rem;
+  --font-size-h2: 2rem;
+  --font-size-body: 1rem;
+  --font-size-label: 0.75rem;
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+
+  /* Line Heights */
+  --line-height-hero: 0.9;
+  --line-height-heading: 1.1;
+  --line-height-body: 1.5;
+
+  /* Letter Spacing */
+  --letter-spacing-label: 0.1em;
+
+  /* Spacing */
+  --content-padding: 3rem;
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+
+  /* Borders */
+  --border-width: 1px;
+  --border-width-thick: 2px;
+  --border-style: solid;
+
+  /* Layout */
+  --mobile-breakpoint: 768px;
+}

@@ -1,0 +1,51 @@
+.togglesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.sectionLabel {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  color: var(--color-text);
+}
+
+.togglesGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+}
+
+.toggleItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.statusDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-border);
+  opacity: 0.2;
+  flex-shrink: 0;
+}
+
+.statusDot.unlocked {
+  background-color: #22c55e;
+  opacity: 1;
+}
+
+.labelText {
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text);
+  opacity: 0.4;
+}
+
+.labelText.completed {
+  opacity: 1;
+  font-weight: var(--font-weight-medium);
+}
