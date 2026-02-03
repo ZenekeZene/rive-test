@@ -26,10 +26,13 @@
     grid-template-rows: 50vh 1fr;
     height: auto;
     min-height: 100dvh;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .leftPanel {
     height: 50vh;
+    position: relative;
   }
 
   .rightPanel {
@@ -37,6 +40,9 @@
     min-height: 50vh;
     border-left: none;
     border-top: var(--border-width-thick) solid var(--color-border);
+    overflow-x: hidden;
+    overflow-y: visible;
+    max-width: 100vw;
   }
 }
 

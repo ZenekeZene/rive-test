@@ -58,12 +58,19 @@
 }
 
 @media (max-width: 768px) {
+  .tabbedContainer {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   .tabsHeader {
     width: 100%;
+    max-width: 100%;
   }
 
   .tab {
     flex: 1;
+    min-width: 0;
     justify-content: center;
     padding: var(--space-sm) var(--space-xs);
     font-size: 0.55rem;
@@ -77,5 +84,7 @@
 
   .tabContent {
     padding-top: var(--space-md);
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }

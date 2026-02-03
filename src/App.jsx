@@ -279,6 +279,7 @@ function App() {
       <div className="leftPanel">
         <PortraitHero onRiveReady={handleRiveReady} isMaximized={isHeroMaximized} />
         <MaximizeToggle isMaximized={isHeroMaximized} onToggle={handleMaximizeToggle} />
+        <AudioToggle onToggle={handleAudioToggle} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel
@@ -287,7 +288,6 @@ function App() {
         />
       </div>
       <Toast achievement={currentAchievement} onClose={handleCloseToast} />
-      <AudioToggle onToggle={handleAudioToggle} />
       <LanguageSelector />
       <SocialLinks activeTab={activeTab} />
     </div>

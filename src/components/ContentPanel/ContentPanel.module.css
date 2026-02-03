@@ -39,11 +39,24 @@
 @media (max-width: 768px) {
   .contentPanel {
     padding: var(--space-lg);
+    padding-top: 0;
     overflow-y: visible;
+    overflow-x: hidden;
     height: auto;
+    max-width: 100%;
   }
 
   .header {
     display: none;
+  }
+
+  .togglesSection {
+    margin-top: 0;
+    margin-left: calc(var(--space-lg) * -1);
+    margin-right: calc(var(--space-lg) * -1);
+  }
+
+  .tabbedSection {
+    max-width: 100%;
   }
 }
