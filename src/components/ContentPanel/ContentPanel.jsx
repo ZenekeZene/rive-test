@@ -2,9 +2,10 @@ import styles from "./ContentPanel.module.css";
 import StateToggles from "../StateToggles/StateToggles";
 import TabbedSections from "../TabbedSections/TabbedSections";
 import ColorfulTitle from "../ColorfulTitle/ColorfulTitle";
+import SocialLinks from "../SocialLinks/SocialLinks";
 import { useLanguage } from "../../i18n/LanguageContext";
 
-function ContentPanel({ toggleStates, onTabChange }) {
+function ContentPanel({ toggleStates, onTabChange, activeTab }) {
   const { t } = useLanguage();
 
   return (
@@ -23,6 +24,8 @@ function ContentPanel({ toggleStates, onTabChange }) {
       <div className={styles.tabbedSection}>
         <TabbedSections onTabChange={onTabChange} />
       </div>
+
+      <SocialLinks activeTab={activeTab} />
     </section>
   );
 }

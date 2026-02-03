@@ -15,6 +15,8 @@ const TOGGLE_IDS = [
   "desnudo",
   "relajado",
   "despertado",
+  "libre",
+  "poliglota",
 ];
 
 function StateToggles({ states }) {

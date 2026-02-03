@@ -46,11 +46,41 @@
   }
 }
 
+/* Hero maximized state */
+.app.heroMaximized .leftPanel {
+  grid-row: 1 / -1;
+}
+
+.app.heroMaximized .rightPanel {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .app.heroMaximized {
+    grid-template-rows: 100dvh;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .app.heroMaximized .leftPanel {
+    height: 100dvh;
+  }
+}
+
 /* iOS Safari mobile fix */
 @supports (-webkit-touch-callout: none) {
   @media (max-width: 768px) {
     .app {
       min-height: 100dvh;
+    }
+
+    .app.heroMaximized {
+      height: 100dvh;
+    }
+
+    .app.heroMaximized .leftPanel {
+      height: 100dvh;
     }
   }
 }

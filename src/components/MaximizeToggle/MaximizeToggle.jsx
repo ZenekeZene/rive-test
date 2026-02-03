@@ -1,9 +1,9 @@
 import styles from "./MaximizeToggle.module.css";
 
-function MaximizeToggle({ isMaximized, onToggle }) {
+function MaximizeToggle({ isMaximized, onToggle, isArtMode }) {
   return (
     <button
-      className={styles.button}
+      className={`${styles.button} ${isArtMode ? styles.artMode : ""}`}
       onClick={onToggle}
       aria-label={isMaximized ? "Minimize" : "Maximize"}
     >

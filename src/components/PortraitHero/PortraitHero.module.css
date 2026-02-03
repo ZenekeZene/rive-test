@@ -29,12 +29,19 @@
     display: block;
     position: absolute;
     top: var(--space-md);
-    left: var(--space-lg);
+    left: var(--space-md);
     margin: 0;
-    font-size: 1.5rem;
-    font-weight: var(--font-weight-black);
-    color: white;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-label);
+    color: var(--color-bg);
+    background-color: var(--color-text);
     z-index: 10;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .mobileTitle.hidden {
+    display: none;
   }
 }

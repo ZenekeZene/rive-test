@@ -18,7 +18,12 @@ function Toast({ achievement, onClose }) {
   if (!achievement) return null;
 
   return (
-    <div className={styles.toast}>
+    <div className={styles.toast} onClick={onClose}>
+      <button className={styles.closeButton} onClick={onClose} aria-label="Close">
+        <svg viewBox="0 0 24 24" className={styles.closeIcon}>
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="square" />
+        </svg>
+      </button>
       <div className={styles.header}>
         <span className={styles.icon}>✓</span>
         <span className={styles.title}>{t("achievementUnlocked")}</span>

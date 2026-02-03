@@ -6,11 +6,11 @@ import Toast from "./components/Toast/Toast";
 import AudioToggle from "./components/AudioToggle/AudioToggle";
 import LanguageSelector from "./components/LanguageSelector/LanguageSelector";
 import MaximizeToggle from "./components/MaximizeToggle/MaximizeToggle";
-import SocialLinks from "./components/SocialLinks/SocialLinks";
 import { useLanguage } from "./i18n/LanguageContext";
 
 function App() {
-  const { getAchievement } = useLanguage();
+  const { getAchievement, language } = useLanguage();
+  const initialLanguage = useRef(null);
   const riveRef = useRef(null);
   const triggeredStates = useRef({
     confuso: false,
@@ -25,6 +25,8 @@ function App() {
     neo: false,
     desnudo: false,
     despertado: false,
+    libre: false,
+    poliglota: false,
   });
   const wasListening = useRef(false);
   const previousStates = useRef({});
@@ -42,6 +44,8 @@ function App() {
     desnudo: false,
     relajado: false,
     despertado: false,
+    libre: false,
+    poliglota: false,
   });
 
   const [currentAchievementId, setCurrentAchievementId] = useState(null);
@@ -63,6 +67,16 @@ function App() {
 
     previousStates.current = { ...toggleStates };
   }, [toggleStates]);
+
+  // Track language changes for polyglot achievement
+  useEffect(() => {
+    if (initialLanguage.current === null) {
+      initialLanguage.current = language;
+    } else if (language !== initialLanguage.current && !triggeredStates.current.poliglota) {
+      triggeredStates.current.poliglota = true;
+      setToggleStates((prev) => ({ ...prev, poliglota: true }));
+    }
+  }, [language]);
 
   const handleRiveReady = useCallback((rive) => {
     riveRef.current = rive;
@@ -219,7 +233,14 @@ function App() {
   }, []);
 
   const handleMaximizeToggle = useCallback(() => {
-    setIsHeroMaximized((prev) => !prev);
+    setIsHeroMaximized((prev) => {
+      const newValue = !prev;
+      if (newValue && !triggeredStates.current.libre) {
+        triggeredStates.current.libre = true;
+        setToggleStates((s) => ({ ...s, libre: true }));
+      }
+      return newValue;
+    });
   }, []);
 
   // Mobile touch behavior - hide/show hero on drag
@@ -278,18 +299,18 @@ function App() {
     <div className={`app ${isHeroMaximized ? "heroMaximized" : ""} ${isHeroCollapsed ? "heroCollapsed" : ""}`}>
       <div className="leftPanel">
         <PortraitHero onRiveReady={handleRiveReady} isMaximized={isHeroMaximized} />
-        <MaximizeToggle isMaximized={isHeroMaximized} onToggle={handleMaximizeToggle} />
-        <AudioToggle onToggle={handleAudioToggle} />
+        <MaximizeToggle isMaximized={isHeroMaximized} onToggle={handleMaximizeToggle} isArtMode={activeTab === "art"} />
+        <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel
           toggleStates={toggleStates}
           onTabChange={handleTabChange}
+          activeTab={activeTab}
         />
       </div>
       <Toast achievement={currentAchievement} onClose={handleCloseToast} />
-      <LanguageSelector />
-      <SocialLinks activeTab={activeTab} />
+      <LanguageSelector hiddenOnMobile={isHeroMaximized} isArtMode={activeTab === "art"} />
     </div>
   );
 }

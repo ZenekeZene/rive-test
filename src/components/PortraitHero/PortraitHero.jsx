@@ -35,7 +35,7 @@ function PortraitHero({ onRiveReady, isMaximized, title = "Zeneke" }) {
 
   return (
     <section className={styles.portraitHero}>
-      <h1 className={styles.mobileTitle}>{title}</h1>
+      <h1 className={`${styles.mobileTitle} ${isMaximized ? styles.hidden : ""}`}>{title}</h1>
       <div className={styles.riveWrapper}>
         <RiveComponent />
         {showHint && <InteractionHint onDismiss={() => setShowHint(false)} />}

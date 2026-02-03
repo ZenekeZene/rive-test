@@ -59,17 +59,26 @@
 
 @media (max-width: 768px) {
   .container {
-    top: 4rem;
-    right: 1rem;
+    position: static;
+    justify-content: center;
+    margin-top: var(--space-lg);
+    border: none;
+    background: none;
   }
 
   .link {
-    width: 1.75rem;
-    height: 1.75rem;
-    padding: 0.35rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    border: var(--border-width) solid var(--color-border);
+    border-right: none;
+  }
+
+  .linkWrapper:last-child .link {
+    border-right: var(--border-width) solid var(--color-border);
   }
 
   .popup {
-    min-width: 180px;
+    display: none;
   }
 }

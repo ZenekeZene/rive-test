@@ -31,6 +31,21 @@
     right: 1rem;
     width: 2rem;
     height: 2rem;
+    background: none;
+    border: none;
+    opacity: 0.5;
+    color: white;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  }
+
+  .button:hover {
+    opacity: 1;
+    background: none;
+  }
+
+  .button.artMode {
+    color: var(--color-text);
+    filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.3));
   }
 
   .icon {

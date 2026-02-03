@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styles from "./AudioToggle.module.css";
 
-function AudioToggle({ onToggle }) {
+function AudioToggle({ onToggle, isArtMode }) {
   const [isListening, setIsListening] = useState(false);
 
   const handleClick = () => {
@@ -12,7 +12,7 @@ function AudioToggle({ onToggle }) {
 
   return (
     <button
-      className={`${styles.button} ${isListening ? styles.active : ""}`}
+      className={`${styles.button} ${isListening ? styles.active : ""} ${isArtMode ? styles.artMode : ""}`}
       onClick={handleClick}
       aria-label={isListening ? "Sound on" : "Sound off"}
     >

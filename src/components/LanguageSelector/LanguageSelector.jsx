@@ -1,11 +1,11 @@
 import { useLanguage } from "../../i18n/LanguageContext";
 import styles from "./LanguageSelector.module.css";
 
-function LanguageSelector() {
+function LanguageSelector({ hiddenOnMobile, isArtMode }) {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div className={styles.selector}>
+    <div className={`${styles.selector} ${hiddenOnMobile ? styles.hiddenOnMobile : ""} ${isArtMode ? styles.artMode : ""}`}>
       <button
         className={`${styles.option} ${language === "en" ? styles.active : ""}`}
         onClick={() => setLanguage("en")}

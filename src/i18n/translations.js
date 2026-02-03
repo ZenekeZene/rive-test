@@ -23,6 +23,8 @@ export const translations = {
     desnudo: "Naked",
     relajado: "Relaxed",
     despertado: "Awakened",
+    libre: "Free",
+    poliglota: "Polyglot",
 
     // Achievements
     achievements: {
@@ -73,6 +75,14 @@ export const translations = {
       relajado: {
         name: "Relaxed",
         phrase: "Zen master level achieved. Om... or whatever.",
+      },
+      libre: {
+        name: "Free",
+        phrase: "Breaking free from the constraints of the viewport.",
+      },
+      poliglota: {
+        name: "Polyglot",
+        phrase: "Lost in translation? Never.",
       },
     },
 
@@ -239,6 +249,8 @@ export const translations = {
     desnudo: "Desnudo",
     relajado: "Relajado",
     despertado: "Despertado",
+    libre: "Libre",
+    poliglota: "Políglota",
 
     // Achievements
     achievements: {
@@ -289,6 +301,14 @@ export const translations = {
       relajado: {
         name: "Relajado",
         phrase: "Nivel maestro zen alcanzado. Om... o lo que sea.",
+      },
+      libre: {
+        name: "Libre",
+        phrase: "Rompiendo las cadenas del viewport.",
+      },
+      poliglota: {
+        name: "Políglota",
+        phrase: "¿Perdido en la traducción? Jamás.",
       },
     },
 
