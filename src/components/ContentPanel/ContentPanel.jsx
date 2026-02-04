@@ -19,7 +19,6 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized })
   return (
     <section className={styles.contentPanel}>
       <LanguageSelector hiddenOnMobile={isHeroMaximized} isArtMode={activeTab === "art"} />
-      <SocialLinks activeTab={activeTab} />
 
       <header className={styles.header}>
         <h1 className={styles.heroTitle}>
@@ -40,6 +39,8 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized })
       <div className={styles.tabbedSection}>
         <TabbedSections onTabChange={onTabChange} />
       </div>
+
+      <SocialLinks activeTab={activeTab} />
     </section>
   );
 }

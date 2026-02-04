@@ -39,6 +39,7 @@
 
 @media (max-width: 768px) {
   .selector {
+    position: fixed;
     top: 1rem;
     right: 1rem;
     padding: 0.4rem;
