@@ -1,6 +1,8 @@
 .contentPanel {
+  position: relative;
   width: 100%;
   height: 100%;
+  max-width: 800px;
   padding: var(--content-padding);
   box-sizing: border-box;
   overflow-y: auto;

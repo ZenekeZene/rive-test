@@ -45,8 +45,9 @@ function ImageGallery() {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
         const bottomMargin = 32;
+        const maxHeight = 400;
         const availableHeight = window.innerHeight - rect.top - bottomMargin;
-        setGalleryHeight(Math.max(availableHeight, 200));
+        setGalleryHeight(Math.min(maxHeight, Math.max(availableHeight, 200)));
       }
     };
 

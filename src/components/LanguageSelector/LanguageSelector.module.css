@@ -1,14 +1,13 @@
 .selector {
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
+  position: absolute;
+  top: 1rem;
+  right: 0;
   display: flex;
   align-items: center;
   gap: 0.3rem;
   z-index: 100;
   background-color: var(--color-bg);
   padding: 0.5rem;
-  border: var(--border-width-thick) solid var(--color-border);
 }
 
 .option {

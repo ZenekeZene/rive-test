@@ -13,6 +13,7 @@
   overflow-y: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--color-text) var(--color-bg);
+  max-height: 400px;
 }
 
 .gallery::-webkit-scrollbar {

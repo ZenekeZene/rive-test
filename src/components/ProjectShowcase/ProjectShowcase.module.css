@@ -85,8 +85,7 @@
 .projectLinks {
   display: flex;
   gap: var(--space-md);
-  margin-top: auto;
-  padding-top: var(--space-sm);
+  margin-top: var(--space-sm);
 }
 
 .projectLink {
@@ -110,6 +109,7 @@
   border: var(--border-width-thick) solid var(--color-border);
   overflow: hidden;
   min-height: 250px;
+  max-height: 350px;
 }
 
 .projectImage {

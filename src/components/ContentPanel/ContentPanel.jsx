@@ -4,9 +4,10 @@ import StateToggles from "../StateToggles/StateToggles";
 import TabbedSections from "../TabbedSections/TabbedSections";
 import ColorfulTitle from "../ColorfulTitle/ColorfulTitle";
 import SocialLinks from "../SocialLinks/SocialLinks";
+import LanguageSelector from "../LanguageSelector/LanguageSelector";
 import { useLanguage } from "../../i18n/LanguageContext";
 
-function ContentPanel({ toggleStates, onTabChange, activeTab }) {
+function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized }) {
   const { t } = useLanguage();
   const [paintLevels, setPaintLevels] = useState("Zeneke".split("").map(() => 0));
 
@@ -17,6 +18,9 @@ function ContentPanel({ toggleStates, onTabChange, activeTab }) {
 
   return (
     <section className={styles.contentPanel}>
+      <LanguageSelector hiddenOnMobile={isHeroMaximized} isArtMode={activeTab === "art"} />
+      <SocialLinks activeTab={activeTab} />
+
       <header className={styles.header}>
         <h1 className={styles.heroTitle}>
           <ColorfulTitle
@@ -36,8 +40,6 @@ function ContentPanel({ toggleStates, onTabChange, activeTab }) {
       <div className={styles.tabbedSection}>
         <TabbedSections onTabChange={onTabChange} />
       </div>
-
-      <SocialLinks activeTab={activeTab} />
     </section>
   );
 }

@@ -4,7 +4,6 @@ import PortraitHero from "./components/PortraitHero/PortraitHero";
 import ContentPanel from "./components/ContentPanel/ContentPanel";
 import Toast from "./components/Toast/Toast";
 import AudioToggle from "./components/AudioToggle/AudioToggle";
-import LanguageSelector from "./components/LanguageSelector/LanguageSelector";
 import MaximizeToggle from "./components/MaximizeToggle/MaximizeToggle";
 import { useLanguage } from "./i18n/LanguageContext";
 
@@ -307,10 +306,10 @@ function App() {
           toggleStates={toggleStates}
           onTabChange={handleTabChange}
           activeTab={activeTab}
+          isHeroMaximized={isHeroMaximized}
         />
       </div>
       <Toast achievement={currentAchievement} onClose={handleCloseToast} />
-      <LanguageSelector hiddenOnMobile={isHeroMaximized} isArtMode={activeTab === "art"} />
     </div>
   );
 }
