@@ -1,22 +1,17 @@
-import { useState } from "react";
 import styles from "./AudioToggle.module.css";
 
-function AudioToggle({ onToggle, isArtMode }) {
-  const [isListening, setIsListening] = useState(false);
-
+function AudioToggle({ onToggle, isArtMode, isActive }) {
   const handleClick = () => {
-    const newValue = !isListening;
-    setIsListening(newValue);
-    onToggle(newValue);
+    onToggle(!isActive);
   };
 
   return (
     <button
-      className={`${styles.button} ${isListening ? styles.active : ""} ${isArtMode ? styles.artMode : ""}`}
+      className={`${styles.button} ${isActive ? styles.active : ""} ${isArtMode ? styles.artMode : ""}`}
       onClick={handleClick}
-      aria-label={isListening ? "Sound on" : "Sound off"}
+      aria-label={isActive ? "Sound on" : "Sound off"}
     >
-      {isListening ? (
+      {isActive ? (
         <svg
           viewBox="0 0 24 24"
           fill="none"

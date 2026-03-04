@@ -1,30 +1,46 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import styles from "./StateToggles.module.css";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 const TOGGLE_IDS = [
   "rebotado",
-  "sospechoso",
-  "confuso",
-  "enfadado",
   "muyEnfadado",
-  "matrix",
   "neo",
   "dibujado",
-  "artista",
   "desnudo",
   "relajado",
-  "despertado",
   "libre",
-  "poliglota",
+  "fotografo",
+  "curioso",
+  "pajaro",
+  "insistente",
+  "retro",
+  "indeciso",
+  "contactado",
+  "tinieblas",
+  "noctambulo",
+  "coleccionista",
 ];
 
-function StateToggles({ states }) {
+function StateToggles({ states, vertical, allUnlocked }) {
   const { t } = useLanguage();
   const itemRefs = useRef({});
   const gridRef = useRef(null);
+  const containerRef = useRef(null);
   const previousStates = useRef({});
   const [scrolledToEnd, setScrolledToEnd] = useState(false);
+  const [hoverHint, setHoverHint] = useState(null);
+
+  // Holographic mousemove effect (vertical + allUnlocked only)
+  const handleHoloMove = useCallback((e) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    el.style.setProperty("--holo-x", `${x}%`);
+    el.style.setProperty("--holo-y", `${y}%`);
+  }, []);
 
   // Auto-scroll to newly unlocked achievement
   useEffect(() => {
@@ -70,13 +86,22 @@ function StateToggles({ states }) {
   }, []);
 
   return (
-    <div className={`${styles.togglesContainer} ${scrolledToEnd ? styles.scrolledToEnd : ""}`}>
+    <div
+      ref={containerRef}
+      className={`${styles.togglesContainer} ${scrolledToEnd ? styles.scrolledToEnd : ""} ${vertical ? styles.vertical : ""} ${vertical && allUnlocked ? styles.allUnlocked : ""}`}
+      onMouseMove={vertical && allUnlocked ? handleHoloMove : undefined}
+    >
       <div className={styles.togglesGrid} ref={gridRef}>
         {TOGGLE_IDS.map((id) => (
           <div
             key={id}
             ref={(el) => (itemRefs.current[id] = el)}
-            className={`${styles.toggleItem} ${states[id] ? styles.unlocked : ""}`}
+            className={`${styles.toggleItem} ${states[id] ? styles.unlocked : styles.locked}`}
+            onMouseEnter={vertical && !states[id] ? (e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              setHoverHint({ text: t("hints")?.[id], top: rect.top + rect.height / 2 });
+            } : undefined}
+            onMouseLeave={vertical && !states[id] ? () => setHoverHint(null) : undefined}
           >
             <span
               className={`${styles.statusDot} ${states[id] ? styles.unlocked : ""}`}
@@ -87,6 +112,14 @@ function StateToggles({ states }) {
           </div>
         ))}
       </div>
+      {vertical && hoverHint && (
+        <div
+          className={styles.hintTooltip}
+          style={{ top: hoverHint.top }}
+        >
+          {hoverHint.text}
+        </div>
+      )}
     </div>
   );
 }

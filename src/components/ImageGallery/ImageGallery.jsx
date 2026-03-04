@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { flushSync } from "react-dom";
 import styles from "./ImageGallery.module.css";
+import { useIsMobile } from "../../hooks/useIsMobile";
 
 const PLACEHOLDER_IMAGES = [
   { id: 1, url: "https://picsum.photos/seed/art1/400/500", title: "Artwork 1", description: "Digital illustration exploring color and form", size: "tall" },
@@ -15,12 +16,12 @@ const PLACEHOLDER_IMAGES = [
   { id: 10, url: "https://picsum.photos/seed/art10/400/500", title: "Artwork 10", description: "Personal project illustration", size: "tall" },
 ];
 
-// Create duplicated images for infinite scroll effect
+// Create duplicated images for infinite scroll effect (mobile only)
 const createInfiniteImages = () => {
   const repetitions = 5;
   const images = [];
   for (let i = 0; i < repetitions; i++) {
-    PLACEHOLDER_IMAGES.forEach((img, idx) => {
+    PLACEHOLDER_IMAGES.forEach((img) => {
       images.push({
         ...img,
         uniqueId: `${img.id}-${i}`,
@@ -33,6 +34,7 @@ const createInfiniteImages = () => {
 const INFINITE_IMAGES = createInfiniteImages();
 
 function ImageGallery() {
+  const isMobile = useIsMobile();
   const [selectedImage, setSelectedImage] = useState(null);
   const [galleryHeight, setGalleryHeight] = useState(0);
   const [activeUniqueId, setActiveUniqueId] = useState(null);
@@ -41,6 +43,8 @@ function ImageGallery() {
   const isResettingScroll = useRef(false);
 
   useEffect(() => {
+    if (!isMobile) return;
+
     const calculateHeight = () => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
@@ -54,27 +58,23 @@ function ImageGallery() {
     calculateHeight();
     window.addEventListener("resize", calculateHeight);
     return () => window.removeEventListener("resize", calculateHeight);
-  }, []);
+  }, [isMobile]);
 
   const handleInfiniteScroll = useCallback(() => {
     const gallery = galleryRef.current;
     if (!gallery || isResettingScroll.current) return;
 
     const scrollWidth = gallery.scrollWidth;
-    const clientWidth = gallery.clientWidth;
     const scrollLeft = gallery.scrollLeft;
     const sectionWidth = scrollWidth / 5;
 
-    // When scrolling past 60% of total, jump back to 20%
     if (scrollLeft > sectionWidth * 3) {
       isResettingScroll.current = true;
       gallery.scrollLeft = sectionWidth;
       requestAnimationFrame(() => {
         isResettingScroll.current = false;
       });
-    }
-    // When scrolling before 20%, jump to 60%
-    else if (scrollLeft < sectionWidth * 0.5) {
+    } else if (scrollLeft < sectionWidth * 0.5) {
       isResettingScroll.current = true;
       gallery.scrollLeft = sectionWidth * 2.5;
       requestAnimationFrame(() => {
@@ -92,22 +92,22 @@ function ImageGallery() {
   };
 
   useEffect(() => {
+    if (!isMobile) return;
+
     const gallery = galleryRef.current;
     if (!gallery) return;
 
-    // Start in the middle section
     const sectionWidth = gallery.scrollWidth / 5;
     gallery.scrollLeft = sectionWidth * 2;
 
     gallery.addEventListener("scroll", handleInfiniteScroll, { passive: true });
     return () => gallery.removeEventListener("scroll", handleInfiniteScroll);
-  }, [handleInfiniteScroll, galleryHeight]);
+  }, [isMobile, handleInfiniteScroll, galleryHeight]);
 
   const openModal = (image) => {
     if (document.startViewTransition) {
-      // Set activeUniqueId synchronously so thumbnail gets view-transition-name
       flushSync(() => {
-        setActiveUniqueId(image.uniqueId);
+        setActiveUniqueId(image.uniqueId || image.id);
       });
       document.startViewTransition(() => {
         flushSync(() => {
@@ -115,7 +115,7 @@ function ImageGallery() {
         });
       });
     } else {
-      setActiveUniqueId(image.uniqueId);
+      setActiveUniqueId(image.uniqueId || image.id);
       setSelectedImage(image);
     }
   };
@@ -142,6 +142,62 @@ function ImageGallery() {
     }
   };
 
+  const renderModal = () =>
+    selectedImage && (
+      <div className={styles.modal} onClick={handleBackdropClick}>
+        <div className={styles.modalContent}>
+          <button className={styles.closeButton} onClick={closeModal}>
+            ✕
+          </button>
+          <img
+            src={selectedImage.url.replace(/\/\d+\/\d+$/, "/800/1000")}
+            alt={selectedImage.title}
+            className={styles.modalImage}
+            style={{ viewTransitionName: "gallery-image" }}
+          />
+          <div className={styles.imageInfo}>
+            <h3 className={styles.imageTitle}>{selectedImage.title}</h3>
+            {selectedImage.description && (
+              <p className={styles.imageDescription}>{selectedImage.description}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+
+  // Desktop: vertical masonry grid
+  if (!isMobile) {
+    return (
+      <>
+        <div className={styles.galleryContainer}>
+          <div className={styles.masonryGrid}>
+            {PLACEHOLDER_IMAGES.map((image) => (
+              <button
+                key={image.id}
+                className={styles.masonryItem}
+                onClick={() => openModal(image)}
+              >
+                <img
+                  src={image.url}
+                  alt={image.title}
+                  className={styles.thumbnail}
+                  loading="lazy"
+                  style={
+                    activeUniqueId === image.id && !selectedImage
+                      ? { viewTransitionName: "gallery-image" }
+                      : undefined
+                  }
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+        {renderModal()}
+      </>
+    );
+  }
+
+  // Mobile: horizontal infinite scroll
   return (
     <>
       <div className={styles.galleryContainer} ref={containerRef}>
@@ -172,28 +228,7 @@ function ImageGallery() {
           ))}
         </div>
       </div>
-
-      {selectedImage && (
-        <div className={styles.modal} onClick={handleBackdropClick}>
-          <div className={styles.modalContent}>
-            <button className={styles.closeButton} onClick={closeModal}>
-              ✕
-            </button>
-            <img
-              src={selectedImage.url.replace(/\/\d+\/\d+$/, "/800/1000")}
-              alt={selectedImage.title}
-              className={styles.modalImage}
-              style={{ viewTransitionName: "gallery-image" }}
-            />
-            <div className={styles.imageInfo}>
-              <h3 className={styles.imageTitle}>{selectedImage.title}</h3>
-              {selectedImage.description && (
-                <p className={styles.imageDescription}>{selectedImage.description}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {renderModal()}
     </>
   );
 }

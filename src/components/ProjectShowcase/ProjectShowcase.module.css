@@ -125,6 +125,32 @@
   min-height: 300px;
 }
 
+.projectList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl, 3rem);
+}
+
+.projectCard {
+  padding-bottom: var(--space-xl, 3rem);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.projectCard:last-child {
+  border-bottom: none;
+}
+
+.projectCard .projectTech,
+.projectCard .projectLinks {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.projectCard:hover .projectTech,
+.projectCard:hover .projectLinks {
+  opacity: 1;
+}
+
 @media (max-width: 768px) {
   .container {
     gap: var(--space-sm);

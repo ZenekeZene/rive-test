@@ -58,6 +58,30 @@
   min-height: 0;
 }
 
+/* Desktop scroll layout */
+.scrollContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 28rem;
+}
+
+.scrollSection {
+  min-height: 80vh;
+  padding-bottom: var(--space-lg);
+}
+
+.sectionTitle {
+  font-family: var(--font-family);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  color: var(--color-text);
+  margin: 0 0 var(--space-lg) 0;
+  padding-bottom: var(--space-sm);
+  border-bottom: var(--border-width-thick) solid var(--color-border);
+}
+
 @media (max-width: 768px) {
   .tabbedContainer {
     max-width: 100%;

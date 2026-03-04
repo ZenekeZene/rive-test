@@ -97,10 +97,20 @@ function ColorfulTitle({ text = "Zeneke", activeTab = "experience", paintLevels,
     setPaintLevels(text.split("").map(() => 0));
   };
 
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("darkMode"));
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("darkMode"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
   const getColor = (index, paintLevel) => {
     const palette = COLOR_PALETTES[activeTab] || COLOR_PALETTES.default;
     const targetColor = palette[index % palette.length];
-    const baseColor = { r: 0, g: 0, b: 0 }; // Black
+    const baseColor = isDark ? { r: 255, g: 255, b: 255 } : { r: 0, g: 0, b: 0 };
 
     const r = Math.round(baseColor.r + (targetColor.r - baseColor.r) * paintLevel);
     const g = Math.round(baseColor.g + (targetColor.g - baseColor.g) * paintLevel);

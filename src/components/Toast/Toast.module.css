@@ -1,14 +1,21 @@
-.toast {
+.toastStack {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-sm);
+}
+
+.toast {
   background-color: var(--color-text);
   color: var(--color-bg);
   padding: var(--space-md);
   min-width: 280px;
   max-width: 360px;
-  z-index: 1000;
   animation: slideIn 0.3s ease-out;
+  position: relative;
 }
 
 .closeButton {
@@ -93,11 +100,38 @@
   font-style: italic;
 }
 
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: color-mix(in srgb, var(--color-bg) 15%, transparent);
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #22c55e;
+  animation: shrink 12s linear forwards;
+}
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
 @media (max-width: 768px) {
-  .toast {
+  .toastStack {
     bottom: 1rem;
     right: 1rem;
     left: 1rem;
+  }
+
+  .toast {
     min-width: auto;
     max-width: none;
     cursor: pointer;

@@ -2,19 +2,22 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  max-width: 500px;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .intro {
   font-size: 1.1rem;
   line-height: 1.6;
   margin: 0;
+  max-width: 500px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  max-width: 500px;
 }
 
 .field {
@@ -84,6 +87,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+  max-width: 500px;
 }
 
 .altText {
@@ -132,6 +136,108 @@
   font-size: 1rem;
   margin: 0;
   opacity: 0.8;
+}
+
+.socialSection {
+  padding-top: var(--space-lg);
+  display: flex;
+  justify-content: center;
+}
+
+.guestbookDivider {
+  width: 100%;
+  height: 3px;
+  background-color: var(--color-border);
+  margin: var(--space-xl) 0;
+}
+
+/* Form easter egg */
+.formEasterEgg {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-xl) 0;
+  animation: fadeSlideIn 0.5s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.formEasterEggButton {
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  border: var(--border-width-thick) solid var(--color-text);
+  font-family: var(--font-family);
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  cursor: pointer;
+  transition: background-color 0.1s ease, color 0.1s ease;
+  max-width: 500px;
+  text-align: center;
+}
+
+.formEasterEggButton:hover:not(:disabled) {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.formEasterEggButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Easter egg zone - lightweight, no grid/effects */
+.easterEggZone {
+  position: relative;
+  min-height: 1000vh;
+}
+
+.easterEggSentinel {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.easterEggMessage {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.easterEggAnchor {
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  border: var(--border-width-thick) solid var(--color-text);
+  font-family: var(--font-family);
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  cursor: pointer;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.easterEggAnchor:hover {
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 @media (max-width: 768px) {

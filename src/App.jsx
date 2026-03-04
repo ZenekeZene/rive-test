@@ -5,77 +5,181 @@ import ContentPanel from "./components/ContentPanel/ContentPanel";
 import Toast from "./components/Toast/Toast";
 import AudioToggle from "./components/AudioToggle/AudioToggle";
 import MaximizeToggle from "./components/MaximizeToggle/MaximizeToggle";
+import CaptureButton from "./components/CaptureButton/CaptureButton";
+import DarkModeToggle from "./components/DarkModeToggle/DarkModeToggle";
+import GuestbookModal from "./components/GuestbookModal/GuestbookModal";
+import { captureRiveCanvas } from "./utils/captureCanvas";
+import { loadAchievements, saveAchievements } from "./utils/achievementStore";
+import { useGuestbook } from "./hooks/useGuestbook";
+import LanguageSelector from "./components/LanguageSelector/LanguageSelector";
 import { useLanguage } from "./i18n/LanguageContext";
 
+const KONAMI_SEQUENCE = [
+  "ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown",
+  "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight",
+  "b", "a",
+];
+
 function App() {
-  const { getAchievement, language } = useLanguage();
-  const initialLanguage = useRef(null);
+  const { getAchievement, t } = useLanguage();
   const riveRef = useRef(null);
   const triggeredStates = useRef({
-    confuso: false,
-    sospechoso: false,
     rebotado: false,
     relajado: false,
     dibujado: false,
-    artista: false,
-    enfadado: false,
     muyEnfadado: false,
-    matrix: false,
     neo: false,
     desnudo: false,
-    despertado: false,
     libre: false,
-    poliglota: false,
+    fotografo: false,
+    curioso: false,
+    pajaro: false,
+    insistente: false,
+    retro: false,
+    indeciso: false,
+    contactado: false,
+    tinieblas: false,
+    noctambulo: false,
+    coleccionista: false,
   });
   const wasListening = useRef(false);
   const previousStates = useRef({});
 
   const [toggleStates, setToggleStates] = useState({
     rebotado: false,
-    sospechoso: false,
-    confuso: false,
-    enfadado: false,
     muyEnfadado: false,
-    matrix: false,
     neo: false,
     dibujado: false,
-    artista: false,
     desnudo: false,
     relajado: false,
-    despertado: false,
     libre: false,
-    poliglota: false,
+    fotografo: false,
+    curioso: false,
+    pajaro: false,
+    insistente: false,
+    retro: false,
+    indeciso: false,
+    contactado: false,
+    tinieblas: false,
+    noctambulo: false,
+    coleccionista: false,
   });
 
-  const [currentAchievementId, setCurrentAchievementId] = useState(null);
+  const [achievementQueue, setAchievementQueue] = useState([]);
+  const [loaded, setLoaded] = useState(false);
   const [isHeroMaximized, setIsHeroMaximized] = useState(false);
+  const [isAudioActive, setIsAudioActive] = useState(false);
   const [activeTab, setActiveTab] = useState("experience");
   const [isHeroCollapsed, setIsHeroCollapsed] = useState(false);
   const rightPanelRef = useRef(null);
   const lastScrollTop = useRef(0);
 
+  // Easter egg phrase (shown in main title)
+  const [easterEggPhrase, setEasterEggPhrase] = useState(null);
+
+  // Guestbook state
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [showGuestbookModal, setShowGuestbookModal] = useState(false);
+  const guestbook = useGuestbook();
+
+  // Load persisted achievements on mount
+  useEffect(() => {
+    loadAchievements().then((saved) => {
+      if (saved) {
+        const merged = { ...toggleStates };
+        Object.keys(saved).forEach((k) => {
+          if (k in merged) merged[k] = saved[k];
+        });
+        Object.keys(merged).forEach((k) => {
+          if (merged[k]) triggeredStates.current[k] = true;
+        });
+        previousStates.current = { ...merged };
+        setToggleStates(merged);
+      }
+      setLoaded(true);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Save achievements when they change
+  useEffect(() => {
+    if (loaded) {
+      saveAchievements(toggleStates);
+    }
+  }, [toggleStates, loaded]);
+
+  // Debug helpers (dev only) — use from browser console:
+  //   __debug.unlockAll()   → triggers coleccionista celebration
+  //   __debug.reset()       → clears all achievements
+  //   __debug.unlock("neo") → unlock a single one
+  //   __debug.status()      → log current states
+  useEffect(() => {
+    if (import.meta.env.PROD) return;
+    const allKeys = Object.keys(triggeredStates.current);
+    window.__debug = {
+      unlockAll() {
+        const all = {};
+        allKeys.forEach((k) => { if (k !== "coleccionista") { all[k] = true; triggeredStates.current[k] = true; } });
+        setToggleStates((prev) => ({ ...prev, ...all }));
+        console.log("[debug] All achievements unlocked — coleccionista will trigger automatically");
+      },
+      reset() {
+        const empty = {};
+        allKeys.forEach((k) => { empty[k] = false; triggeredStates.current[k] = false; });
+        setToggleStates(empty);
+        console.log("[debug] All achievements reset");
+      },
+      unlock(id) {
+        if (!allKeys.includes(id)) { console.warn(`[debug] Unknown achievement: ${id}`); return; }
+        triggeredStates.current[id] = true;
+        setToggleStates((prev) => ({ ...prev, [id]: true }));
+        console.log(`[debug] Unlocked: ${id}`);
+      },
+      status() {
+        console.table(toggleStates);
+      },
+    };
+    return () => { delete window.__debug; };
+  }, [toggleStates]);
+
   // Track changes and show toast
   useEffect(() => {
     const prev = previousStates.current;
+    const newlyUnlocked = [];
 
     Object.keys(toggleStates).forEach((key) => {
       if (prev[key] === false && toggleStates[key] === true) {
-        setCurrentAchievementId(key);
+        newlyUnlocked.push(key);
       }
     });
+
+    if (newlyUnlocked.length > 0) {
+      setAchievementQueue((q) => [...q, ...newlyUnlocked]);
+    }
 
     previousStates.current = { ...toggleStates };
   }, [toggleStates]);
 
-  // Track language changes for polyglot achievement
+  // Night owl achievement (00:00–05:00) — wait for loaded to avoid race with loadAchievements
   useEffect(() => {
-    if (initialLanguage.current === null) {
-      initialLanguage.current = language;
-    } else if (language !== initialLanguage.current && !triggeredStates.current.poliglota) {
-      triggeredStates.current.poliglota = true;
-      setToggleStates((prev) => ({ ...prev, poliglota: true }));
+    if (!loaded) return;
+    const hour = new Date().getHours();
+    if (hour >= 0 && hour < 5 && !triggeredStates.current.noctambulo) {
+      triggeredStates.current.noctambulo = true;
+      setToggleStates((prev) => ({ ...prev, noctambulo: true }));
     }
-  }, [language]);
+  }, [loaded]);
+
+  // Coleccionista meta-achievement: all others unlocked
+  useEffect(() => {
+    if (triggeredStates.current.coleccionista) return;
+    const allOthers = Object.keys(toggleStates).filter((k) => k !== "coleccionista");
+    const allUnlocked = allOthers.every((k) => toggleStates[k] === true);
+    if (allUnlocked) {
+      triggeredStates.current.coleccionista = true;
+      setToggleStates((prev) => ({ ...prev, coleccionista: true }));
+    }
+  }, [toggleStates]);
 
   const handleRiveReady = useCallback((rive) => {
     riveRef.current = rive;
@@ -94,31 +198,10 @@ function App() {
       if (thresholdProperty) {
         const thresholdValue = thresholdProperty.value;
 
-        // thresholdCount > 1 → confuso
-        if (!triggeredStates.current.confuso && thresholdValue > 1) {
-          triggeredStates.current.confuso = true;
-          setToggleStates((prev) => ({ ...prev, confuso: true }));
-        }
-
-        // thresholdCount >= 5 → enfadado
-        if (!triggeredStates.current.enfadado && thresholdValue >= 5) {
-          triggeredStates.current.enfadado = true;
-          setToggleStates((prev) => ({ ...prev, enfadado: true }));
-        }
-
         // thresholdCount >= 7 → muyEnfadado
         if (!triggeredStates.current.muyEnfadado && thresholdValue >= 7) {
           triggeredStates.current.muyEnfadado = true;
           setToggleStates((prev) => ({ ...prev, muyEnfadado: true }));
-        }
-      }
-
-      // isSuspecting → sospechoso
-      if (!triggeredStates.current.sospechoso) {
-        const isSuspecting = vmInstance.boolean("isSuspecting");
-        if (isSuspecting && isSuspecting.value === true) {
-          triggeredStates.current.sospechoso = true;
-          setToggleStates((prev) => ({ ...prev, sospechoso: true }));
         }
       }
 
@@ -131,7 +214,7 @@ function App() {
         }
       }
 
-      // isListening → relajado + despertado (when goes back to false)
+      // isListening → relajado + mute audio when portrait wakes up
       const isListening = vmInstance.boolean("isListening");
       if (isListening) {
         if (!triggeredStates.current.relajado && isListening.value === true) {
@@ -139,10 +222,9 @@ function App() {
           setToggleStates((prev) => ({ ...prev, relajado: true }));
         }
 
-        // despertado: was listening, now not listening
-        if (!triggeredStates.current.despertado && wasListening.current && isListening.value === false) {
-          triggeredStates.current.despertado = true;
-          setToggleStates((prev) => ({ ...prev, despertado: true }));
+        // Portrait woke up (isListening went true→false): mute audio
+        if (wasListening.current && !isListening.value) {
+          setIsAudioActive(false);
         }
 
         wasListening.current = isListening.value;
@@ -157,40 +239,66 @@ function App() {
         }
       }
 
-      // outfit === 2 → artista
-      if (!triggeredStates.current.artista) {
-        const outfitProperty = vmInstance.number("outfit");
-        if (outfitProperty && outfitProperty.value === 2) {
-          triggeredStates.current.artista = true;
-          setToggleStates((prev) => ({ ...prev, artista: true }));
-        }
-      }
-
-      // outfit === 1 → matrix
-      if (!triggeredStates.current.matrix) {
-        const outfitProperty = vmInstance.number("outfit");
-        if (outfitProperty && outfitProperty.value === 1) {
-          triggeredStates.current.matrix = true;
-          setToggleStates((prev) => ({ ...prev, matrix: true }));
-        }
-      }
-
-      // cry → desnudo
-      if (!triggeredStates.current.desnudo) {
-        const cryProperty = vmInstance.boolean("cry");
-        if (cryProperty && cryProperty.value === true) {
-          triggeredStates.current.desnudo = true;
-          setToggleStates((prev) => ({ ...prev, desnudo: true }));
-        }
-      }
     };
 
     const interval = setInterval(checkRiveVariables, 100);
     return () => clearInterval(interval);
   }, []);
 
+  // Rive trigger listeners: neo (clickMatrixTrigger), desnudo (resetPotato)
+  useEffect(() => {
+    let interval;
+
+    const setup = () => {
+      const vmi = riveRef.current?.viewModelInstance;
+      if (!vmi) return false;
+
+      const matrixTrigger = vmi.trigger("clickMatrixTrigger");
+      if (matrixTrigger) {
+        matrixTrigger.on(() => {
+          if (!triggeredStates.current.neo) {
+            triggeredStates.current.neo = true;
+            setToggleStates((prev) => ({ ...prev, neo: true }));
+          }
+        });
+      }
+
+      const resetTrigger = vmi.trigger("resetPotato");
+      if (resetTrigger) {
+        resetTrigger.on(() => {
+          if (!triggeredStates.current.desnudo) {
+            triggeredStates.current.desnudo = true;
+            setToggleStates((prev) => ({ ...prev, desnudo: true }));
+          }
+        });
+      }
+
+      return true;
+    };
+
+    interval = setInterval(() => {
+      if (setup()) clearInterval(interval);
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const tabChangeTimestamps = useRef([]);
+
   const handleTabChange = useCallback((outfitValue, tabId) => {
     setActiveTab(tabId);
+
+    // Track rapid tab changes for "indeciso" achievement
+    if (!triggeredStates.current.indeciso) {
+      const now = Date.now();
+      tabChangeTimestamps.current.push(now);
+      // Keep only changes within the last 5 seconds
+      tabChangeTimestamps.current = tabChangeTimestamps.current.filter((t) => now - t < 5000);
+      if (tabChangeTimestamps.current.length >= 10) {
+        triggeredStates.current.indeciso = true;
+        setToggleStates((prev) => ({ ...prev, indeciso: true }));
+      }
+    }
 
     if (riveRef.current) {
       const vmInstance = riveRef.current.viewModelInstance;
@@ -215,11 +323,12 @@ function App() {
     }
   }, []);
 
-  const handleCloseToast = useCallback(() => {
-    setCurrentAchievementId(null);
+  const handleCloseToast = useCallback((id) => {
+    setAchievementQueue((q) => q.filter((item) => item !== id));
   }, []);
 
   const handleAudioToggle = useCallback((value) => {
+    setIsAudioActive(value);
     if (riveRef.current) {
       const vmInstance = riveRef.current.viewModelInstance;
       if (vmInstance) {
@@ -241,6 +350,84 @@ function App() {
       return newValue;
     });
   }, []);
+
+  const handleCapture = useCallback(async () => {
+    try {
+      const blob = await captureRiveCanvas();
+      setCapturedImage(blob);
+      setShowGuestbookModal(true);
+    } catch (err) {
+      console.error("Canvas capture failed:", err);
+    }
+  }, []);
+
+  const handleGuestbookSubmit = useCallback(async (name, message, imageBlob) => {
+    await guestbook.submitEntry(name, message, imageBlob);
+    if (!triggeredStates.current.fotografo) {
+      triggeredStates.current.fotografo = true;
+      setToggleStates((prev) => ({ ...prev, fotografo: true }));
+    }
+  }, [guestbook]);
+
+  const handleCloseGuestbookModal = useCallback(() => {
+    setShowGuestbookModal(false);
+    setCapturedImage(null);
+  }, []);
+
+  const handleDarkModeToggle = useCallback((isDark) => {
+    if (isDark && !triggeredStates.current.tinieblas) {
+      triggeredStates.current.tinieblas = true;
+      setToggleStates((prev) => ({ ...prev, tinieblas: true }));
+    }
+  }, []);
+
+  const handleResetAchievements = useCallback(() => {
+    const allKeys = Object.keys(triggeredStates.current);
+    const empty = {};
+    allKeys.forEach((k) => { empty[k] = false; triggeredStates.current[k] = false; });
+    setToggleStates(empty);
+  }, []);
+
+  const handleEasterEgg = useCallback((achievementId) => {
+    if (!triggeredStates.current[achievementId]) {
+      triggeredStates.current[achievementId] = true;
+      setToggleStates((prev) => ({ ...prev, [achievementId]: true }));
+    }
+  }, []);
+
+  const handleEasterEggPhrase = useCallback((phrase) => {
+    setEasterEggPhrase(phrase);
+  }, []);
+
+  // Konami Code
+  const [konamiShake, setKonamiShake] = useState(false);
+  const konamiIndex = useRef(0);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (triggeredStates.current.retro) return;
+
+      const expected = KONAMI_SEQUENCE[konamiIndex.current];
+      if (e.key === expected) {
+        konamiIndex.current++;
+        if (konamiIndex.current === KONAMI_SEQUENCE.length) {
+          // Konami completed!
+          konamiIndex.current = 0;
+          triggeredStates.current.retro = true;
+          setToggleStates((prev) => ({ ...prev, retro: true }));
+          setEasterEggPhrase(t("konamiPhrase"));
+          setKonamiShake(true);
+          setTimeout(() => setKonamiShake(false), 600);
+          setTimeout(() => setEasterEggPhrase(null), 4000);
+        }
+      } else {
+        konamiIndex.current = e.key === KONAMI_SEQUENCE[0] ? 1 : 0;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [t]);
 
   // Mobile touch behavior - hide/show hero on drag
   const touchStartY = useRef(0);
@@ -292,14 +479,17 @@ function App() {
     };
   }, []);
 
-  const currentAchievement = currentAchievementId ? getAchievement(currentAchievementId) : null;
+  const achievements = achievementQueue.map((id) => ({ id, ...getAchievement(id) }));
 
   return (
-    <div className={`app ${isHeroMaximized ? "heroMaximized" : ""} ${isHeroCollapsed ? "heroCollapsed" : ""}`}>
+    <div className={`app ${isHeroMaximized ? "heroMaximized" : ""} ${isHeroCollapsed ? "heroCollapsed" : ""} ${konamiShake ? "konamiShake" : ""}`}>
       <div className="leftPanel">
-        <PortraitHero onRiveReady={handleRiveReady} isMaximized={isHeroMaximized} />
+        <PortraitHero onRiveReady={handleRiveReady} isMaximized={isHeroMaximized} isAudioActive={isAudioActive} />
         <MaximizeToggle isMaximized={isHeroMaximized} onToggle={handleMaximizeToggle} isArtMode={activeTab === "art"} />
-        <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} />
+        <LanguageSelector hiddenOnMobile={isHeroMaximized} isArtMode={activeTab === "art"} />
+        <DarkModeToggle onToggle={handleDarkModeToggle} isArtMode={activeTab === "art"} />
+        <CaptureButton onCapture={handleCapture} isArtMode={activeTab === "art"} disabled={guestbook.cooldown} />
+        <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel
@@ -307,9 +497,26 @@ function App() {
           onTabChange={handleTabChange}
           activeTab={activeTab}
           isHeroMaximized={isHeroMaximized}
+          guestbook={guestbook}
+          onEasterEgg={handleEasterEgg}
+          easterEggPhrase={easterEggPhrase}
+          onEasterEggPhrase={handleEasterEggPhrase}
+          onDarkModeToggle={handleDarkModeToggle}
+          onCapture={handleCapture}
+          onAudioToggle={handleAudioToggle}
+          captureCooldown={guestbook.cooldown}
+          onReset={handleResetAchievements}
+          loaded={loaded}
         />
       </div>
-      <Toast achievement={currentAchievement} onClose={handleCloseToast} />
+      <Toast achievements={achievements} onClose={handleCloseToast} />
+      {showGuestbookModal && capturedImage && (
+        <GuestbookModal
+          imageBlob={capturedImage}
+          onSubmit={handleGuestbookSubmit}
+          onClose={handleCloseGuestbookModal}
+        />
+      )}
     </div>
   );
 }

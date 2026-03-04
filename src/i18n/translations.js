@@ -10,21 +10,56 @@ export const translations = {
     tabArt: "Art",
     tabOthers: "Contact",
 
+    // Desktop section titles (narrative flow)
+    sectionCode: "I mash keys until things work",
+    sectionArt: "And place pixels somewhat randomly",
+    sectionContact: "Wanna say hi?",
+
+    // Sidebar
+    sidebarCta: "Poke around. Break things. Unlock them all.",
+    sidebarCtaCollector: "Ok, you beat the game. I have a gift for you",
+    resetAchievements: "Start over",
+    resetConfirm: "Sure?",
+
     // Checkboxes
     rebotado: "Bounced",
-    sospechoso: "Suspicious",
-    confuso: "Confused",
-    enfadado: "Angry",
-    muyEnfadado: "Very Angry",
-    matrix: "Matrix",
-    neo: "Neo",
-    dibujado: "Drawn",
-    artista: "Artist",
-    desnudo: "Naked",
-    relajado: "Relaxed",
-    despertado: "Awakened",
-    libre: "Free",
-    poliglota: "Polyglot",
+    muyEnfadado: "Don't touch me",
+    neo: "Red Pill",
+    dibujado: "Picasso",
+    desnudo: "Voyeur",
+    relajado: "Zen Mode",
+    libre: "Free Willy",
+    fotografo: "Selfie",
+    curioso: "Nautilus",
+    pajaro: "Birdman",
+    insistente: "Insistent",
+    retro: "Konami Code",
+    indeciso: "Crank",
+    contactado: "Mailman",
+    tinieblas: "Daredevil",
+    noctambulo: "Batman",
+    coleccionista: "Collector",
+
+    // Hints (hover on locked achievements)
+    hints: {
+      rebotado: "He doesn't like being poked...",
+      muyEnfadado: "Some things break if you push too hard",
+      neo: "There's a tab that goes deeper",
+      dibujado: "Try painting on the canvas",
+      desnudo: "Keep undressing layers...",
+      relajado: "Sometimes you just need to listen",
+      libre: "The frame is a prison",
+      fotografo: "Capture the moment and leave your mark",
+      curioso: "The bottom is closer than you think",
+      pajaro: "What goes down must come up",
+      insistente: "No means... try again?",
+      retro: "↑↑↓↓... you know the rest",
+      indeciso: "Can't sit still? Good.",
+      contactado: "The form has a secret",
+      tinieblas: "Fear the light",
+      noctambulo: "The night has eyes",
+      coleccionista: "Get them all",
+    },
 
     // Achievements
     achievements: {
@@ -32,59 +67,77 @@ export const translations = {
         name: "Bounced",
         phrase: "Like a bouncy ball, but with more existential crisis",
       },
-      sospechoso: {
-        name: "Suspicious",
-        phrase: "Trust no one. Not even yourself. Especially not yourself.",
-      },
-      confuso: {
-        name: "Confused",
-        phrase: "404: Brain not found. Please try again later.",
-      },
-      enfadado: {
-        name: "Angry",
-        phrase: "Anger level: mass restart without saving",
-      },
       muyEnfadado: {
-        name: "Very Angry",
+        name: "Don't touch me",
         phrase: "When 'npm install' fails for the 47th time",
       },
-      matrix: {
-        name: "Matrix",
-        phrase: "There is no spoon. There is only CSS.",
-      },
       neo: {
-        name: "Neo",
+        name: "Red Pill",
         phrase: "You take the red pill, you stay in Wonderland.",
       },
       dibujado: {
-        name: "Drawn",
+        name: "Picasso",
         phrase: "Picasso would be proud. Or confused. Probably confused.",
       },
-      artista: {
-        name: "Artist",
-        phrase: "Every pixel is a brushstroke of the soul.",
-      },
-      despertado: {
-        name: "Awakened",
-        phrase: "Back to reality. Oh, there goes gravity.",
-      },
       desnudo: {
-        name: "Naked",
+        name: "Voyeur",
         phrase: "It's not a bug, it's a feature. A very naked feature.",
       },
       relajado: {
-        name: "Relaxed",
+        name: "Zen Mode",
         phrase: "Zen master level achieved. Om... or whatever.",
       },
       libre: {
-        name: "Free",
+        name: "Free Willy",
         phrase: "Breaking free from the constraints of the viewport.",
       },
-      poliglota: {
-        name: "Polyglot",
-        phrase: "Lost in translation? Never.",
+      fotografo: {
+        name: "Selfie",
+        phrase: "Say cheese! Your moment is now immortalized.",
+      },
+      curioso: {
+        name: "Nautilus",
+        phrase: "You scrolled all the way down here? Respect.",
+      },
+      pajaro: {
+        name: "Birdman",
+        phrase: "You went and came back. We're friends now.",
+      },
+      insistente: {
+        name: "Insistent",
+        phrase: "The button said no. You said yes. You won.",
+      },
+      retro: {
+        name: "Retro",
+        phrase: "30 extra lives! Wait, wrong game.",
+      },
+      indeciso: {
+        name: "Crank",
+        phrase: "Pick one. ANY one. Please.",
+      },
+      contactado: {
+        name: "Mailman",
+        phrase: "The form lied. But your persistence didn't.",
+      },
+      tinieblas: {
+        name: "Daredevil",
+        phrase: "Welcome to the dark side.",
+      },
+      noctambulo: {
+        name: "Batman",
+        phrase: "The best code is written when everyone else is sleeping.",
+      },
+      coleccionista: {
+        name: "Collector",
+        phrase: "You found them all. You absolute legend.",
       },
     },
+
+    // Collector celebration
+    collectorTitle: "You found them all!",
+
+    // Konami
+    konamiPhrase: "↑↑↓↓←→←→BA... Did you seriously just do that?",
 
     // Toast
     achievementUnlocked: "Achievement Unlocked",
@@ -99,7 +152,7 @@ export const translations = {
     about: {
       name: "Zeneke",
       aka: "aka Héctor Villar",
-      greeting: "Hi, I'm Zeneke",
+      greeting: "Hi there, I'm Zeneke",
       bio: "I'm a product engineer from Bilbao with 15 years of experience crafting software, illustration, and games. I love blending creativity with code to build things that feel alive.",
       bioMobile: "And I'm a product engineer from Bilbao with 15 years of experience crafting software, illustration, and games. I love blending creativity with code to build things that feel alive.",
       stats: [
@@ -191,8 +244,107 @@ export const translations = {
       messagePlaceholder: "Tell me something interesting...",
       sendButton: "Send it!",
       altText: "Not a fan of forms? Find me here:",
-      successTitle: "Message sent!",
-      successMessage: "I'll get back to you faster than you can say 'responsive design'.",
+      formClicks: [
+        "Wait... Are you sure you want to send that?",
+        "Really? I mean... really?",
+        "Ok let me check the server... nope, it's on fire.",
+        "Have you tried turning it off and on again?",
+        "Plot twist: this form doesn't actually work.",
+        "Never did. I'm sorry. I'm a fraud.",
+        "But hey, you can find me on social media!",
+        "Or sign the guestbook below. That one actually works.",
+      ],
+    },
+
+    // Guestbook
+    guestbook: {
+      sectionTitle: "Guestbook",
+      captureButton: "Capture & Sign",
+      modalTitle: "Sign the Guestbook",
+      nameLabel: "Your name",
+      namePlaceholder: "Your name or alias",
+      messageLabel: "Your message",
+      messagePlaceholder: "Leave a message...",
+      submitButton: "Sign!",
+      submitting: "Signing...",
+      successMessage: "Signed! Your entry is now in the guestbook.",
+      errorMessage: "Something went wrong. Try again?",
+      loadMore: "Load more",
+      empty: "Be the first to sign!",
+      charCount: "{count} left",
+      hoverQuips: [
+        "This one thinks they're funny.",
+        "Nice screenshot, amateur.",
+        "I've seen better. I've also seen worse.",
+        "Ok, this one's actually cool.",
+        "Bold move leaving a message here.",
+        "Someone had too much free time.",
+        "A person of culture, I see.",
+        "They broke my character. Literally.",
+        "This one scrolled all the way down too.",
+        "I'm not judging. Ok, maybe a little.",
+        "Legend says they're still clicking.",
+        "They found the guestbook! Give them a medal.",
+      ],
+      timeAgo: {
+        now: "Just now",
+        minutes: "{n}m ago",
+        hours: "{n}h ago",
+        days: "{n}d ago",
+      },
+    },
+
+    // Easter egg
+    easterEgg: {
+      guestbookTitle: "Others were here before you, you know?",
+      phrases: [
+        "There's nothing down here, trust me.",
+        "Seriously, you can stop scrolling.",
+        "Hello? Why are you still going?",
+        "This is just empty space...",
+        "Ok, you're starting to worry me.",
+        "Please stop. I'm running out of things to say.",
+        "FINE. Keep scrolling. See if I care.",
+        "...",
+        "You're still here? Wow. Ok. Respect.",
+      ],
+      returnPhrases: [
+        "See you up there :)",
+        "It's been a pleasure, explorer.",
+        "Come on, let's head back up as friends.",
+        "You're one of the good ones, I can tell.",
+        "Hey, can we pretend none of that happened?",
+        "Pretty cool that you explored all this.",
+        "I'm just not used to people scrolling this far.",
+        "Sorry if I got a bit intense back there.",
+        "Wait, you're coming back? Didn't expect that...",
+      ],
+      backToTop: "Back to top",
+      backToTopClicks: [
+        "Sorry, the elevator is broken. You'll have to walk up.",
+        "Still broken. I checked.",
+        "Clicking harder won't fix it.",
+        "There are no shortcuts in life. Or in this scroll.",
+        "You burned those calories going down. Now earn them back.",
+        "I admire your persistence. But no.",
+        "This button is purely decorative at this point.",
+        "Fine, I'll call the mechanic. He said next Tuesday.",
+      ],
+    },
+
+    // Top easter egg (scroll up from About, after Curioso)
+    topEasterEgg: {
+      phrases: [
+        "Wait... there's something up here too?",
+        "Oh, you don't just explore downwards.",
+        "Not many people look up, you know?",
+        "This is uncharted territory.",
+        "Higher and higher... like a bird.",
+        "The air is different up here.",
+        "We're almost in the clouds.",
+        "Almost there...",
+        "You made it. You're a bird.",
+      ],
     },
   },
 
@@ -207,21 +359,56 @@ export const translations = {
     tabArt: "Arte",
     tabOthers: "Contacto",
 
+    // Desktop section titles (narrative flow)
+    sectionCode: "Aporreo teclas hasta que algo funciona",
+    sectionArt: "Coloco píxeles de forma aleatoria",
+    sectionContact: "¿Quieres decirme algo?",
+
+    // Sidebar
+    sidebarCta: "Curiosea. Rompe cosas. Desbloquéalos todos.",
+    sidebarCtaCollector: "Vale, te has pasado el juego, tengo un regalo para ti",
+    resetAchievements: "Volver a empezar",
+    resetConfirm: "¿Seguro?",
+
     // Checkboxes
     rebotado: "Rebotado",
-    sospechoso: "Sospechoso",
-    confuso: "Confuso",
-    enfadado: "Enfadado",
-    muyEnfadado: "Muy enfadado",
-    matrix: "Matrix",
-    neo: "Neo",
-    dibujado: "Dibujado",
-    artista: "Artista",
-    desnudo: "Desnudo",
-    relajado: "Relajado",
-    despertado: "Despertado",
-    libre: "Libre",
-    poliglota: "Políglota",
+    muyEnfadado: "No me toques",
+    neo: "Pastilla roja",
+    dibujado: "Picasso",
+    desnudo: "Voyeur",
+    relajado: "Zen Mode",
+    libre: "Free Willy",
+    fotografo: "Selfie",
+    curioso: "Nautilus",
+    pajaro: "Birdman",
+    insistente: "Insistente",
+    retro: "Konami Code",
+    indeciso: "Crank",
+    contactado: "Cartero",
+    tinieblas: "Daredevil",
+    noctambulo: "Batman",
+    coleccionista: "Coleccionista",
+
+    // Hints (hover on locked achievements)
+    hints: {
+      rebotado: "No le gusta que le toquen...",
+      muyEnfadado: "Hay cosas que se rompen si insistes demasiado",
+      neo: "Hay una pestaña que va más allá",
+      dibujado: "Prueba a pintar sobre el lienzo",
+      desnudo: "Sigue quitando capas...",
+      relajado: "A veces solo necesitas escuchar",
+      libre: "El marco es una prisión",
+      fotografo: "Captura el momento y deja tu huella",
+      curioso: "El fondo está más cerca de lo que crees",
+      pajaro: "Lo que baja tiene que subir",
+      insistente: "No significa... ¿inténtalo otra vez?",
+      retro: "↑↑↓↓... ya sabes el resto",
+      indeciso: "¿No puedes estar quieto? Bien.",
+      contactado: "El formulario tiene un secreto",
+      tinieblas: "Teme a la luz",
+      noctambulo: "La noche tiene ojos",
+      coleccionista: "Consíguelos todos",
+    },
 
     // Achievements
     achievements: {
@@ -229,59 +416,77 @@ export const translations = {
         name: "Rebotado",
         phrase: "Como una pelota saltarina, pero con más crisis existencial",
       },
-      sospechoso: {
-        name: "Sospechoso",
-        phrase: "No confíes en nadie. Ni en ti mismo. Especialmente en ti mismo.",
-      },
-      confuso: {
-        name: "Confuso",
-        phrase: "404: Cerebro no encontrado. Inténtalo más tarde.",
-      },
-      enfadado: {
-        name: "Enfadado",
-        phrase: "Nivel de enfado: reinicio masivo sin guardar",
-      },
       muyEnfadado: {
-        name: "Muy Enfadado",
+        name: "No me toques",
         phrase: "Cuando 'npm install' falla por 47ª vez",
       },
-      matrix: {
-        name: "Matrix",
-        phrase: "No hay cuchara. Solo hay CSS.",
-      },
       neo: {
-        name: "Neo",
+        name: "Pastilla roja",
         phrase: "Tomas la pastilla roja, te quedas en el País de las Maravillas.",
       },
       dibujado: {
-        name: "Dibujado",
+        name: "Picasso",
         phrase: "Picasso estaría orgulloso. O confuso. Probablemente confuso.",
       },
-      artista: {
-        name: "Artista",
-        phrase: "Cada píxel es una pincelada del alma.",
-      },
-      despertado: {
-        name: "Despertado",
-        phrase: "De vuelta a la realidad. Oh, ahí va la gravedad.",
-      },
       desnudo: {
-        name: "Desnudo",
+        name: "Voyeur",
         phrase: "No es un bug, es una feature. Una feature muy desnuda.",
       },
       relajado: {
-        name: "Relajado",
+        name: "Zen Mode",
         phrase: "Nivel maestro zen alcanzado. Om... o lo que sea.",
       },
       libre: {
-        name: "Libre",
+        name: "Free Willy",
         phrase: "Rompiendo las cadenas del viewport.",
       },
-      poliglota: {
-        name: "Políglota",
-        phrase: "¿Perdido en la traducción? Jamás.",
+      fotografo: {
+        name: "Selfie",
+        phrase: "¡Di patata! Tu momento queda inmortalizado.",
+      },
+      curioso: {
+        name: "Nautilus",
+        phrase: "¿Has hecho scroll hasta aquí abajo? Respeto.",
+      },
+      pajaro: {
+        name: "Birdman",
+        phrase: "Fuiste y volviste. Ahora somos amigos.",
+      },
+      insistente: {
+        name: "Insistente",
+        phrase: "El botón dijo que no. Tú dijiste que sí. Ganaste.",
+      },
+      retro: {
+        name: "Retro",
+        phrase: "¡30 vidas extra! Espera, juego equivocado.",
+      },
+      indeciso: {
+        name: "Crank",
+        phrase: "Elige una. UNA. Por favor.",
+      },
+      contactado: {
+        name: "Cartero",
+        phrase: "El formulario mentía. Pero tu insistencia no.",
+      },
+      tinieblas: {
+        name: "Daredevil",
+        phrase: "Bienvenido al lado oscuro.",
+      },
+      noctambulo: {
+        name: "Batman",
+        phrase: "El mejor código se escribe cuando todos duermen.",
+      },
+      coleccionista: {
+        name: "Coleccionista",
+        phrase: "Los encontraste todos. Eres una leyenda.",
       },
     },
+
+    // Collector celebration
+    collectorTitle: "¡Los encontraste todos!",
+
+    // Konami
+    konamiPhrase: "↑↑↓↓←→←→BA... ¿En serio acabas de hacer eso?",
 
     // Toast
     achievementUnlocked: "Logro Desbloqueado",
@@ -388,8 +593,107 @@ export const translations = {
       messagePlaceholder: "Cuéntame algo interesante...",
       sendButton: "¡Enviar!",
       altText: "¿No te van los formularios? Encuéntrame aquí:",
-      successTitle: "¡Mensaje enviado!",
-      successMessage: "Te responderé más rápido de lo que puedes decir 'diseño responsive'.",
+      formClicks: [
+        "Espera... ¿Seguro que quieres enviar eso?",
+        "¿En serio? O sea... ¿en serio?",
+        "Déjame revisar el servidor... nop, está en llamas.",
+        "¿Has probado a apagar y encender?",
+        "Plot twist: este formulario no funciona.",
+        "Nunca ha funcionado. Lo siento. Soy un fraude.",
+        "¡Pero oye, puedes encontrarme en redes sociales!",
+        "O firma el libro de firmas. Ese sí funciona de verdad.",
+      ],
+    },
+
+    // Guestbook
+    guestbook: {
+      sectionTitle: "Libro de firmas",
+      captureButton: "Capturar y firmar",
+      modalTitle: "Firma el libro",
+      nameLabel: "Tu nombre",
+      namePlaceholder: "Tu nombre o alias",
+      messageLabel: "Tu mensaje",
+      messagePlaceholder: "Deja un mensaje...",
+      submitButton: "¡Firmar!",
+      submitting: "Firmando...",
+      successMessage: "¡Firmado! Tu entrada ya está en el libro.",
+      errorMessage: "Algo salió mal. ¿Intentar de nuevo?",
+      loadMore: "Cargar más",
+      empty: "¡Sé el primero en firmar!",
+      charCount: "{count} restantes",
+      hoverQuips: [
+        "Este/a se cree gracioso/a.",
+        "Bonita captura, amateur.",
+        "He visto mejores. También peores.",
+        "Vale, esta mola.",
+        "Qué valiente dejando un mensaje aquí.",
+        "Alguien tenía demasiado tiempo libre.",
+        "Una persona de cultura, ya veo.",
+        "Rompieron mi personaje. Literalmente.",
+        "Este/a también hizo scroll hasta abajo.",
+        "No estoy juzgando. Bueno, un poco sí.",
+        "La leyenda dice que sigue haciendo click.",
+        "¡Encontraron el libro de firmas! Dadles una medalla.",
+      ],
+      timeAgo: {
+        now: "Ahora mismo",
+        minutes: "Hace {n}m",
+        hours: "Hace {n}h",
+        days: "Hace {n}d",
+      },
+    },
+
+    // Easter egg
+    easterEgg: {
+      guestbookTitle: "Aquí hubo gente antes que tú, ¿sabes?",
+      phrases: [
+        "Aquí abajo no hay nada, créeme.",
+        "En serio, puedes dejar de hacer scroll.",
+        "¿Hola? ¿Por qué sigues bajando?",
+        "Esto es solo espacio vacío...",
+        "Vale, me estás empezando a preocupar.",
+        "Para, por favor. Se me acaban las cosas que decir.",
+        "VALE. Sigue bajando. A ver si me importa.",
+        "...",
+        "¿Sigues aquí? Wow. Vale. Respeto.",
+      ],
+      returnPhrases: [
+        "Nos vemos arriba :)",
+        "Ha sido un placer, explorador/a.",
+        "Venga, volvamos arriba como amigos.",
+        "Eres de los buenos, se nota.",
+        "Oye, ¿hacemos como que no ha pasado nada?",
+        "Mola que hayas explorado todo esto.",
+        "Es que no estoy acostumbrado a que lleguen tan lejos.",
+        "Perdona si me he puesto un poco intenso.",
+        "¿Vuelves? No me lo esperaba...",
+      ],
+      backToTop: "Volver arriba",
+      backToTopClicks: [
+        "Lo siento, el ascensor se ha averiado. Tendrás que subir a pata.",
+        "Sigue averiado. He mirado.",
+        "Hacer más click no lo va a arreglar.",
+        "No hay atajos en la vida. Ni en este scroll.",
+        "Quemaste esas calorías bajando. Ahora toca subirlas.",
+        "Admiro tu insistencia. Pero no.",
+        "Este botón es puramente decorativo a estas alturas.",
+        "Vale, llamo al técnico. Dice que el martes que viene.",
+      ],
+    },
+
+    // Top easter egg (scroll up from About, after Curioso)
+    topEasterEgg: {
+      phrases: [
+        "Espera... ¿aquí arriba también hay algo?",
+        "Vaya, no solo exploras hacia abajo.",
+        "Poca gente mira hacia arriba, ¿sabes?",
+        "Esto es territorio inexplorado.",
+        "Cada vez más alto... como un pájaro.",
+        "El aire es diferente aquí arriba.",
+        "Casi estamos en las nubes.",
+        "Un poco más...",
+        "Lo has conseguido. Eres un pájaro.",
+      ],
     },
   },
 };

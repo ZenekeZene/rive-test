@@ -1,16 +1,41 @@
+@property --section-glow {
+  syntax: '<color>';
+  initial-value: transparent;
+  inherits: false;
+}
+
+@property --section-tint {
+  syntax: '<color>';
+  initial-value: transparent;
+  inherits: false;
+}
+
 .contentPanel {
   position: relative;
   width: 100%;
   height: 100%;
-  max-width: 800px;
-  padding: var(--content-padding);
+  max-width: 100%;
+  padding: 0 calc(var(--sidebar-width, 11rem) + var(--content-padding)) 0 var(--content-padding);
   box-sizing: border-box;
   overflow-y: auto;
-  background-color: var(--color-bg);
+  overflow-x: hidden;
+  background:
+    radial-gradient(
+      600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      var(--section-glow),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      var(--color-bg) 0%,
+      var(--section-tint) 50%,
+      var(--color-bg) 100%
+    );
   color: var(--color-text);
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  transition: --section-glow 0.8s ease, --section-tint 0.8s ease;
 }
 
 .header {
@@ -18,11 +43,17 @@
 }
 
 .heroTitle {
+  position: relative;
   margin: 0;
   font-size: var(--font-size-hero);
   font-weight: var(--font-weight-black);
   line-height: var(--line-height-hero);
   letter-spacing: -0.02em;
+  transition: opacity 0.3s ease;
+}
+
+.titleFading {
+  opacity: 0;
 }
 
 .subtitle {
@@ -37,9 +68,171 @@
   margin-top: -0.5rem;
 }
 
+.stickyTop {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: color-mix(in srgb, var(--color-bg) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  margin-top: calc(-1 * var(--content-padding));
+  margin-left: calc(-1 * var(--content-padding));
+  margin-right: calc(-1 * var(--content-padding));
+  padding: var(--content-padding) var(--content-padding) var(--space-lg);
+  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
+.stickyTop .heroTitle {
+  font-size: 3.5rem;
+  line-height: 1.2;
+}
+
+.togglesSidebar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-width, 11rem);
+  z-index: 10;
+  background-color: var(--color-sidebar-bg, var(--color-text));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarGold {
+  background: linear-gradient(180deg, #1a1500 0%, #2a2000 50%, #1a1500 100%);
+  border-left: 2px solid #c8a000;
+}
+
+.sidebarGold .sidebarActions > * {
+  background-color: transparent;
+  border-color: rgba(200, 160, 0, 0.4);
+}
+
+.sidebarGold .sidebarActions > *:last-child {
+  border-right-color: rgba(200, 160, 0, 0.4);
+}
+
+.sidebarGold .sidebarActions > *:hover {
+  background-color: #ffd700;
+  color: #1a1500 !important;
+}
+
+.sidebarGold .resetConfirming {
+  background-color: rgba(200, 50, 50, 0.8) !important;
+  color: #fff !important;
+}
+
+.sidebarGold .resetConfirming:hover {
+  background-color: rgba(200, 50, 50, 1) !important;
+  color: #fff !important;
+}
+
+.sidebarGold .sidebarCta {
+  color: rgba(255, 215, 0, 0.5);
+}
+
+.sidebarActions {
+  display: flex;
+  gap: 0;
+  padding: 0 1.5rem var(--space-sm);
+  flex-shrink: 0;
+}
+
+.sidebarActions > * {
+  all: unset;
+  position: static !important;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: var(--color-sidebar-bg, var(--color-text));
+  border: var(--border-width) solid rgba(255, 255, 255, 0.2);
+  color: #fff !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.1s ease, color 0.1s ease;
+  border-right: none;
+  box-sizing: border-box;
+}
+
+.sidebarActions > *:last-child {
+  border-right: var(--border-width) solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebarActions > *:hover {
+  background-color: #fff;
+  color: var(--color-sidebar-bg, var(--color-text)) !important;
+}
+
+.sidebarActions > * svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: inherit !important;
+}
+
+.resetAction {
+  opacity: 0.35;
+  transition: opacity 0.2s ease, background-color 0.1s ease, color 0.1s ease;
+}
+
+.resetAction:hover {
+  opacity: 1;
+}
+
+.resetConfirming {
+  opacity: 1;
+  background-color: rgba(230, 57, 70, 0.8) !important;
+  color: #fff !important;
+}
+
+.resetConfirming:hover {
+  background-color: rgba(230, 57, 70, 1) !important;
+}
+
+.sidebarScrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 1.5rem var(--content-padding);
+}
+
+.sidebarCta {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  font-style: italic;
+  line-height: 1.4;
+  margin: 0 0 var(--space-lg) 0;
+}
+
+.sidebarCtaLink {
+  color: rgba(255, 215, 0, 0.7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.sidebarCtaLink:hover {
+  color: #ffd700;
+  text-decoration: underline;
+}
+
+
+.topEasterEggZone {
+  position: relative;
+  min-height: 1000vh;
+}
+
+.topEasterEggSentinel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
 .tabbedSection {
   flex: 1;
-  min-height: 0;
+  padding-top: var(--space-xl, 3rem);
 }
 
 @media (max-width: 768px) {

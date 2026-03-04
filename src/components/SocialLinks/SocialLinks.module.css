@@ -1,12 +1,9 @@
 .container {
-  position: absolute;
-  top: 3.5rem;
-  right: 0;
   display: flex;
   gap: 0;
-  z-index: 100;
   border: var(--border-width-thick) solid var(--color-border);
   background-color: var(--color-bg);
+  width: fit-content;
 }
 
 .linkWrapper {
@@ -14,10 +11,14 @@
 }
 
 .link {
-  width: 2rem;
-  height: 2rem;
-  padding: 0.4rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem;
   color: var(--color-text);
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,16 +46,17 @@
 }
 
 .popup {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 0.5rem;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: var(--color-bg);
   border: var(--border-width-thick) solid var(--color-border);
   padding: var(--space-md);
   width: 350px;
   max-height: 500px;
   overflow-y: auto;
+  z-index: 200;
 }
 
 @media (max-width: 768px) {
@@ -67,9 +69,9 @@
   }
 
   .link {
-    width: 2.5rem;
-    height: 2.5rem;
-    padding: 0.5rem;
+    width: 3rem;
+    height: 3rem;
+    padding: 0.6rem;
     border: var(--border-width) solid var(--color-border);
     border-right: none;
   }

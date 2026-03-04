@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useRive, Layout, Fit } from "@rive-app/react-webgl2";
 import styles from "./PortraitHero.module.css";
 import InteractionHint from "../InteractionHint/InteractionHint";
+import MusicPlayer from "../MusicPlayer/MusicPlayer";
 
-function PortraitHero({ onRiveReady, isMaximized }) {
+function PortraitHero({ onRiveReady, isMaximized, isAudioActive }) {
   const [showHint, setShowHint] = useState(true);
   const { RiveComponent, rive } = useRive({
     src: "/portrait.riv",
@@ -35,6 +36,7 @@ function PortraitHero({ onRiveReady, isMaximized }) {
 
   return (
     <section className={styles.portraitHero}>
+      <MusicPlayer isPlaying={isAudioActive} />
       <div className={styles.riveWrapper}>
         <RiveComponent />
         {showHint && <InteractionHint onDismiss={() => setShowHint(false)} />}

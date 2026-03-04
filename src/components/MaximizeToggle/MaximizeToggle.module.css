@@ -8,7 +8,7 @@
   border: var(--border-width-thick) solid var(--color-border);
   color: var(--color-text);
   cursor: pointer;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   transition: background-color 0.1s ease, color 0.1s ease;

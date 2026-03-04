@@ -44,3 +44,10 @@
   /* Layout */
   --mobile-breakpoint: 768px;
 }
+
+html.darkMode {
+  --color-bg: #111111;
+  --color-text: #FFFFFF;
+  --color-border: #FFFFFF;
+  --color-sidebar-bg: #000000;
+}

@@ -50,7 +50,35 @@
   object-fit: cover;
 }
 
-/* Size variants - designed for 2-row masonry */
+/* Desktop vertical masonry */
+.masonryGrid {
+  columns: 3;
+  column-gap: var(--space-sm);
+}
+
+.masonryItem {
+  display: block;
+  break-inside: avoid;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  margin-bottom: var(--space-sm);
+  transition: transform 0.1s ease;
+}
+
+.masonryItem:hover {
+  transform: scale(1.02);
+  z-index: 1;
+}
+
+.masonryItem .thumbnail {
+  width: 100%;
+  height: auto;
+}
+
+/* Size variants - designed for 2-row masonry (mobile) */
 .imageButton.tall {
   width: 160px;
   height: calc(100% - var(--space-sm));

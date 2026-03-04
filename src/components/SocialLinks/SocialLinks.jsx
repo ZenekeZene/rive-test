@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./SocialLinks.module.css";
 import InstagramWidget from "../InstagramWidget/InstagramWidget";
 
@@ -28,7 +28,7 @@ const SOCIAL_LINKS = [
   },
   {
     id: "linkedin",
-    url: "https://linkedin.com/in/zenekezene",
+    url: "https://www.linkedin.com/in/hectorvillarm/",
     label: "LinkedIn",
     highlightOn: "experience",
     icon: (
@@ -39,34 +39,51 @@ const SOCIAL_LINKS = [
   },
 ];
 
-function SocialLinks({ activeTab }) {
+function SocialLinks({ activeTab, className }) {
   const [showInstagramPopup, setShowInstagramPopup] = useState(false);
+  const popupRef = useRef(null);
+
+  useEffect(() => {
+    if (!showInstagramPopup) return;
+    const handleClick = (e) => {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setShowInstagramPopup(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showInstagramPopup]);
 
   return (
-    <div className={styles.container}>
+    <div className={`${styles.container} ${className || ""}`}>
       {SOCIAL_LINKS.map((link) => (
-        <div
-          key={link.id}
-          className={styles.linkWrapper}
-          onMouseEnter={() => link.hasPopup && setShowInstagramPopup(true)}
-          onMouseLeave={() => link.hasPopup && setShowInstagramPopup(false)}
-        >
-          <a
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${styles.link} ${activeTab === link.highlightOn ? styles.highlighted : ""}`}
-            aria-label={link.label}
-          >
-            {link.icon}
-          </a>
-          {link.hasPopup && showInstagramPopup && (
-            <div className={styles.popup}>
-              <InstagramWidget username="zenekezene" />
-            </div>
+        <div key={link.id} className={styles.linkWrapper}>
+          {link.hasPopup ? (
+            <button
+              className={`${styles.link} ${activeTab === link.highlightOn ? styles.highlighted : ""}`}
+              aria-label={link.label}
+              onClick={() => setShowInstagramPopup((v) => !v)}
+            >
+              {link.icon}
+            </button>
+          ) : (
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.link} ${activeTab === link.highlightOn ? styles.highlighted : ""}`}
+              aria-label={link.label}
+            >
+              {link.icon}
+            </a>
           )}
         </div>
       ))}
+      {showInstagramPopup && (
+        <div ref={popupRef} className={styles.popup}>
+          <InstagramWidget username="zenekezene" />
+        </div>
+      )}
     </div>
   );
 }
