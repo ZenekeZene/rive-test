@@ -1,15 +1,17 @@
 import styles from "./AudioToggle.module.css";
 
-function AudioToggle({ onToggle, isArtMode, isActive }) {
+function AudioToggle({ onToggle, isArtMode, isActive, disabled }) {
   const handleClick = () => {
+    if (disabled) return;
     onToggle(!isActive);
   };
 
   return (
     <button
-      className={`${styles.button} ${isActive ? styles.active : ""} ${isArtMode ? styles.artMode : ""}`}
+      className={`${styles.button} ${isActive ? styles.active : ""} ${isArtMode ? styles.artMode : ""} ${disabled ? styles.disabled : ""}`}
       onClick={handleClick}
       aria-label={isActive ? "Sound on" : "Sound off"}
+      aria-disabled={disabled}
     >
       {isActive ? (
         <svg

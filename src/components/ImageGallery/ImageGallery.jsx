@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { flushSync } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import styles from "./ImageGallery.module.css";
 import { useIsMobile } from "../../hooks/useIsMobile";
 
@@ -36,10 +36,12 @@ const INFINITE_IMAGES = createInfiniteImages();
 function ImageGallery() {
   const isMobile = useIsMobile();
   const [selectedImage, setSelectedImage] = useState(null);
+  const [closingImage, setClosingImage] = useState(null);
   const [galleryHeight, setGalleryHeight] = useState(0);
   const [activeUniqueId, setActiveUniqueId] = useState(null);
   const galleryRef = useRef(null);
   const containerRef = useRef(null);
+  const desktopGalleryRef = useRef(null);
   const isResettingScroll = useRef(false);
 
   useEffect(() => {
@@ -104,6 +106,19 @@ function ImageGallery() {
     return () => gallery.removeEventListener("scroll", handleInfiniteScroll);
   }, [isMobile, handleInfiniteScroll, galleryHeight]);
 
+  // Close expanded image when leaving Art section or hovering a Code project
+  useEffect(() => {
+    const handleClose = () => {
+      if (selectedImage) closeModal();
+    };
+    window.addEventListener("leave-art-section", handleClose);
+    window.addEventListener("code-project-hover", handleClose);
+    return () => {
+      window.removeEventListener("leave-art-section", handleClose);
+      window.removeEventListener("code-project-hover", handleClose);
+    };
+  }); // runs every render to capture latest selectedImage/closeModal
+
   const openModal = (image) => {
     if (document.startViewTransition) {
       flushSync(() => {
@@ -121,6 +136,27 @@ function ImageGallery() {
   };
 
   const closeModal = () => {
+    if (!isMobile && selectedImage) {
+      const img = selectedImage;
+      if (document.startViewTransition) {
+        setClosingImage(img);
+        const transition = document.startViewTransition(() => {
+          flushSync(() => {
+            setSelectedImage(null);
+            setActiveUniqueId(img.uniqueId || img.id);
+          });
+        });
+        transition.finished.then(() => {
+          setActiveUniqueId(null);
+          setClosingImage(null);
+        });
+      } else {
+        setClosingImage(img);
+        setSelectedImage(null);
+        setActiveUniqueId(null);
+      }
+      return;
+    }
     if (document.startViewTransition) {
       const transition = document.startViewTransition(() => {
         flushSync(() => {
@@ -141,6 +177,21 @@ function ImageGallery() {
       closeModal();
     }
   };
+
+  // Desktop: close left panel image when clicking outside the gallery
+  useEffect(() => {
+    if (isMobile || !selectedImage) return;
+
+    const handleClickOutside = (e) => {
+      if (desktopGalleryRef.current?.contains(e.target)) return;
+      // Don't double-fire if clicking the close button or the overlay itself
+      if (leftPanel?.contains(e.target)) return;
+      closeModal();
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [isMobile, selectedImage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renderModal = () =>
     selectedImage && (
@@ -165,17 +216,41 @@ function ImageGallery() {
       </div>
     );
 
-  // Desktop: vertical masonry grid
+  const leftPanel = document.getElementById("leftPanel");
+
+  const renderLeftPanelImage = () => {
+    const image = selectedImage || closingImage;
+    if (!image || !leftPanel) return null;
+    const isClosing = !selectedImage && closingImage;
+    return createPortal(
+      <div
+        className={`${styles.leftPanelOverlay} ${isClosing ? styles.leftPanelClosing : ""}`}
+        data-video-overlay
+        onAnimationEnd={() => { if (isClosing) setClosingImage(null); }}
+      >
+        {!isClosing && <button className={styles.leftPanelClose} onClick={closeModal}>✕</button>}
+        <img
+          src={image.url.replace(/\/\d+\/\d+$/, "/800/1000")}
+          alt={image.title}
+          className={styles.leftPanelImage}
+          style={!isClosing ? { viewTransitionName: "gallery-image" } : undefined}
+        />
+      </div>,
+      leftPanel
+    );
+  };
+
+  // Desktop: vertical masonry grid — click shows image in left panel
   if (!isMobile) {
     return (
       <>
-        <div className={styles.galleryContainer}>
+        <div className={styles.galleryContainer} ref={desktopGalleryRef}>
           <div className={styles.masonryGrid}>
             {PLACEHOLDER_IMAGES.map((image) => (
               <button
                 key={image.id}
-                className={styles.masonryItem}
-                onClick={() => openModal(image)}
+                className={`${styles.masonryItem} ${selectedImage?.id === image.id ? styles.masonryItemActive : ""}`}
+                onClick={() => selectedImage?.id === image.id ? closeModal() : openModal(image)}
               >
                 <img
                   src={image.url}
@@ -192,7 +267,7 @@ function ImageGallery() {
             ))}
           </div>
         </div>
-        {renderModal()}
+        {renderLeftPanelImage()}
       </>
     );
   }

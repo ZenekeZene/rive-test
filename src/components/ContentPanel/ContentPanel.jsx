@@ -12,7 +12,7 @@ import Confetti from "../Confetti/Confetti";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useIsMobile } from "../../hooks/useIsMobile";
 
-function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, guestbook, onEasterEgg, easterEggPhrase, onEasterEggPhrase, onDarkModeToggle, onCapture, onAudioToggle, captureCooldown, onReset, loaded }) {
+function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, guestbook, onEasterEgg, easterEggPhrase, onEasterEggPhrase, onDarkModeToggle, onCapture, onAudioToggle, captureCooldown, onReset, loaded, isRamenActive, isAudioActive }) {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
 
@@ -246,7 +246,7 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, g
           <div className={styles.sidebarActions}>
             <DarkModeToggle onToggle={onDarkModeToggle} />
             <CaptureButton onCapture={onCapture} disabled={captureCooldown} />
-            <AudioToggle onToggle={onAudioToggle} />
+            <AudioToggle onToggle={onAudioToggle} isActive={isAudioActive} disabled={isRamenActive && !isAudioActive} />
             {hasAnyUnlocked && (
               <button
                 className={`${styles.resetAction} ${resetConfirming ? styles.resetConfirming : ""}`}

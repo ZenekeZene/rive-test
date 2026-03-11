@@ -9,6 +9,7 @@ function ContactForm({ guestbook, onEasterEgg, onEasterEggPhrase }) {
   const [formData, setFormData] = useState({ name: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [formClickCount, setFormClickCount] = useState(0);
+  const [showGift, setShowGift] = useState(false);
   const containerRef = useRef(null);
   const sentinelRefs = useRef([]);
   const highestPhrase = useRef(-1);
@@ -17,7 +18,10 @@ function ContactForm({ guestbook, onEasterEgg, onEasterEggPhrase }) {
   const guestbookSentinelRef = useRef(null);
 
   const easterEgg = t("easterEgg");
-  const phrases = easterEgg.phrases;
+  const visitCount = useRef(0);
+  const activePhrases = visitCount.current > 0 && easterEgg.secondVisitPhrases
+    ? easterEgg.secondVisitPhrases
+    : easterEgg.phrases;
   const returnPhrases = easterEgg.returnPhrases;
 
   // IntersectionObserver for sentinel divs spread across the zone
@@ -32,18 +36,22 @@ function ContactForm({ guestbook, onEasterEgg, onEasterEggPhrase }) {
 
           if (entry.isIntersecting) {
             if (!reachedBottom.current && idx > highestPhrase.current) {
-              // Going DOWN — anxious phrases
+              // Going DOWN — anxious phrases (or second-visit phrases)
               highestPhrase.current = idx;
-              onEasterEggPhrase?.(phrases[idx]);
+              onEasterEggPhrase?.(activePhrases[idx]);
 
               // Last sentinel = enable return mode (+ "curioso" achievement)
-              if (idx === phrases.length - 1) {
+              if (idx === activePhrases.length - 1) {
                 reachedBottom.current = true;
-                returnIdx.current = phrases.length;
+                returnIdx.current = activePhrases.length;
                 onEasterEgg?.("curioso");
+                if (visitCount.current > 0) {
+                  setShowGift(true);
+                }
+                visitCount.current += 1;
               }
-            } else if (reachedBottom.current && idx < returnIdx.current) {
-              // Going UP — reconciliation phrases
+            } else if (reachedBottom.current && idx < returnIdx.current && idx < activePhrases.length - 1) {
+              // Going UP — reconciliation phrases (skip last sentinel to avoid overwriting the final down phrase)
               returnIdx.current = idx;
               onEasterEggPhrase?.(returnPhrases[idx]);
             }
@@ -53,7 +61,7 @@ function ContactForm({ guestbook, onEasterEgg, onEasterEggPhrase }) {
           if (!entry.isIntersecting && idx === 0 && entry.boundingClientRect.top >= 0) {
             highestPhrase.current = -1;
             reachedBottom.current = false;
-            returnIdx.current = phrases.length;
+            returnIdx.current = activePhrases.length;
             onEasterEggPhrase?.(null);
           }
         });
@@ -63,7 +71,7 @@ function ContactForm({ guestbook, onEasterEgg, onEasterEggPhrase }) {
 
     sentinels.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [onEasterEgg, onEasterEggPhrase, phrases, returnPhrases]);
+  }, [onEasterEgg, onEasterEggPhrase, activePhrases, returnPhrases]);
 
   // Guestbook title change
   useEffect(() => {
@@ -110,7 +118,7 @@ function ContactForm({ guestbook, onEasterEgg, onEasterEggPhrase }) {
   const easterEggSection = (
     <div className={styles.easterEggZone}>
       {/* Invisible sentinels with increasing gaps */}
-      {phrases.map((_, i) => (
+      {activePhrases.map((_, i) => (
         <div
           key={i}
           ref={setSentinelRef(i)}
@@ -122,20 +130,32 @@ function ContactForm({ guestbook, onEasterEgg, onEasterEggPhrase }) {
 
       {/* Anchor at the bottom */}
       <div className={styles.easterEggMessage}>
-        <button
-          className={styles.easterEggAnchor}
-          onClick={() => setBackToTopClicks((c) => {
-            const next = c + 1;
-            if (next === easterEgg.backToTopClicks.length + 1) {
-              onEasterEgg?.("insistente");
-            }
-            return next;
-          })}
-        >
-          {backToTopClicks === 0
-            ? easterEgg.backToTop
-            : easterEgg.backToTopClicks[(backToTopClicks - 1) % easterEgg.backToTopClicks.length]}
-        </button>
+        {showGift ? (
+          <a
+            href="https://www.youtube.com/watch?v=di22vzZeTlk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.giftLink}
+            onClick={() => onEasterEgg?.("loryMoney")}
+          >
+            {easterEgg.secondVisitGift}
+          </a>
+        ) : (
+          <button
+            className={styles.easterEggAnchor}
+            onClick={() => setBackToTopClicks((c) => {
+              const next = c + 1;
+              if (next === easterEgg.backToTopClicks.length + 1) {
+                onEasterEgg?.("insistente");
+              }
+              return next;
+            })}
+          >
+            {backToTopClicks === 0
+              ? easterEgg.backToTop
+              : easterEgg.backToTopClicks[(backToTopClicks - 1) % easterEgg.backToTopClicks.length]}
+          </button>
+        )}
       </div>
     </div>
   );

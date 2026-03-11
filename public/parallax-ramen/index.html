@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="author" content="ZenekeZene">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="Mon, 22 Jul 2002 11:12:01 GMT">
+
+  <link rel="icon" href="./images/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <meta name="description" content="So much sake for our drunken panda" />
+  <meta property="og:url" content="https://ramen.zenekezene.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Try this interactive illustration, by Zenekezene" />
+  <meta property="og:description" content="So much sake for our drunken panda" />
+  <meta property="og:image" content="https://opengraph.b-cdn.net/production/images/7ff66576-69fc-4544-bb9d-6d6e495605f9.jpg?token=1BrMZ6qMIC0kXKDtX0HTjRmJWjFr2vNZoEBfnkYZngE&height=570&width=507&expires=33290665860">
+  <meta property="og:image:height" content="745" />
+  <meta property="og:image:type" content="jpg" />
+  <meta property="og:image:width" content="700" />
+  <meta property="og:locale" content="en_EN" />
+  <meta property="og:site_name" content="Interactive illustration, by Zenekezene" />
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:creator" content="@zenekezene" />
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:domain" content="ramen.zenekezene.com">
+  <meta property="twitter:url" content="https://ramen.zenekezene.com">
+  <meta name="twitter:title" content="Try this interactive illustration, by Zenekezene">
+  <meta name="twitter:description" content="So much sake for our drunken panda">
+  <meta name="twitter:image" content="https://opengraph.b-cdn.net/production/images/7ff66576-69fc-4544-bb9d-6d6e495605f9.jpg?token=1BrMZ6qMIC0kXKDtX0HTjRmJWjFr2vNZoEBfnkYZngE&height=570&width=507&expires=33290665860">
+
+  <title>Interactive illustration, by Zenekezene.</title>
+  <script type="module" crossorigin src="./assets/main-C34VTP19.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/main-DhNLsHae.css">
+</head>
+<body>
+
+  <!-- Toggles de audio y efectos glitch -->
+  <div id="toggles-container" class="fixed bottom-4 left-4 z-50 bg-black/20 backdrop-blur-sm rounded-lg border border-white/10 flex items-center divide-x divide-white/10">
+    <div id="audio-toggle-container" class="p-3">
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2">
+          <svg id="audio-icon" class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.617.794L4.456 13.5H2a1 1 0 01-1-1v-5a1 1 0 011-1h2.456l3.927-3.294a1 1 0 011.617.794zM15.828 5.172a1 1 0 011.414 0c2.625 2.625 2.625 6.885 0 9.51a1 1 0 01-1.414-1.414c1.843-1.843 1.843-4.839 0-6.682a1 1 0 010-1.414zM13.414 7.586a1 1 0 011.414 0c1.25 1.25 1.25 3.276 0 4.526a1 1 0 01-1.414-1.414c.468-.468.468-1.23 0-1.698a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-white text-sm font-medium">Audio</span>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="audio-toggle" class="sr-only peer" checked>
+          <div class="relative w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-green-500 peer-checked:to-emerald-600"></div>
+        </label>
+      </div>
+    </div>
+    <div id="glitch-toggle-container" class="p-3">
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2">
+          <svg class="w-4 h-4 text-pink-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+          </svg>
+          <span class="text-white text-sm font-medium">MDMA</span>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="glitch-toggle" class="sr-only peer">
+          <div class="relative w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-pink-500 peer-checked:to-purple-600"></div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal informativa -->
+  <div id="info-modal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="bg-black/80 backdrop-blur-md rounded-2xl border border-white/20 p-8 max-w-md mx-4 text-center shadow-2xl">
+      <div class="container mb-6">
+        <div class="neon">Too much </div>
+        <div class="flux">Sake </div>
+      </div>
+      <p class="text-lg text-gray-300 mb-6">
+        a interactive illustration,
+        by <a href="https://instagram.com/zenekezene" target="_blank" rel="noopener noreferrer"
+              class="text-pink-400 hover:text-pink-300 transition-colors duration-200 font-medium">
+          @zenekezene
+        </a>
+      </p>
+      <p class="text-gray-400 text-sm mb-6">
+        The experience is better with audio.<br>
+        <span class="text-gray-400">On mobile devices, we'll enable gyroscope.</span><br />
+        <strong class="text-red-500">MDMA mode contains flashing effects.</strong>
+      </p>
+
+
+      <button id="start-button"
+              class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700
+                     text-white font-semibold py-3 px-8 rounded-full transition-all duration-300
+                     transform hover:scale-105 shadow-lg hover:shadow-xl opacity-50 pointer-events-none mb-6"
+              disabled>
+        <span id="start-button-text">Loading...</span>
+      </button>
+
+      <!-- Barra de progreso de carga -->
+      <div id="loading-progress" class="w-full mb-6">
+        <div class="text-sm text-gray-400 mb-2 text-center">
+          <span id="loading-text">Loading resources...</span>
+          <span id="loading-percentage" class="ml-2 text-gray-500">0%</span>
+        </div>
+        <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div id="progress-bar" class="bg-gradient-to-r from-pink-500 to-purple-600 h-2 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+        </div>
+        <div class="text-xs text-gray-500 mt-2 text-center">
+          <span id="loading-details">Preparing audio and images...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="image-container">
+    <section id="wrapper" class="interactive" tabindex="0">
+
+      <canvas
+        id="canvas"
+        class="canvas"
+      ></canvas>
+      <div class="canvas-shadow"></div>
+      <!-- Canvas de luces de discoteca para el estado de dragging -->
+      <canvas id="disco-canvas" class="disco-canvas"></canvas>
+      <img class="palillos" src="./images/palillos.png" alt="Palillos" />
+      <img class="cuchara" src="./images/cuchara.png" alt="Cuchara" />
+
+      <!-- Audio de fondo -->
+      <audio id="background-audio" loop preload="auto">
+        <source src="./audio/japanese-162771.mp3" type="audio/mpeg" />
+      </audio>
+
+      <!-- Audio de dragging -->
+      <audio id="dragging-audio" loop preload="auto">
+        <source src="./audio/techno.mp3" type="audio/mpeg" />
+      </audio>
+
+      <!-- Audio de dragging con glitch -->
+      <audio id="hardcore-audio" loop preload="auto">
+        <source src="./audio/hardcore.mp3" type="audio/mpeg" />
+      </audio>
+    </section>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js" integrity="sha512-lIKG1kC5TMb1Zx32vdz1n31YJMZRknVY20U9MJ28hD3y2c0OKN0Ce5NhJji78v8zX5UOSsm+MTBOcJt7yMBnSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    if (location.search.includes('minimal')) {
+      var modal = document.getElementById('info-modal');
+      if (modal) modal.style.display = 'none';
+      // Disable audio toggle and dispatch change so JS picks it up
+      var audioToggle = document.getElementById('audio-toggle');
+      if (audioToggle) {
+        audioToggle.checked = false;
+        audioToggle.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      // Mute and prevent all audio elements from playing initially
+      document.querySelectorAll('audio').forEach(function(a) {
+        a.muted = true;
+        a.pause();
+        a.removeAttribute('autoplay');
+        a.preload = 'none';
+      });
+      // Override play to block audio until toggle is enabled
+      var minimalAudioAllowed = false;
+      var origPlay = HTMLAudioElement.prototype.play;
+      HTMLAudioElement.prototype.play = function() {
+        if (!minimalAudioAllowed) {
+          this.muted = true;
+          this.pause();
+          return Promise.resolve();
+        }
+        this.muted = false;
+        return origPlay.call(this);
+      };
+      // Listen for toggle changes to allow/block audio
+      audioToggle.addEventListener('change', function() {
+        minimalAudioAllowed = audioToggle.checked;
+        if (!audioToggle.checked) {
+          document.querySelectorAll('audio').forEach(function(a) {
+            a.muted = true;
+            a.pause();
+          });
+        }
+      });
+      // Auto-click start button when it becomes enabled
+      var obs = new MutationObserver(function() {
+        var btn = document.getElementById('start-button');
+        if (btn && !btn.disabled) { btn.click(); obs.disconnect(); }
+      });
+      obs.observe(document.getElementById('start-button'), { attributes: true });
+    }
+  </script>
+</body>
+</html>

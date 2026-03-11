@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="./styles.css?v=132" type="text/css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;700&display=swap" rel="stylesheet">
+  <title>Parallax 2</title>
+  <style>
+    html, body {
+      background-color: white;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .image-container {
+      margin-top: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+    .canvas {
+      margin: 0 auto;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+    }
+    .loading-screen {
+      background-color: white;
+      color: #999;
+    }
+    .info, .allow-motion-button { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="image-container demo-mode">
+    <canvas
+      id="canvas"
+      class="canvas"
+      width="1200"
+      height="1600"
+    ></canvas>
+    <div class="loading-screen" id="loading">Loading...</div>
+    <button class="allow-motion-button" style="display:none"></button>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js" integrity="sha512-lIKG1kC5TMb1Zx32vdz1n31YJMZRknVY20U9MJ28hD3y2c0OKN0Ce5NhJji78v8zX5UOSsm+MTBOcJt7yMBnSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script type="text/javascript" src="./script.js?v=45"></script>
+</body>
+</html>

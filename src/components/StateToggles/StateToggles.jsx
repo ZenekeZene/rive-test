@@ -19,6 +19,7 @@ const TOGGLE_IDS = [
   "contactado",
   "tinieblas",
   "noctambulo",
+  "loryMoney",
   "coleccionista",
 ];
 

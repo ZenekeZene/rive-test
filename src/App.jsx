@@ -40,6 +40,7 @@ function App() {
     contactado: false,
     tinieblas: false,
     noctambulo: false,
+    loryMoney: false,
     coleccionista: false,
   });
   const wasListening = useRef(false);
@@ -62,12 +63,13 @@ function App() {
     contactado: false,
     tinieblas: false,
     noctambulo: false,
+    loryMoney: false,
     coleccionista: false,
   });
 
   const [achievementQueue, setAchievementQueue] = useState([]);
   const [loaded, setLoaded] = useState(false);
-  const [isHeroMaximized, setIsHeroMaximized] = useState(false);
+  const [isHeroMaximized, setIsHeroMaximized] = useState(() => new URLSearchParams(window.location.search).has("minimal"));
   const [isAudioActive, setIsAudioActive] = useState(false);
   const [activeTab, setActiveTab] = useState("experience");
   const [isHeroCollapsed, setIsHeroCollapsed] = useState(false);
@@ -241,7 +243,7 @@ function App() {
 
     };
 
-    const interval = setInterval(checkRiveVariables, 100);
+    const interval = setInterval(checkRiveVariables, 500);
     return () => clearInterval(interval);
   }, []);
 
@@ -286,7 +288,13 @@ function App() {
   const tabChangeTimestamps = useRef([]);
 
   const handleTabChange = useCallback((outfitValue, tabId) => {
-    setActiveTab(tabId);
+    setActiveTab((prev) => {
+      if (prev !== tabId) {
+        if (prev === "art") window.dispatchEvent(new CustomEvent("leave-art-section"));
+        if (prev === "code") window.dispatchEvent(new CustomEvent("leave-code-section"));
+      }
+      return tabId;
+    });
 
     // Track rapid tab changes for "indeciso" achievement
     if (!triggeredStates.current.indeciso) {
@@ -325,6 +333,18 @@ function App() {
 
   const handleCloseToast = useCallback((id) => {
     setAchievementQueue((q) => q.filter((item) => item !== id));
+  }, []);
+
+  // Track if ramen is currently shown in the left panel overlay
+  const [isRamenActive, setIsRamenActive] = useState(false);
+
+  useEffect(() => {
+    const handleOverlayChange = (e) => {
+      const src = e.detail?.embedSrc || "";
+      setIsRamenActive(src.includes("parallax-ramen"));
+    };
+    window.addEventListener("overlay-embed-change", handleOverlayChange);
+    return () => window.removeEventListener("overlay-embed-change", handleOverlayChange);
   }, []);
 
   const handleAudioToggle = useCallback((value) => {
@@ -483,13 +503,13 @@ function App() {
 
   return (
     <div className={`app ${isHeroMaximized ? "heroMaximized" : ""} ${isHeroCollapsed ? "heroCollapsed" : ""} ${konamiShake ? "konamiShake" : ""}`}>
-      <div className="leftPanel">
+      <div className="leftPanel" id="leftPanel">
         <PortraitHero onRiveReady={handleRiveReady} isMaximized={isHeroMaximized} isAudioActive={isAudioActive} />
         <MaximizeToggle isMaximized={isHeroMaximized} onToggle={handleMaximizeToggle} isArtMode={activeTab === "art"} />
         <LanguageSelector hiddenOnMobile={isHeroMaximized} isArtMode={activeTab === "art"} />
         <DarkModeToggle onToggle={handleDarkModeToggle} isArtMode={activeTab === "art"} />
         <CaptureButton onCapture={handleCapture} isArtMode={activeTab === "art"} disabled={guestbook.cooldown} />
-        <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} />
+        <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} disabled={isRamenActive && !isAudioActive} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel
@@ -507,6 +527,8 @@ function App() {
           captureCooldown={guestbook.cooldown}
           onReset={handleResetAchievements}
           loaded={loaded}
+          isRamenActive={isRamenActive}
+          isAudioActive={isAudioActive}
         />
       </div>
       <Toast achievements={achievements} onClose={handleCloseToast} />

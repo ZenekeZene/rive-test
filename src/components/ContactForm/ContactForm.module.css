@@ -217,8 +217,36 @@
   right: 0;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--space-md);
+}
+
+.giftLink {
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: var(--border-width-thick) solid var(--color-text);
+  font-family: var(--font-family);
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.1s ease, color 0.1s ease;
+  animation: giftAppear 0.5s ease-out;
+}
+
+.giftLink:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+@keyframes giftAppear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .easterEggAnchor {

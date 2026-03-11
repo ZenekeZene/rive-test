@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="author" content="ZenekeZene">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="Mon, 22 Jul 2002 11:12:01 GMT">
+
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="./styles.css?v=138" type="text/css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;700&display=swap" rel="stylesheet">
+
+  <meta name="description" content="I promise to surprise you a bit." />
+  <meta property="og:url" content="http://bike.zenekezene.com" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Try this interactive illustration, by Zenekezene" />
+  <meta property="og:description" content="I promise to surprise you a bit." />
+  <meta property="og:image" content="https://bike.zenekezene.com/meta.jpg" />
+  <meta property="og:image:height" content="745" />
+  <meta property="og:image:type" content="jpg" />
+  <meta property="og:image:width" content="700" />
+  <meta property="og:locale" content="en_EN" />
+  <meta property="og:site_name" content="Interactive illustration, by Zenekezene" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:domain" content="Interactive illustration" />
+  <meta name="twitter:creator" content="@zenekezene" />
+
+  <title>Interactive illustration, by Zenekezene.</title>
+</head>
+<body>
+  <main class="image-container">
+    <section id="wrapper" class="interactive" tabindex="0">
+      <canvas
+        id="canvas"
+        class="canvas"
+        width="1300"
+        height="1384"
+      ></canvas>
+      <video id="video" class="video invisible" autoplay muted controls>
+        <source src="./video/video.mp4" type="video/mp4" />
+      </video>
+    </section>
+    <div class="loading-screen" id="loading">Wait a moment, please...</div>
+    <section class="info">
+      <ul class="info__list">
+        <li class="only-desktop">Move it with 🐭.</li>
+        <li class="only-mobile">Move it with your finger.</li>
+        <li class="only-mobile">Move it with the phone or tablet too.</li>
+        <li>Share via <a target="_blank" href="https://wa.me/?text=Try this interactive illustration! - https://bike.zenekezene.com/">Whatsapp</a> or <a target="_blank" href="https://twitter.com/intent/tweet?text=Try%20this%20interactive%20illustration,%20by%20Zenekezene!%20-%20https://bike.zenekezene.com">Twitter</a>.</li>
+        <li>Follow me on <a href="https://www.instagram.com/zenekezene/">Instagram</a> and <a href="https://twitter.com/zenekezene">Twitter</a>.</li>
+      </ul>
+      <a href="./images/original.png" target="_blank" download class="button">⬇️ Download wallpaper (2.5 MB)</a>
+      <button class="allow-motion-button" onclick="enableMotion()">✨ Enable the magic</button>
+    </section>
+    <section class="camera" id="video-button">
+      <p class="close-video">Close video</p>
+      <p class="play-video">HOW WAS IT DRAWN?</p>
+      <img src="./images/camera.png" class="camera__icon" />
+      <img src="./images/camera-shadow.png" class="camera__shadow" />
+    </section>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js" integrity="sha512-lIKG1kC5TMb1Zx32vdz1n31YJMZRknVY20U9MJ28hD3y2c0OKN0Ce5NhJji78v8zX5UOSsm+MTBOcJt7yMBnSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script type="text/javascript" src="./script.js?v=46"></script>
+</body>
+</html>

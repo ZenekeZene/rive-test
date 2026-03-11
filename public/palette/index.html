@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang=en><head><title>Palette</title><meta charset=UTF-8><meta name=viewport content="width=device-width,height=device-height,initial-scale=1,minimum-scale=1,maximum-scale=1"><link rel=preconnect href=https://fonts.googleapis.com><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel=stylesheet><link href=css/app.9e380c61.css rel=preload as=style><link href=js/app.23cd9a0d.js rel=preload as=script><link href=js/chunk-vendors.2a4c1dc6.js rel=preload as=script><link href=css/app.9e380c61.css rel=stylesheet><link rel=icon type=image/png sizes=32x32 href=img/icons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=img/icons/favicon-16x16.png><link rel=manifest href=manifest.json><meta name=theme-color content=#4DBA87><meta name=apple-mobile-web-app-capable content=no><meta name=apple-mobile-web-app-status-bar-style content=default><meta name=apple-mobile-web-app-title content=palette-vue><link rel=apple-touch-icon href=img/icons/apple-touch-icon-152x152.png><link rel=mask-icon href=img/icons/safari-pinned-tab.svg color=#4DBA87><meta name=msapplication-TileImage content=img/icons/msapplication-icon-144x144.png><meta name=msapplication-TileColor content=#000000></head><body><noscript><strong>We're sorry but palette-vue doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=app></div><script>function getMobileOperatingSystem() {
+			let userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+			// Windows Phone must come first because its UA also contains "Android"
+			if (/windows phone/i.test(userAgent)) {
+				return "Windows Phone";
+			}
+
+			if (/android/i.test(userAgent)) {
+				return "Android";
+			}
+
+			// iOS detection from: http://stackoverflow.com/a/9039885/177710
+			if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+				return "iOS";
+			}
+
+			return "unknown";
+		}
+		isMobile = this.getMobileOperatingSystem();
+
+		document.body.classList.add(( isMobile.localeCompare('Android') === 0 ? 'android' : 'ios'));
+
+		function openUrl(theUrl) {
+			window.open(theUrl, '_blank', 'location=yes');
+		}</script><script src=js/chunk-vendors.2a4c1dc6.js></script><script src=js/app.23cd9a0d.js></script></body></html>

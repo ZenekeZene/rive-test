@@ -51,34 +51,42 @@ function ColorfulTitle({ text = "Zeneke", activeTab = "experience", paintLevels,
   const setPaintLevels = onPaintChange || setLocalPaintLevels;
 
   useEffect(() => {
+    let rafId = null;
+
     const handleMouseMove = (e) => {
       if (!containerRef.current) return;
+      if (rafId) return; // Already scheduled, skip
 
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const mouseX = e.clientX - containerRect.left;
-      const mouseY = e.clientY - containerRect.top;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (!containerRef.current) return;
 
-      setPaintLevels((prev) =>
-        prev.map((level, index) => {
-          const letterEl = lettersRef.current[index];
-          if (!letterEl) return level;
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const mouseX = e.clientX - containerRect.left;
+        const mouseY = e.clientY - containerRect.top;
 
-          const letterRect = letterEl.getBoundingClientRect();
-          const letterCenterX = letterRect.left - containerRect.left + letterRect.width / 2;
-          const letterCenterY = letterRect.top - containerRect.top + letterRect.height / 2;
+        setPaintLevels((prev) =>
+          prev.map((level, index) => {
+            const letterEl = lettersRef.current[index];
+            if (!letterEl) return level;
 
-          const distance = Math.sqrt(
-            Math.pow(mouseX - letterCenterX, 2) + Math.pow(mouseY - letterCenterY, 2)
-          );
+            const letterRect = letterEl.getBoundingClientRect();
+            const letterCenterX = letterRect.left - containerRect.left + letterRect.width / 2;
+            const letterCenterY = letterRect.top - containerRect.top + letterRect.height / 2;
 
-          if (distance < BRUSH_RADIUS) {
-            const intensity = 1 - distance / BRUSH_RADIUS;
-            return Math.min(1, level + intensity * 0.08);
-          }
+            const distance = Math.sqrt(
+              Math.pow(mouseX - letterCenterX, 2) + Math.pow(mouseY - letterCenterY, 2)
+            );
 
-          return level;
-        })
-      );
+            if (distance < BRUSH_RADIUS) {
+              const intensity = 1 - distance / BRUSH_RADIUS;
+              return Math.min(1, level + intensity * 0.08);
+            }
+
+            return level;
+          })
+        );
+      });
     };
 
     const container = containerRef.current;
@@ -90,6 +98,7 @@ function ColorfulTitle({ text = "Zeneke", activeTab = "experience", paintLevels,
       if (container) {
         container.removeEventListener("mousemove", handleMouseMove);
       }
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [text, setPaintLevels]);
 
