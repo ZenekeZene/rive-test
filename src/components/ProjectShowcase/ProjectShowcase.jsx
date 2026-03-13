@@ -276,13 +276,13 @@ function ProjectShowcase() {
   const renderProject = (project) => (
     <div className={styles.projectContent}>
       <div className={styles.projectInfo}>
-        <h3 className={styles.projectName}>
+        <h2 className={styles.projectName}>
           <ColorfulTitle
             key={project.id}
             text={project.name}
             activeTab="code"
           />
-        </h3>
+        </h2>
         <p className={styles.projectDescription}>{project.description}</p>
         <div className={styles.projectTech}>
           {project.tech?.map((tech) => (

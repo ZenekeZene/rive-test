@@ -13,7 +13,7 @@
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-label);
   color: #fff;
-  opacity: 0.4;
+  opacity: 0.6;
   cursor: pointer;
   padding: 0.2rem 0.4rem;
   background: none;
@@ -32,7 +32,7 @@
 .divider {
   font-size: var(--font-size-label);
   color: #fff;
-  opacity: 0.3;
+  opacity: 0.6;
 }
 
 /* Mobile: lives inside leftPanel, above the icon row */

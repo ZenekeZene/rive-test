@@ -28,7 +28,7 @@ function GuestbookCard({ entry, quip }) {
         />
       </div>
       <div className={styles.body}>
-        <h4 className={styles.author}>{entry.author_name}</h4>
+        <h3 className={styles.author}>{entry.author_name}</h3>
         <p className={styles.message}>{entry.message}</p>
         <time className={styles.time}>{getTimeAgo(entry.created_at, timeAgo)}</time>
       </div>
