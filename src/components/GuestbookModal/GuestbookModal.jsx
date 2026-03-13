@@ -82,7 +82,7 @@ function GuestbookModal({ imageBlob, onSubmit, onClose }) {
         <div className={styles.content}>
           <div className={styles.imageSection}>
             {imageUrl && (
-              <img src={imageUrl} alt="Captured" className={styles.preview} />
+              <img src={imageUrl} alt="Captured" className={styles.preview} width={600} height={600} />
             )}
           </div>
 

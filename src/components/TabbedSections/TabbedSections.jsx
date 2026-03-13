@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import styles from "./TabbedSections.module.css";
 import AboutMe from "../AboutMe/AboutMe";
-import ImageGallery from "../ImageGallery/ImageGallery";
-import ProjectShowcase from "../ProjectShowcase/ProjectShowcase";
-import ContactForm from "../ContactForm/ContactForm";
+const ImageGallery = lazy(() => import("../ImageGallery/ImageGallery"));
+const ProjectShowcase = lazy(() => import("../ProjectShowcase/ProjectShowcase"));
+const ContactForm = lazy(() => import("../ContactForm/ContactForm"));
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useIsMobile } from "../../hooks/useIsMobile";
 
@@ -102,7 +102,9 @@ function TabbedSections({ onTabChange, guestbook, onEasterEgg, onEasterEggPhrase
         </div>
         <div className={styles.tabContent}>
           {ActiveComponent && (
-            <ActiveComponent {...(activeTab === "others" ? { guestbook, onEasterEgg, onEasterEggPhrase } : {})} />
+            <Suspense fallback={null}>
+              <ActiveComponent {...(activeTab === "others" ? { guestbook, onEasterEgg, onEasterEggPhrase } : {})} />
+            </Suspense>
           )}
         </div>
       </div>
@@ -121,7 +123,9 @@ function TabbedSections({ onTabChange, guestbook, onEasterEgg, onEasterEggPhrase
             data-section={tab.id}
             className={styles.scrollSection}
           >
-            <Component {...(tab.id === "others" ? { guestbook, onEasterEgg, onEasterEggPhrase } : {})} />
+            <Suspense fallback={null}>
+              <Component {...(tab.id === "others" ? { guestbook, onEasterEgg, onEasterEggPhrase } : {})} />
+            </Suspense>
           </section>
         );
       })}

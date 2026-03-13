@@ -25,6 +25,8 @@ function GuestbookCard({ entry, quip }) {
           alt={`Capture by ${entry.author_name}`}
           className={styles.image}
           loading="lazy"
+          width={600}
+          height={600}
         />
       </div>
       <div className={styles.body}>

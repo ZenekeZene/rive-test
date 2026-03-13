@@ -544,6 +544,8 @@ function ImageGallery() {
                         className={styles.carouselThumb}
                         loading="lazy"
                         decoding="async"
+                        width={50}
+                        height={50}
                       />
                     )}
                   </button>
@@ -587,6 +589,8 @@ function ImageGallery() {
                     className={styles.thumbnail}
                     loading="lazy"
                     decoding="async"
+                    width={1080}
+                    height={1080}
                     style={
                       activeUniqueId === image.id && !selectedImage
                         ? { viewTransitionName: "gallery-image" }
@@ -635,6 +639,8 @@ function ImageGallery() {
                   src={image.url}
                   alt={image.title}
                   className={styles.thumbnail}
+                  width={1080}
+                  height={1080}
                   style={
                     activeUniqueId === image.uniqueId && !selectedImage
                       ? { viewTransitionName: "gallery-image" }

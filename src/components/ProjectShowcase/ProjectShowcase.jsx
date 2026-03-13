@@ -269,6 +269,8 @@ function ProjectShowcase() {
         src={project.image || `https://picsum.photos/seed/project${project.id}/600/400`}
         alt={project.name}
         className={styles.projectImage}
+        width={600}
+        height={400}
       />
     );
   };
