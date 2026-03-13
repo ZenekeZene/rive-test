@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import styles from "./TabbedSections.module.css";
 import AboutMe from "../AboutMe/AboutMe";
-const ImageGallery = lazy(() => import("../ImageGallery/ImageGallery"));
-const ProjectShowcase = lazy(() => import("../ProjectShowcase/ProjectShowcase"));
-const ContactForm = lazy(() => import("../ContactForm/ContactForm"));
+// Eager-fetch chunks (starts download now) but lazy-parse (doesn't block main bundle)
+const imageGalleryChunk = import("../ImageGallery/ImageGallery");
+const projectShowcaseChunk = import("../ProjectShowcase/ProjectShowcase");
+const contactFormChunk = import("../ContactForm/ContactForm");
+const ImageGallery = lazy(() => imageGalleryChunk);
+const ProjectShowcase = lazy(() => projectShowcaseChunk);
+const ContactForm = lazy(() => contactFormChunk);
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useIsMobile } from "../../hooks/useIsMobile";
 
