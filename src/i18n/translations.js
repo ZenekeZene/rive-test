@@ -12,8 +12,28 @@ export const translations = {
 
     // Desktop section titles (narrative flow)
     sectionCode: "I mash keys until things work",
-    sectionArt: "And place pixels somewhat randomly",
+    sectionArt: "I also place pixels somewhat randomly",
     sectionContact: "Wanna say hi?",
+
+    // Art quips (hover on gallery items)
+    artQuipPortrait: "A selfie with extra steps",
+    artQuipGorila: "60 hours on an iPad. My back still hurts",
+    artQuipSpace: "A dead spider, in space, with drama",
+    artQuipAntifascist: "Fashion statement. Emphasis on statement",
+    artQuipCiclos: "AI took my job. I took it back",
+    artQuipDeus: "Six colors. Zero excuses",
+    artQuipDemonios: "Therapy, but make it Procreate",
+    artQuipChelines: "Van Gogh walks into a barbershop...",
+    artQuipMucho: "Print is not dead. It just smells funny",
+    artQuipEncuentra: "Where's Waldo but with street cred",
+    artQuipKlimt: "The washing machine still haunts me",
+    artQuipMoebius: "Parenting advice: give them a spaceship",
+    artQuipNoche: "3 AM thoughts, but illustrated",
+    artQuipMiedo: "We can't stop here. This is bat country",
+    artQuipSmoke: "Jazz noir, but with better beats",
+    artQuipCovid: "Remember when we sanitized beaches?",
+    artQuipGernika: "Sorry not sorry, Picasso",
+    artQuipBones: "My fingers still haven't forgiven me",
 
     // Sidebar
     sidebarCta: "Poke around. Break things. Unlock them all.",
@@ -450,6 +470,26 @@ export const translations = {
     sectionCode: "Aporreo teclas hasta que algo funciona",
     sectionArt: "Coloco píxeles de forma aleatoria",
     sectionContact: "¿Quieres decirme algo?",
+
+    // Art quips (hover en galería)
+    artQuipPortrait: "Un selfie con pasos extra",
+    artQuipGorila: "60 horas en un iPad. La espalda aún me duele",
+    artQuipSpace: "Una araña muerta, en el espacio, con drama",
+    artQuipAntifascist: "Moda con mensaje. Sobre todo mensaje",
+    artQuipCiclos: "La IA me quitó el curro. Se lo devolví",
+    artQuipDeus: "Seis colores. Cero excusas",
+    artQuipDemonios: "Terapia, pero en Procreate",
+    artQuipChelines: "Van Gogh entra en una barbería...",
+    artQuipMucho: "El papel no ha muerto. Solo huele raro",
+    artQuipEncuentra: "Como buscando a Wally pero con flow",
+    artQuipKlimt: "La lavadora me sigue persiguiendo",
+    artQuipMoebius: "Consejo paternal: regálale una nave espacial",
+    artQuipNoche: "Pensamientos de las 3 AM, pero ilustrados",
+    artQuipMiedo: "No podemos parar aquí. Esto es territorio murciélago",
+    artQuipSmoke: "Jazz noir, pero con mejores beats",
+    artQuipCovid: "¿Te acuerdas cuando desinfectábamos playas?",
+    artQuipGernika: "Sorry not sorry, Picasso",
+    artQuipBones: "Mis dedos todavía no me han perdonado",
 
     // Sidebar
     sidebarCta: "Curiosea. Rompe cosas. Desbloquéalos todos.",

@@ -93,11 +93,11 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, g
     return () => clearTimeout(fadeTimer.current);
   }, [titleText, displayedTitle]);
 
-  // 3s cooldown after title settles — prevents guestbook hovers from overriding too soon
+  // 5s cooldown after title settles — ensures section title is read before hover quips kick in
   useEffect(() => {
     setTitleCoolingDown(true);
     clearTimeout(cooldownTimer.current);
-    cooldownTimer.current = setTimeout(() => setTitleCoolingDown(false), 3000);
+    cooldownTimer.current = setTimeout(() => setTitleCoolingDown(false), 5000);
     return () => clearTimeout(cooldownTimer.current);
   }, [displayedTitle]);
 
@@ -120,12 +120,14 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, g
     if (!panel || isMobile) return;
 
     const handleOver = (e) => {
-      const card = e.target.closest("[data-guestbook-quip]");
-      if (card) setHoverPhrase(card.dataset.guestbookQuip);
+      const guestCard = e.target.closest("[data-guestbook-quip]");
+      if (guestCard) { setHoverPhrase(guestCard.dataset.guestbookQuip); return; }
+      const artCard = e.target.closest("[data-art-quip]");
+      if (artCard) setHoverPhrase(artCard.dataset.artQuip);
     };
 
     const handleOut = (e) => {
-      const card = e.target.closest("[data-guestbook-quip]");
+      const card = e.target.closest("[data-guestbook-quip], [data-art-quip]");
       if (card && !card.contains(e.relatedTarget)) {
         setHoverPhrase(null);
       }
@@ -246,7 +248,7 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, g
           <div className={styles.sidebarActions}>
             <DarkModeToggle onToggle={onDarkModeToggle} />
             <CaptureButton onCapture={onCapture} disabled={captureCooldown} />
-            <AudioToggle onToggle={onAudioToggle} isActive={isAudioActive} disabled={isCodeOverlayActive || isArtOverlayActive} />
+            <AudioToggle onToggle={onAudioToggle} isActive={isAudioActive} disabled={(isCodeOverlayActive || isArtOverlayActive) && !isAudioActive} />
             {hasAnyUnlocked && (
               <button
                 className={`${styles.resetAction} ${resetConfirming ? styles.resetConfirming : ""}`}

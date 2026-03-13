@@ -522,7 +522,7 @@ function App() {
         <LanguageSelector hiddenOnMobile={isHeroMaximized} isArtMode={activeTab === "art"} />
         <DarkModeToggle onToggle={handleDarkModeToggle} isArtMode={activeTab === "art"} />
         <CaptureButton onCapture={handleCapture} isArtMode={activeTab === "art"} disabled={guestbook.cooldown} />
-        <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} disabled={isCodeOverlayActive || isArtOverlayActive} />
+        <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} disabled={(isCodeOverlayActive || isArtOverlayActive) && !isAudioActive} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel
