@@ -337,14 +337,25 @@ function App() {
 
   // Track if ramen is currently shown in the left panel overlay
   const [isRamenActive, setIsRamenActive] = useState(false);
+  // Track if any overlay (code preview/embed or art project) covers the portrait
+  const [isCodeOverlayActive, setIsCodeOverlayActive] = useState(false);
+  const [isArtOverlayActive, setIsArtOverlayActive] = useState(false);
 
   useEffect(() => {
     const handleOverlayChange = (e) => {
       const src = e.detail?.embedSrc || "";
       setIsRamenActive(src.includes("parallax-ramen"));
     };
+    const handleCodeOverlay = (e) => setIsCodeOverlayActive(!!e.detail?.active);
+    const handleArtOverlay = (e) => setIsArtOverlayActive(!!e.detail?.active);
     window.addEventListener("overlay-embed-change", handleOverlayChange);
-    return () => window.removeEventListener("overlay-embed-change", handleOverlayChange);
+    window.addEventListener("code-overlay-change", handleCodeOverlay);
+    window.addEventListener("art-overlay-change", handleArtOverlay);
+    return () => {
+      window.removeEventListener("overlay-embed-change", handleOverlayChange);
+      window.removeEventListener("code-overlay-change", handleCodeOverlay);
+      window.removeEventListener("art-overlay-change", handleArtOverlay);
+    };
   }, []);
 
   const handleAudioToggle = useCallback((value) => {
@@ -511,7 +522,7 @@ function App() {
         <LanguageSelector hiddenOnMobile={isHeroMaximized} isArtMode={activeTab === "art"} />
         <DarkModeToggle onToggle={handleDarkModeToggle} isArtMode={activeTab === "art"} />
         <CaptureButton onCapture={handleCapture} isArtMode={activeTab === "art"} disabled={guestbook.cooldown} />
-        <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} disabled={isRamenActive && !isAudioActive} />
+        <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} disabled={isCodeOverlayActive || isArtOverlayActive} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel
@@ -531,6 +542,8 @@ function App() {
           loaded={loaded}
           isRamenActive={isRamenActive}
           isAudioActive={isAudioActive}
+          isCodeOverlayActive={isCodeOverlayActive}
+          isArtOverlayActive={isArtOverlayActive}
         />
       </div>
       <Toast achievements={achievements} onClose={handleCloseToast} />

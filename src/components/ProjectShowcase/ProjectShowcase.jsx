@@ -210,6 +210,14 @@ function ProjectShowcase() {
     }));
   }, [overlayData?.embedSrc]);
 
+  // Notify the app when a code overlay is visible in the left panel
+  const isCodeOverlayVisible = !!(overlayData && !overlayHidden);
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("code-overlay-change", {
+      detail: { active: isCodeOverlayVisible },
+    }));
+  }, [isCodeOverlayVisible]);
+
   const handleCarouselEmbedChange = (projectId) => (embed) => {
     setActiveCarouselEmbed((prev) => ({ ...prev, [projectId]: embed }));
   };

@@ -216,6 +216,14 @@ function ImageGallery() {
     return () => gallery.removeEventListener("scroll", handleInfiniteScroll);
   }, [isMobile, handleInfiniteScroll, galleryHeight]);
 
+  // Notify the app when an art overlay is visible in the left panel (desktop)
+  useEffect(() => {
+    if (isMobile) return;
+    window.dispatchEvent(new CustomEvent("art-overlay-change", {
+      detail: { active: !!(selectedImage || closingImage) },
+    }));
+  }, [isMobile, selectedImage, closingImage]);
+
   // Close expanded image when leaving Art section or hovering a Code project
   useEffect(() => {
     const handleClose = () => {
