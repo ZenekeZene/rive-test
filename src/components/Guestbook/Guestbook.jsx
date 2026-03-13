@@ -9,7 +9,7 @@ function Guestbook({ entries, loading, hasMore, onLoadMore }) {
 
   return (
     <section className={styles.section}>
-      <h3 className={styles.title}>{gb.sectionTitle}</h3>
+      <h2 className={styles.title}>{gb.sectionTitle}</h2>
 
       {entries.length === 0 && !loading ? (
         <p className={styles.empty}>{gb.empty}</p>

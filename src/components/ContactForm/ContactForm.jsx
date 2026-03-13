@@ -6,6 +6,11 @@ import { useLanguage } from "../../i18n/LanguageContext";
 function ContactForm({ guestbook, onEasterEgg, onEasterEggPhrase }) {
   const { t } = useLanguage();
   const contact = t("contact");
+
+  // Fetch guestbook entries on first render of this tab
+  useEffect(() => {
+    guestbook.fetchInitial?.();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [formData, setFormData] = useState({ name: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [formClickCount, setFormClickCount] = useState(0);

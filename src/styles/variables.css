@@ -1,3 +1,13 @@
+/* Fallback font with metrics matching Inter to prevent CLS */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('system-ui'), local('-apple-system'), local('sans-serif');
+  size-adjust: 107%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
 :root {
   /* Colors - Pure B&W */
   --color-bg: #FFFFFF;
@@ -5,7 +15,7 @@
   --color-border: #000000;
 
   /* Typography */
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: 'Inter', 'Inter Fallback', system-ui, -apple-system, sans-serif;
 
   /* Font Sizes */
   --font-size-hero: 6rem;

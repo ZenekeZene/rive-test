@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "../lib/supabase";
 
 const PAGE_SIZE = 12;
@@ -24,8 +24,11 @@ export function useGuestbook() {
     }
   }, []);
 
-  // Fetch initial entries
-  useEffect(() => {
+  // Fetch entries on demand (not on mount) to avoid critical request chain
+  const hasFetched = useRef(false);
+  const fetchInitial = useCallback(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
     fetchEntries();
   }, []);
 
@@ -100,5 +103,5 @@ export function useGuestbook() {
     return data;
   }, []);
 
-  return { entries, loading, submitEntry, loadMore, hasMore, cooldown };
+  return { entries, loading, submitEntry, loadMore, hasMore, cooldown, fetchInitial };
 }

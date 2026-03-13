@@ -207,7 +207,7 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, g
   }, [isMobile, toggleStates.curioso, onEasterEgg, onEasterEggPhrase, topPhrases]);
 
   return (
-    <section
+    <main
       ref={panelRef}
       className={styles.contentPanel}
       style={{
@@ -299,7 +299,7 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, g
       </div>
 
       {showConfetti && <Confetti onComplete={() => setShowConfetti(false)} />}
-    </section>
+    </main>
   );
 }
 

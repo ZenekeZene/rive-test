@@ -346,7 +346,7 @@ function ImageGallery() {
     return (
       <div className={styles.modal} onClick={handleBackdropClick}>
         <div className={styles.modalContent}>
-          <button className={styles.closeButton} onClick={closeModal}>
+          <button className={styles.closeButton} onClick={closeModal} aria-label="Close">
             ✕
           </button>
           {isVideo(modalUrl) ? (
@@ -456,19 +456,19 @@ function ImageGallery() {
         data-video-overlay
         onAnimationEnd={() => { if (isClosing) setClosingImage(null); }}
       >
-        {!isClosing && <button className={styles.leftPanelClose} onClick={closeModal}>✕</button>}
+        {!isClosing && <button className={styles.leftPanelClose} onClick={closeModal} aria-label="Close">✕</button>}
         {!isClosing && !showAbout && currentUrl && !isVideo(currentUrl) && (
           <button
             className={`${styles.zoomToggle} ${zoomEnabled ? styles.zoomToggleActive : ""}`}
             onClick={() => { setZoomEnabled((v) => !v); setZoomPos(null); }}
-            title={zoomEnabled ? "Desactivar zoom" : "Activar zoom"}
+            aria-label={zoomEnabled ? "Disable zoom" : "Enable zoom"}
           >⌕</button>
         )}
         {!isClosing && slideCount > 1 && activeDetailIndex > 0 && (
-          <button className={`${styles.navArrow} ${styles.navArrowLeft}`} onClick={() => switchDetailImage(activeDetailIndex - 1)}>‹</button>
+          <button className={`${styles.navArrow} ${styles.navArrowLeft}`} onClick={() => switchDetailImage(activeDetailIndex - 1)} aria-label="Previous slide">‹</button>
         )}
         {!isClosing && slideCount > 1 && activeDetailIndex < slideCount - 1 && (
-          <button className={`${styles.navArrow} ${styles.navArrowRight}`} onClick={() => switchDetailImage(activeDetailIndex + 1)}>›</button>
+          <button className={`${styles.navArrow} ${styles.navArrowRight}`} onClick={() => switchDetailImage(activeDetailIndex + 1)} aria-label="Next slide">›</button>
         )}
         <div className={styles.leftPanelContent}>
           {showAbout ? (
@@ -531,6 +531,7 @@ function ImageGallery() {
                     data-carousel-active={i === activeDetailIndex ? "true" : undefined}
                     className={`${styles.carouselItem} ${i === activeDetailIndex ? styles.carouselItemActive : ""} ${isAbout ? styles.carouselItemAbout : ""}`}
                     onClick={() => switchDetailImage(i)}
+                    aria-label={isAbout ? "About" : `Slide ${i + 1} of ${slideCount}`}
                   >
                     {isAbout ? (
                       <span className={styles.carouselAboutLabel}>i</span>
@@ -567,6 +568,7 @@ function ImageGallery() {
                 key={image.id}
                 className={`${styles.masonryItem} ${selectedImage?.id === image.id ? styles.masonryItemActive : ""}`}
                 onClick={() => selectedImage?.id === image.id ? closeModal() : openModal(image)}
+                aria-label={image.title}
               >
                 {isVideo(image.url) ? (
                   <LazyVideo
@@ -616,6 +618,7 @@ function ImageGallery() {
               key={image.uniqueId}
               className={`${styles.imageButton} ${styles[image.size]}`}
               onClick={() => openModal(image)}
+              aria-label={image.title}
             >
               {isVideo(image.url) ? (
                 <LazyVideo

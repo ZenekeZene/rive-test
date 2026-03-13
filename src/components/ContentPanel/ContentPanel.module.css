@@ -131,7 +131,7 @@
 }
 
 .sidebarGold .sidebarCta {
-  color: rgba(255, 215, 0, 0.5);
+  color: rgba(255, 215, 0, 0.75);
 }
 
 .sidebarActions {
@@ -147,7 +147,7 @@
   width: 2.5rem;
   height: 2.5rem;
   background-color: var(--color-sidebar-bg, var(--color-text));
-  border: var(--border-width) solid rgba(255, 255, 255, 0.2);
+  border: var(--border-width) solid rgba(255, 255, 255, 0.4);
   color: #fff !important;
   cursor: pointer;
   display: flex;
@@ -159,7 +159,7 @@
 }
 
 .sidebarActions > *:last-child {
-  border-right: var(--border-width) solid rgba(255, 255, 255, 0.2);
+  border-right: var(--border-width) solid rgba(255, 255, 255, 0.4);
 }
 
 .sidebarActions > *:hover {
@@ -199,7 +199,7 @@
 }
 
 .sidebarCta {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.75rem;
   font-style: italic;
   line-height: 1.4;
@@ -207,7 +207,7 @@
 }
 
 .sidebarCtaLink {
-  color: rgba(255, 215, 0, 0.7);
+  color: rgba(255, 215, 0, 0.85);
   text-decoration: none;
   transition: color 0.2s ease;
 }
