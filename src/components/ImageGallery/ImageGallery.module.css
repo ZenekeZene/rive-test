@@ -183,11 +183,143 @@
   animation: fadeIn 0.3s ease-out;
 }
 
+.leftPanelContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 .leftPanelImage {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   display: block;
+  flex: 1;
+  min-height: 0;
+}
+
+/* When not inside zoomContainer (videos), keep the old max-height */
+video.leftPanelImage {
+  max-height: calc(100% - 80px);
+}
+
+/* Carousel strip */
+.carousel {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  flex-shrink: 0;
+  justify-content: center;
+  scrollbar-width: none;
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselItem {
+  flex-shrink: 0;
+  padding: 0;
+  border: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.carouselItem:hover {
+  opacity: 0.8;
+}
+
+.carouselItemActive {
+  opacity: 1;
+  border-color: white;
+}
+
+.carouselThumb {
+  display: block;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+.carouselVideoPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+}
+
+.carouselItemAbout {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.carouselAboutLabel {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: white;
+  line-height: 1;
+}
+
+/* About text slide in left panel */
+.aboutSlide {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 2.5rem;
+  max-width: 100%;
+  text-align: left;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.aboutSlide::before,
+.aboutSlide::after {
+  content: "";
+  flex: 1;
+}
+
+.aboutTitle {
+  color: white;
+  font-size: var(--font-size-body, 0.875rem);
+  font-weight: var(--font-weight-bold, 700);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label, 0.08em);
+  margin: 0 0 1rem 0;
+  flex-shrink: 0;
+}
+
+.aboutText {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: var(--font-size-small, 0.75rem);
+  line-height: 1.7;
+  max-width: 380px;
+}
+
+.aboutText p {
+  margin: 0 0 1.5em 0;
+}
+
+.aboutText p:last-child {
+  margin-bottom: 0;
 }
 
 .leftPanelClose {
@@ -210,6 +342,86 @@
 
 .leftPanelClose:hover {
   background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Navigation arrows */
+.navArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 2rem;
+  height: 3rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+  padding: 0;
+}
+
+.navArrow:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.navArrowLeft {
+  left: var(--space-sm, 0.5rem);
+}
+
+.navArrowRight {
+  right: var(--space-sm, 0.5rem);
+}
+
+/* Zoom */
+.zoomToggle {
+  position: absolute;
+  top: var(--space-sm, 0.5rem);
+  left: var(--space-sm, 0.5rem);
+  z-index: 2;
+  width: 2rem;
+  height: 2rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+  padding: 0;
+}
+
+.zoomToggle:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.zoomToggleActive {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: white;
+}
+
+.zoomContainer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: calc(100% - 80px);
+}
+
+.zoomActive {
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.zoomActive .leftPanelImage {
+  transition: none;
+  will-change: transform;
 }
 
 .masonryItemActive {
