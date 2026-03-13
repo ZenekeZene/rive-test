@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react";
 import "./App.css";
-import PortraitHero from "./components/PortraitHero/PortraitHero";
+const PortraitHero = lazy(() => import("./components/PortraitHero/PortraitHero"));
 import ContentPanel from "./components/ContentPanel/ContentPanel";
 import Toast from "./components/Toast/Toast";
 import AudioToggle from "./components/AudioToggle/AudioToggle";
@@ -504,7 +504,9 @@ function App() {
   return (
     <div className={`app ${isHeroMaximized ? "heroMaximized" : ""} ${isHeroCollapsed ? "heroCollapsed" : ""} ${konamiShake ? "konamiShake" : ""}`}>
       <div className="leftPanel" id="leftPanel">
-        <PortraitHero onRiveReady={handleRiveReady} isMaximized={isHeroMaximized} isAudioActive={isAudioActive} />
+        <Suspense fallback={null}>
+          <PortraitHero onRiveReady={handleRiveReady} isMaximized={isHeroMaximized} isAudioActive={isAudioActive} />
+        </Suspense>
         <MaximizeToggle isMaximized={isHeroMaximized} onToggle={handleMaximizeToggle} isArtMode={activeTab === "art"} />
         <LanguageSelector hiddenOnMobile={isHeroMaximized} isArtMode={activeTab === "art"} />
         <DarkModeToggle onToggle={handleDarkModeToggle} isArtMode={activeTab === "art"} />
