@@ -33,7 +33,14 @@
   flex-shrink: 0;
   padding: 0;
   border: none;
-  background: none;
+  background: linear-gradient(
+    90deg,
+    var(--color-border, #000) 0%,
+    rgba(128, 128, 128, 0.15) 50%,
+    var(--color-border, #000) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
   cursor: pointer;
   transition: transform 0.1s ease;
 }
@@ -62,7 +69,14 @@
   width: 100%;
   padding: 0;
   border: none;
-  background: none;
+  background: linear-gradient(
+    90deg,
+    var(--color-border, #000) 0%,
+    rgba(128, 128, 128, 0.15) 50%,
+    var(--color-border, #000) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
   cursor: pointer;
   margin-bottom: var(--space-sm);
   transition: transform 0.1s ease;
@@ -431,6 +445,11 @@ video.leftPanelImage {
 
 .leftPanelClosing {
   animation: fadeOut 0.35s ease-out forwards;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes fadeIn {

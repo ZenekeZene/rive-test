@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
+import styles from "./Skeleton.module.css";
 
 function LazyVideo({ src, className, style, ...props }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -23,17 +25,19 @@ function LazyVideo({ src, className, style, ...props }) {
   }, []);
 
   return (
-    <video
-      ref={ref}
-      src={isVisible ? src : undefined}
-      className={className}
-      style={style}
-      muted
-      playsInline
-      loop
-      autoPlay
-      {...props}
-    />
+    <span ref={ref} className={`${styles.wrapper} ${!isLoaded ? styles.skeleton : ""}`}>
+      <video
+        src={isVisible ? src : undefined}
+        className={className}
+        style={style}
+        muted
+        playsInline
+        loop
+        autoPlay
+        onLoadedData={() => setIsLoaded(true)}
+        {...props}
+      />
+    </span>
   );
 }
 
