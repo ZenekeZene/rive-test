@@ -1,17 +1,21 @@
 import { useRef, useEffect, useState } from "react";
 import styles from "./MusicPlayer.module.css";
 
-const BASE_URL = "https://archive.org/download/DWK312/";
+const BASE_URL = "https://archive.org/download/classical-music-mix-by-various-artists/";
 
 const TRACKS = [
-  { file: "Centz_-_01_-_Bonjour.mp3", title: "Bonjour" },
-  { file: "Centz_-_07_-_Samurai_Disco.mp3", title: "Samurai Disco" },
-  { file: "Centz_-_08_-_B-Boy_Stance.mp3", title: "B-Boy Stance" },
-  { file: "Centz_-_06_-_1990.mp3", title: "1990" },
-  { file: "Centz_-_10_-_Memory_Box.mp3", title: "Memory Box" },
-  { file: "Centz_-_14_-_Neon_Noir.mp3", title: "Neon Noir" },
-  { file: "Centz_-_03_-_The_London_Underground.mp3", title: "The London Underground" },
-  { file: "Centz_-_12_-_Poison_Darts.mp3", title: "Poison Darts" },
+  { file: "04 - Chopin - Etude in E Major, Op. 10, No. 3.mp3", title: "Etude in E Major", composer: "Chopin" },
+  { file: "03 - Mascagni - Cavalleria Rusticana, Intermezzo.mp3", title: "Cavalleria Rusticana", composer: "Mascagni" },
+  { file: "11 - Mozart - Clarinet Concerto in A Major, K622 Adagio.mp3", title: "Clarinet Concerto, Adagio", composer: "Mozart" },
+  { file: "07 - Dvorak - String Serenade, in E Major, Op 22, Moderato.mp3", title: "String Serenade", composer: "Dvořák" },
+  { file: "10 - Pachelbel - Canon in D Major.mp3", title: "Canon in D Major", composer: "Pachelbel" },
+  { file: "05 - Bruch - Violin Concerto No. 1, in G Minor Op. 26, Adagio.mp3", title: "Violin Concerto, Adagio", composer: "Bruch" },
+  { file: "09 - Schumann - Scenes from childhood, Op. 15.mp3", title: "Scenes from Childhood", composer: "Schumann" },
+  { file: "08 - Rachmaninov - Piano Concerto No. 2 in C Minor, Op. 18, Adagio sostenuto.mp3", title: "Piano Concerto No. 2, Adagio", composer: "Rachmaninov" },
+  { file: "05 - Tchaikovsky - Swan Lake, Scene.mp3", title: "Swan Lake, Scene", composer: "Tchaikovsky" },
+  { file: "11 - Handel - Messiah, Pastoral Symphony.mp3", title: "Messiah, Pastoral Symphony", composer: "Handel" },
+  { file: "15 - Haydn - Symphony No. 101, in D Major, Andante.mp3", title: "Symphony No. 101, Andante", composer: "Haydn" },
+  { file: "03 - Boccherini - String Quintet, in E Major, Op. 11, No. 5, Minuet.mp3", title: "String Quintet, Minuet", composer: "Boccherini" },
 ];
 
 function MusicPlayer({ isPlaying }) {
@@ -26,7 +30,7 @@ function MusicPlayer({ isPlaying }) {
     if (isPlaying) {
       const next = TRACKS[trackIndex.current % TRACKS.length];
       setCurrentTrack(next);
-      audio.src = BASE_URL + next.file;
+      audio.src = BASE_URL + encodeURIComponent(next.file);
       audio.play().catch(() => {});
       trackIndex.current++;
     } else {
@@ -44,7 +48,7 @@ function MusicPlayer({ isPlaying }) {
           <span className={styles.bar} />
           <span className={styles.bar} />
         </div>
-        <span className={styles.track}>{currentTrack.title} — Centz</span>
+        <span className={styles.track}>{currentTrack.title} — {currentTrack.composer}</span>
       </div>
     </div>
   );
