@@ -7,9 +7,19 @@ function ContactForm({ guestbook, onEasterEgg, onEasterEggPhrase }) {
   const { t } = useLanguage();
   const contact = t("contact");
 
-  // Fetch guestbook entries on first render of this tab
+  // Fetch guestbook entries when this section becomes visible
+  const fetchRef = useRef(null);
   useEffect(() => {
-    guestbook.fetchInitial?.();
+    const el = fetchRef.current || containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        guestbook.fetchInitial?.();
+        observer.disconnect();
+      }
+    }, { rootMargin: "200px" });
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [formData, setFormData] = useState({ name: "", message: "" });
   const [submitted, setSubmitted] = useState(false);

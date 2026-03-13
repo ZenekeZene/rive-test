@@ -1,5 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { supabase } from "../lib/supabase";
+
+let supabasePromise;
+function getSupabase() {
+  if (!supabasePromise) {
+    supabasePromise = import("../lib/supabase").then((m) => m.supabase);
+  }
+  return supabasePromise;
+}
 
 const PAGE_SIZE = 12;
 const COOLDOWN_KEY = "guestbook_last_signed";
@@ -34,7 +41,8 @@ export function useGuestbook() {
 
   async function fetchEntries() {
     setLoading(true);
-    const { data, error } = await supabase
+    const sb = await getSupabase();
+    const { data, error } = await sb
       .from("guestbook_entries")
       .select("*")
       .order("created_at", { ascending: false })
@@ -50,8 +58,9 @@ export function useGuestbook() {
   const loadMore = useCallback(async () => {
     if (!hasMore || entries.length === 0) return;
 
+    const sb = await getSupabase();
     const lastEntry = entries[entries.length - 1];
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from("guestbook_entries")
       .select("*")
       .order("created_at", { ascending: false })
@@ -65,9 +74,10 @@ export function useGuestbook() {
   }, [hasMore, entries]);
 
   const submitEntry = useCallback(async (authorName, message, imageBlob) => {
+    const sb = await getSupabase();
     // Upload image to storage
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.png`;
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await sb.storage
       .from("guestbook-captures")
       .upload(fileName, imageBlob, {
         contentType: "image/png",
@@ -77,14 +87,14 @@ export function useGuestbook() {
     if (uploadError) throw uploadError;
 
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = sb.storage
       .from("guestbook-captures")
       .getPublicUrl(fileName);
 
     const imageUrl = urlData.publicUrl;
 
     // Insert entry
-    const { data, error: insertError } = await supabase
+    const { data, error: insertError } = await sb
       .from("guestbook_entries")
       .insert({ author_name: authorName, message, image_url: imageUrl })
       .select()
