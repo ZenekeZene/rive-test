@@ -1,6 +1,7 @@
 .galleryContainer {
   width: 100%;
   overflow: hidden;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='2' x2='12' y2='9' stroke='%23888' stroke-width='1'/%3E%3Cline x1='12' y1='15' x2='12' y2='22' stroke='%23888' stroke-width='1'/%3E%3Cline x1='2' y1='12' x2='9' y2='12' stroke='%23888' stroke-width='1'/%3E%3Cline x1='15' y1='12' x2='22' y2='12' stroke='%23888' stroke-width='1'/%3E%3Ccircle cx='12' cy='12' r='3' fill='none' stroke='%23888' stroke-width='1'/%3E%3C/svg%3E") 12 12, crosshair;
 }
 
 .gallery {
@@ -77,19 +78,36 @@
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
-  cursor: pointer;
+  cursor: inherit;
   margin-bottom: var(--space-sm);
-  transition: transform 0.1s ease;
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.35s ease,
+              filter 0.35s ease;
+  transform: translate(
+    calc(var(--parallax-x, 0) * var(--depth, 0) * 3px),
+    calc(var(--parallax-y, 0) * var(--depth, 0) * 3px)
+  );
+  filter: brightness(0.92) saturate(0.9);
 }
 
 .masonryItem:hover {
-  transform: scale(1.02);
+  transform: translate(
+    calc(var(--parallax-x, 0) * var(--depth, 0) * 3px),
+    calc(var(--parallax-y, 0) * var(--depth, 0) * 3px)
+  ) scale(1.05);
   z-index: 1;
+  filter: brightness(1.05) saturate(1.1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 .masonryItem .thumbnail {
   width: 100%;
   height: auto;
+  transition: filter 0.35s ease;
+}
+
+.masonryItem:hover .thumbnail {
+  filter: contrast(1.05);
 }
 
 /* Size variants - designed for 2-row masonry (mobile) */
@@ -194,8 +212,9 @@
   justify-content: center;
   margin: 0;
   padding: 0;
-  animation: fadeIn 0.3s ease-out;
+  animation: inkReveal 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
+
 
 .leftPanelContent {
   display: flex;
@@ -444,7 +463,16 @@ video.leftPanelImage {
 }
 
 .leftPanelClosing {
-  animation: fadeOut 0.35s ease-out forwards;
+  animation: inkReveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) reverse forwards;
+}
+
+@keyframes inkReveal {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+  }
+  100% {
+    clip-path: circle(75% at 50% 50%);
+  }
 }
 
 @keyframes shimmer {

@@ -114,7 +114,7 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, g
     setPaintLevels(effectiveTitle.split("").map(() => 0));
   }, [effectiveTitle]);
 
-  // Event delegation for guestbook card hover
+  // Event delegation for guestbook/art card hover
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel || isMobile) return;
@@ -127,8 +127,15 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, g
     };
 
     const handleOut = (e) => {
-      const card = e.target.closest("[data-guestbook-quip], [data-art-quip]");
-      if (card && !card.contains(e.relatedTarget)) {
+      // Guestbook: clear when leaving individual card
+      const guestCard = e.target.closest("[data-guestbook-quip]");
+      if (guestCard && !guestCard.contains(e.relatedTarget)) {
+        setHoverPhrase(null);
+        return;
+      }
+      // Art: only clear when leaving the entire gallery container
+      const gallery = e.target.closest("[data-art-gallery]");
+      if (gallery && !gallery.contains(e.relatedTarget)) {
         setHoverPhrase(null);
       }
     };
@@ -225,12 +232,16 @@ function ContentPanel({ toggleStates, onTabChange, activeTab, isHeroMaximized, g
       <div className={isMobile ? undefined : styles.stickyTop}>
         <header className={styles.header}>
           <h1 className={`${styles.heroTitle} ${titleFading && !hoverPhrase ? styles.titleFading : ''}`}>
-            <ColorfulTitle
-              text={effectiveTitle}
-              activeTab={activeTab}
-              paintLevels={paintLevels}
-              onPaintChange={setPaintLevels}
-            />
+            {!titleCoolingDown && hoverPhrase ? (
+              <span className={styles.hoverTitle}>{effectiveTitle}</span>
+            ) : (
+              <ColorfulTitle
+                text={effectiveTitle}
+                activeTab={activeTab}
+                paintLevels={paintLevels}
+                onPaintChange={setPaintLevels}
+              />
+            )}
           </h1>
         </header>
 

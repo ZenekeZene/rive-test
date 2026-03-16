@@ -155,6 +155,30 @@ function ImageGallery() {
   const containerRef = useRef(null);
   const desktopGalleryRef = useRef(null);
   const isResettingScroll = useRef(false);
+  const parallaxRaf = useRef(null);
+
+  // Parallax: update CSS custom properties on mousemove
+  const handleParallaxMove = useCallback((e) => {
+    if (parallaxRaf.current) return;
+    parallaxRaf.current = requestAnimationFrame(() => {
+      const grid = desktopGalleryRef.current;
+      if (!grid) { parallaxRaf.current = null; return; }
+      const rect = grid.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2; // -1 to 1
+      const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+      grid.style.setProperty("--parallax-x", x.toFixed(3));
+      grid.style.setProperty("--parallax-y", y.toFixed(3));
+      parallaxRaf.current = null;
+    });
+  }, []);
+
+  const handleParallaxLeave = useCallback(() => {
+    const grid = desktopGalleryRef.current;
+    if (grid) {
+      grid.style.setProperty("--parallax-x", "0");
+      grid.style.setProperty("--parallax-y", "0");
+    }
+  }, []);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -573,26 +597,44 @@ function ImageGallery() {
   if (!isMobile) {
     return (
       <>
-        <div className={styles.galleryContainer} ref={desktopGalleryRef}>
+        <div className={styles.galleryContainer} ref={desktopGalleryRef} onMouseMove={handleParallaxMove} onMouseLeave={handleParallaxLeave} data-art-gallery>
           <div className={styles.masonryGrid}>
-            {PLACEHOLDER_IMAGES.map((image) => (
+            {PLACEHOLDER_IMAGES.map((image, i) => (
               <button
                 key={image.id}
                 className={`${styles.masonryItem} ${selectedImage?.id === image.id ? styles.masonryItemActive : ""}`}
                 onClick={() => selectedImage?.id === image.id ? closeModal() : openModal(image)}
                 aria-label={image.title}
                 data-art-quip={image.quipKey ? t(image.quipKey) : undefined}
+                style={{ "--depth": [3, -2, 4, -3, 2, -4, 3, -2, 4, -3, 2, -4, 3, -2, 4, -3, 2, -4][i] }}
               >
                 {isVideo(image.url) ? (
-                  <LazyVideo
-                    src={image.url}
-                    className={styles.thumbnail}
-                    style={
-                      activeUniqueId === image.id && !selectedImage
-                        ? { viewTransitionName: "gallery-image" }
-                        : undefined
-                    }
-                  />
+                  i < 6 ? (
+                    <video
+                      src={image.url}
+                      className={styles.thumbnail}
+                      muted
+                      playsInline
+                      loop
+                      autoPlay
+                      preload="metadata"
+                      style={
+                        activeUniqueId === image.id && !selectedImage
+                          ? { viewTransitionName: "gallery-image" }
+                          : undefined
+                      }
+                    />
+                  ) : (
+                    <LazyVideo
+                      src={image.url}
+                      className={styles.thumbnail}
+                      style={
+                        activeUniqueId === image.id && !selectedImage
+                          ? { viewTransitionName: "gallery-image" }
+                          : undefined
+                      }
+                    />
+                  )
                 ) : (
                   <img
                     src={image.url}

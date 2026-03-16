@@ -14,6 +14,20 @@ function AboutMe() {
       <p className={styles.bio}>{about.bio}</p>
       <p className={styles.bioMobile}>{about.bioMobile}</p>
 
+      {about.now && (
+        <div className={styles.now}>
+          <h3 className={styles.nowLabel}>{about.now.label}</h3>
+          <ul className={styles.nowList}>
+            {about.now.items.map((item, index) => (
+              <li key={index} className={styles.nowItem}>
+                <span className={styles.nowIcon}>{item.icon}</span>
+                <span>{item.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className={styles.stats}>
         {about.stats.map((stat, index) => (
           <div key={index} className={`${styles.stat} ${stat.tooltip ? styles.hasTooltip : ""}`}>

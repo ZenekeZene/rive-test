@@ -26,10 +26,10 @@ export const translations = {
     artQuipChelines: "Van Gogh walks into a barbershop...",
     artQuipMucho: "Print is not dead. It just smells funny",
     artQuipEncuentra: "Where's Waldo but with street cred",
-    artQuipKlimt: "The washing machine still haunts me",
+    artQuipKlimt: "Klimt",
     artQuipMoebius: "Parenting advice: give them a spaceship",
     artQuipNoche: "3 AM thoughts, but illustrated",
-    artQuipMiedo: "We can't stop here. This is bat country",
+    artQuipMiedo: "Fear and loathing at the Guggen",
     artQuipSmoke: "Jazz noir, but with better beats",
     artQuipCovid: "Remember when we sanitized beaches?",
     artQuipGernika: "Sorry not sorry, Picasso",
@@ -187,6 +187,15 @@ export const translations = {
         { value: "3", label: "Disciplines" },
       ],
       skills: ["Software", "Illustration", "Games", "Creative Coding", "UI/UX", "Animation", "Rive", "Unity", "TS", "CSS"],
+      now: {
+        label: "Now",
+        items: [
+          { icon: "→", text: "Building interactive experiences with Rive" },
+          { icon: "♫", text: "Listening to Fred Again, 6LACK & Elsso Rodriguez" },
+          { icon: "✎", text: "Drawing with Procreate" },
+          { icon: "◉", text: "Playing with generative art" },
+        ],
+      },
     },
 
     // Code (legacy)
@@ -482,10 +491,10 @@ export const translations = {
     artQuipChelines: "Van Gogh entra en una barbería...",
     artQuipMucho: "El papel no ha muerto. Solo huele raro",
     artQuipEncuentra: "Como buscando a Wally pero con flow",
-    artQuipKlimt: "La lavadora me sigue persiguiendo",
+    artQuipKlimt: "Klimt",
     artQuipMoebius: "Consejo paternal: regálale una nave espacial",
     artQuipNoche: "Pensamientos de las 3 AM, pero ilustrados",
-    artQuipMiedo: "No podemos parar aquí. Esto es territorio murciélago",
+    artQuipMiedo: "Miedo y asco en el Guggen",
     artQuipSmoke: "Jazz noir, pero con mejores beats",
     artQuipCovid: "¿Te acuerdas cuando desinfectábamos playas?",
     artQuipGernika: "Sorry not sorry, Picasso",
@@ -643,6 +652,15 @@ export const translations = {
         { value: "3", label: "Disciplinas" },
       ],
       skills: ["Software", "Ilustración", "Juegos", "Creative Coding", "UI/UX", "Animación", "Rive", "Unity", "TS", "CSS"],
+      now: {
+        label: "Ahora",
+        items: [
+          { icon: "→", text: "Creando experiencias interactivas con Rive" },
+          { icon: "♫", text: "Escuchando Fred Again, 6LACK y Elsso Rodriguez" },
+          { icon: "✎", text: "Dibujando con Procreate" },
+          { icon: "◉", text: "Jugando con arte generativo" },
+        ],
+      },
     },
 
     // Code (legacy)

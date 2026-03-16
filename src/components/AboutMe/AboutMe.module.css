@@ -30,6 +30,43 @@
   margin: 0;
 }
 
+.now {
+  padding: var(--space-md) 0;
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.nowLabel {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  opacity: 0.6;
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.nowList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.nowItem {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+}
+
+.nowIcon {
+  flex-shrink: 0;
+  opacity: 0.5;
+  font-size: 0.85em;
+}
+
 .stats {
   display: flex;
   gap: var(--space-lg);

@@ -104,7 +104,7 @@ function TabbedSections({ onTabChange, guestbook, onEasterEgg, onEasterEggPhrase
             </button>
           ))}
         </div>
-        <div className={styles.tabContent}>
+        <div key={activeTab} className={styles.tabContent}>
           {ActiveComponent && (
             <Suspense fallback={null}>
               <ActiveComponent {...(activeTab === "others" ? { guestbook, onEasterEgg, onEasterEggPhrase } : {})} />

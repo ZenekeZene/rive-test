@@ -134,25 +134,20 @@ function ProjectShowcase() {
 
     const check = () => {
       const viewportHeight = window.innerHeight;
+      const newStates = {};
+
+      for (const id of cardIds) {
+        const card = refs[id];
+        if (!card) continue;
+        const cardRect = card.getBoundingClientRect();
+        const scrolledAbove = cardRect.bottom < -PRELOAD_MARGIN;
+        const scrolledBelow = cardRect.top > viewportHeight + PRELOAD_MARGIN;
+        newStates[id] = !(scrolledAbove || scrolledBelow);
+      }
 
       setCardScrollStates((prev) => {
-        const next = { ...prev };
-        let changed = false;
-
-        for (const id of cardIds) {
-          // Once visible, stay visible (don't unmount loaded iframes)
-          if (next[id] === true) continue;
-          const card = refs[id];
-          if (!card) continue;
-          const cardRect = card.getBoundingClientRect();
-          const inRange = cardRect.bottom >= -PRELOAD_MARGIN && cardRect.top <= viewportHeight + PRELOAD_MARGIN;
-          if (inRange) {
-            next[id] = true;
-            changed = true;
-          }
-        }
-
-        return changed ? next : prev;
+        const changed = Object.keys(newStates).some((k) => prev[k] !== newStates[k]);
+        return changed ? newStates : prev;
       });
     };
 
