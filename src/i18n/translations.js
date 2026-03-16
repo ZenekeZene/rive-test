@@ -34,6 +34,7 @@ export const translations = {
     artQuipCovid: "Remember when we sanitized beaches?",
     artQuipGernika: "Sorry not sorry, Picasso",
     artQuipBones: "My fingers still haven't forgiven me",
+    artQuipLata: "",
 
     // Sidebar
     sidebarCta: "Poke around. Break things. Unlock them all.",
@@ -499,6 +500,7 @@ export const translations = {
     artQuipCovid: "¿Te acuerdas cuando desinfectábamos playas?",
     artQuipGernika: "Sorry not sorry, Picasso",
     artQuipBones: "Mis dedos todavía no me han perdonado",
+    artQuipLata: "",
 
     // Sidebar
     sidebarCta: "Curiosea. Rompe cosas. Desbloquéalos todos.",

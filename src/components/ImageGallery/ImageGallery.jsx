@@ -121,6 +121,10 @@ const PLACEHOLDER_IMAGES = [
     "/artworks/homenaje a bones/CQ6wNzJA_9Z_6.jpg",
     "/artworks/homenaje a bones/CQ6wNzJA_9Z_7.jpg",
   ], about: "En mi pretensión de demostrar polivalencia en disciplinas que no son la mía (para justificar que aún no he encontrado un estilo de ilustración en el que me sienta cómodo, ejem), llega la segunda cosa que hice en mi vida en arcilla y que me supuso dolor de espalda, lloros, pataletas, síndrome del impostor y alcoholismo.\n\nLa empecé y la abandoné durante meses.\n\nTras mucho tiempo en el ostracismo, en un arrebato de orgullo, retomé esa amalgama de barro que no dejaba de mirarme con aires de suficiencia cada vez que pasaba por esa habitación y la terminé.\n\nNo sin antes preguntarme qué necesidad tengo yo de meterme en estos fregaos, con lo breve que es la vida y lo torpe que son mis dedos." },
+  { id: 19, url: "/artworks/can/CWB9lx7AZP7_1.mp4", title: "Lata", description: "", size: "wide", quipKey: "artQuipLata", details: [
+    "/artworks/can/CWB9lx7AZP7_3.jpg",
+    "/artworks/can/CWB9lx7AZP7_4.jpg",
+  ], about: "" },
 ];
 
 // Create duplicated images for infinite scroll effect (mobile only)
@@ -606,7 +610,7 @@ function ImageGallery() {
                 onClick={() => selectedImage?.id === image.id ? closeModal() : openModal(image)}
                 aria-label={image.title}
                 data-art-quip={image.quipKey ? t(image.quipKey) : undefined}
-                style={{ "--depth": [3, -2, 4, -3, 2, -4, 3, -2, 4, -3, 2, -4, 3, -2, 4, -3, 2, -4][i] }}
+                style={{ "--depth": [3, -2, 4, -3, 2, -4, 3, -2, 4, -3, 2, -4, 3, -2, 4, -3, 2, -4, 3][i] }}
               >
                 {isVideo(image.url) ? (
                   i < 6 ? (
