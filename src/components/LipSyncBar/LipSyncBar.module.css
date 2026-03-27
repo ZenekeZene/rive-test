@@ -1,21 +1,98 @@
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes pulseRing {
   0%   { transform: scale(1);   opacity: 0.6; }
   100% { transform: scale(2.2); opacity: 0; }
 }
 
-.bar {
+/* Outer wrapper: both rows stacked at the bottom */
+.wrapper {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   display: flex !important;
-  align-items: center;
-  gap: 0;
+  flex-direction: column;
   background-color: var(--color-bg);
   border-top: var(--border-width-thick) solid var(--color-border);
   z-index: 50;
+}
+
+/* ── Effect selector strip ── */
+.effects {
+  display: flex;
+  border-bottom: var(--border-width-thick) solid var(--color-border);
+}
+
+.effectBtn {
+  flex: 1;
+  height: 1.75rem;
+  background: transparent;
+  border: none;
+  border-right: var(--border-width-thick) solid var(--color-border);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.1s, background-color 0.1s, color 0.1s;
+}
+
+.effectBtn:last-child {
+  border-right: none;
+}
+
+.effectBtn:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.effectBtn.effectActive {
+  opacity: 1;
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+.effectBtn:disabled {
+  cursor: not-allowed;
+}
+
+/* Precise mode toggle — visually separated from effect group */
+.preciseBtn {
+  flex: 1;
+  height: 1.75rem;
+  background: transparent;
+  border: none;
+  border-left: var(--border-width-thick) solid var(--color-border);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.1s, background-color 0.1s, color 0.1s;
+  border-left-width: calc(var(--border-width-thick) * 2);
+}
+
+.preciseBtn:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.preciseBtn.effectActive {
+  opacity: 1;
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+.preciseBtn:disabled {
+  cursor: not-allowed;
+}
+
+/* ── Main mic bar ── */
+.bar {
+  display: flex;
+  align-items: center;
   height: 2.75rem;
-  overflow: hidden;
 }
 
 /* Mic button */
@@ -35,7 +112,7 @@
   transition: background-color 0.1s ease, color 0.1s ease;
 }
 
-.micButton:hover {
+.micButton:hover:not(:disabled) {
   background-color: var(--color-text);
   color: var(--color-bg);
 }
@@ -45,6 +122,11 @@
   color: var(--color-bg);
 }
 
+.micButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .micIcon {
   width: 1.1rem;
   height: 1.1rem;
@@ -52,7 +134,16 @@
   z-index: 1;
 }
 
-/* Pulse ring animation while listening */
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* Pulse ring while listening */
 .pulse {
   position: absolute;
   inset: 0;
@@ -66,7 +157,7 @@
   pointer-events: none;
 }
 
-/* Transcript display */
+/* Transcript text */
 .transcript {
   flex: 1;
   padding: 0 0.75rem;
@@ -88,7 +179,7 @@
   font-style: italic;
 }
 
-/* Stop button (shown while lip sync is playing) */
+/* Stop button */
 .stopButton {
   flex-shrink: 0;
   width: 2.75rem;
@@ -114,7 +205,6 @@
   height: 1.1rem;
 }
 
-/* Not supported message */
 .unsupported {
   flex: 1;
   padding: 0 0.75rem;
@@ -131,5 +221,9 @@
   .micButton,
   .stopButton {
     width: 2.5rem;
+  }
+
+  .effectBtn {
+    font-size: 0.65rem;
   }
 }

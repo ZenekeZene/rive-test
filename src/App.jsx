@@ -189,7 +189,7 @@ function App() {
     riveRef.current = rive;
   }, []);
 
-  const { speak, stop: stopLipSync, isPlaying: isLipSyncPlaying } = useLipSync(riveRef);
+  const { speak, speakSequence, stop: stopLipSync, isPlaying: isLipSyncPlaying } = useLipSync(riveRef);
 
   // Watch Rive variables and trigger checkboxes
   useEffect(() => {
@@ -527,7 +527,7 @@ function App() {
         <DarkModeToggle onToggle={handleDarkModeToggle} isArtMode={activeTab === "art"} />
         <CaptureButton onCapture={handleCapture} isArtMode={activeTab === "art"} disabled={guestbook.cooldown} />
         <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} disabled={(isCodeOverlayActive || isArtOverlayActive) && !isAudioActive} />
-        <LipSyncBar onSpeak={speak} onStop={stopLipSync} isPlaying={isLipSyncPlaying} />
+        <LipSyncBar onSpeak={speak} onSpeakSequence={speakSequence} onStop={stopLipSync} isPlaying={isLipSyncPlaying} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel
