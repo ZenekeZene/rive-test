@@ -1,60 +1,114 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { useSpeechRecognition } from "../../hooks/useSpeechRecognition";
 import { transcribeAudio } from "../../utils/whisper";
 import { wordsToVisemes } from "../../utils/lipSync/wordsToVisemes";
+import { alignmentToVisemes } from "../../utils/lipSync/alignmentToVisemes";
+import { synthesize, getVoices } from "../../utils/elevenlabs";
 import { playWithEffect, getAudioContext, VOICE_EFFECTS } from "../../utils/audioEffects";
 import { useLanguage } from "../../i18n/LanguageContext";
 import styles from "./LipSyncBar.module.css";
 
+// Effects available per mode
+const MY_VOICE_EFFECTS = ["natural", "chipmunk", "deep", "robot", "echo"];
+const EL_EFFECTS = ["natural", "robot", "echo"];
+
 function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
   const { language } = useLanguage();
   const audioCtxRef = useRef(null);
-  const audioBlobUrlRef = useRef(null);
-  const playbackRef = useRef(null);       // { stop() } from playWithEffect
-  const [isProcessing, setIsProcessing] = useState(false);
+  const playbackRef = useRef(null);
+
+  // Voice mode
+  const [voiceMode, setVoiceMode] = useState("myvoice"); // "myvoice" | "elevenlabs"
+
+  // My voice options
   const [selectedEffect, setSelectedEffect] = useState("natural");
   const [preciseMode, setPreciseMode] = useState(true);
 
-  const handleReady = useCallback(async (transcript, audioBlob, durationMs) => {
-    if (audioBlobUrlRef.current) URL.revokeObjectURL(audioBlobUrlRef.current);
-    audioBlobUrlRef.current = URL.createObjectURL(audioBlob);
+  // ElevenLabs options
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState("");
+  const [voicesLoaded, setVoicesLoaded] = useState(false);
+  const [voicesError, setVoicesError] = useState(null);
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Fetch EL voices the first time the user switches to ElevenLabs mode
+  useEffect(() => {
+    if (voiceMode !== "elevenlabs" || voicesLoaded) return;
+    getVoices()
+      .then((list) => {
+        setVoices(list);
+        if (list.length > 0) setSelectedVoice(list[0].voice_id);
+        setVoicesLoaded(true);
+      })
+      .catch((err) => {
+        setVoicesError(err.message);
+        setVoicesLoaded(true);
+      });
+  }, [voiceMode, voicesLoaded]);
+
+  // ── My voice flow ────────────────────────────────────────────────────────────
+  const handleMyVoiceReady = useCallback(async (transcript, audioBlob, durationMs) => {
     const audioCtx = getAudioContext(audioCtxRef);
     const effectId = selectedEffect;
     const playbackRate = VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0;
 
-    if (preciseMode) setIsProcessing(true);
-
     let sequence = null;
+
     if (preciseMode) {
+      setIsProcessing(true);
       try {
         const { words } = await transcribeAudio(audioBlob, language);
-        const rawSequence = wordsToVisemes(words, language);
+        const raw = wordsToVisemes(words, language);
         sequence = playbackRate === 1.0
-          ? rawSequence
-          : rawSequence.map((e) => ({
-              ...e,
-              duration: Math.max(Math.round(e.duration / playbackRate), 16),
-            }));
+          ? raw
+          : raw.map((e) => ({ ...e, duration: Math.max(Math.round(e.duration / playbackRate), 16) }));
       } catch (err) {
-        console.warn("[LipSyncBar] Whisper failed, using text fallback:", err.message);
+        console.warn("[LipSyncBar] Whisper failed, text fallback:", err.message);
       }
     }
 
     try {
       playbackRef.current = await playWithEffect(audioBlob, effectId, audioCtx, () => {
         setIsProcessing(false);
-        if (sequence) {
-          onSpeakSequence(sequence);
-        } else {
-          onSpeak(transcript, durationMs);
-        }
+        sequence ? onSpeakSequence(sequence) : onSpeak(transcript, durationMs);
       });
     } catch (err) {
-      console.warn("[LipSyncBar] Audio playback failed:", err);
+      console.warn("[LipSyncBar] Playback failed:", err);
       setIsProcessing(false);
     }
-  }, [language, selectedEffect, onSpeak, onSpeakSequence]);
+  }, [language, selectedEffect, preciseMode, onSpeak, onSpeakSequence]);
+
+  // ── ElevenLabs flow ──────────────────────────────────────────────────────────
+  const handleELReady = useCallback(async (transcript) => {
+    if (!transcript?.trim() || !selectedVoice) return;
+
+    const audioCtx = getAudioContext(audioCtxRef);
+    const effectId = selectedEffect;
+
+    setIsProcessing(true);
+    try {
+      const { blob, alignment } = await synthesize(transcript, selectedVoice, language);
+      const sequence = alignmentToVisemes(alignment);
+
+      playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
+        setIsProcessing(false);
+        onSpeakSequence(sequence);
+      });
+    } catch (err) {
+      console.warn("[LipSyncBar] ElevenLabs failed:", err.message);
+      setIsProcessing(false);
+    }
+  }, [language, selectedVoice, selectedEffect, onSpeakSequence]);
+
+  // ── Speech recognition ───────────────────────────────────────────────────────
+  const handleReady = useCallback((transcript, blob, durationMs) => {
+    if (voiceMode === "elevenlabs") {
+      handleELReady(transcript);
+    } else {
+      handleMyVoiceReady(transcript, blob, durationMs);
+    }
+  }, [voiceMode, handleELReady, handleMyVoiceReady]);
 
   const {
     supported,
@@ -80,48 +134,100 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
     onStop();
   }, [onStop]);
 
+  const handleModeSwitch = useCallback((mode) => {
+    if (isListening || isProcessing) return;
+    setVoiceMode(mode);
+    // Reset effect to natural when switching modes
+    setSelectedEffect("natural");
+  }, [isListening, isProcessing]);
+
   const displayText = isListening ? interimTranscript : finalTranscript;
+  const effectList = voiceMode === "myvoice" ? MY_VOICE_EFFECTS : EL_EFFECTS;
 
   if (!supported) {
     return (
       <div className={styles.wrapper} data-lip-sync>
-        <span className={styles.unsupported}>
-          Speech recognition not available in this browser
-        </span>
+        <span className={styles.unsupported}>Speech recognition not available in this browser</span>
       </div>
     );
   }
 
   return (
     <div className={styles.wrapper} data-lip-sync>
-      {/* Effect selector + Precise mode toggle */}
-      <div className={styles.effects}>
-        {Object.entries(VOICE_EFFECTS).map(([id, { label }]) => (
-          <button
-            key={id}
-            className={`${styles.effectBtn} ${selectedEffect === id ? styles.effectActive : ""}`}
-            onClick={() => setSelectedEffect(id)}
-            disabled={isListening || isProcessing}
-          >
-            {label}
-          </button>
-        ))}
+
+      {/* ── Mode tabs ── */}
+      <div className={styles.modeTabs}>
         <button
-          className={`${styles.preciseBtn} ${preciseMode ? styles.effectActive : ""}`}
-          onClick={() => setPreciseMode((p) => !p)}
-          disabled={isListening || isProcessing}
-          title={preciseMode ? "Precise mode on (Whisper)" : "Precise mode off (client only)"}
+          className={`${styles.modeTab} ${voiceMode === "myvoice" ? styles.modeActive : ""}`}
+          onClick={() => handleModeSwitch("myvoice")}
         >
-          Precise
+          Mi voz
+        </button>
+        <button
+          className={`${styles.modeTab} ${voiceMode === "elevenlabs" ? styles.modeActive : ""}`}
+          onClick={() => handleModeSwitch("elevenlabs")}
+        >
+          ElevenLabs
         </button>
       </div>
 
-      {/* Main bar */}
+      {/* ── Options row ── */}
+      <div className={styles.optionsRow}>
+        {/* ElevenLabs: voice selector */}
+        {voiceMode === "elevenlabs" && (
+          <div className={styles.voiceSelectWrap}>
+            {!voicesLoaded ? (
+              <span className={styles.voiceLoading}>Loading voices…</span>
+            ) : voicesError ? (
+              <span className={styles.voiceError}>API key missing</span>
+            ) : (
+              <select
+                className={styles.voiceSelect}
+                value={selectedVoice}
+                onChange={(e) => setSelectedVoice(e.target.value)}
+                disabled={isListening || isProcessing}
+              >
+                {voices.map((v) => (
+                  <option key={v.voice_id} value={v.voice_id}>{v.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
+        )}
+
+        {/* Effects (vary by mode) */}
+        <div className={styles.effects}>
+          {effectList.map((id) => (
+            <button
+              key={id}
+              className={`${styles.effectBtn} ${selectedEffect === id ? styles.effectActive : ""}`}
+              onClick={() => setSelectedEffect(id)}
+              disabled={isListening || isProcessing}
+            >
+              {VOICE_EFFECTS[id].label}
+            </button>
+          ))}
+
+          {/* Precise toggle — only in Mi voz mode */}
+          {voiceMode === "myvoice" && (
+            <button
+              className={`${styles.preciseBtn} ${preciseMode ? styles.effectActive : ""}`}
+              onClick={() => setPreciseMode((p) => !p)}
+              disabled={isListening || isProcessing}
+              title={preciseMode ? "Precise mode on (Whisper)" : "Precise mode off (client only)"}
+            >
+              Precise
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Mic bar ── */}
       <div className={styles.bar}>
         <button
           className={`${styles.micButton} ${isListening ? styles.listening : ""}`}
           onClick={handleMicClick}
-          disabled={isProcessing}
+          disabled={isProcessing || (voiceMode === "elevenlabs" && !selectedVoice)}
           aria-label={isListening ? "Stop listening" : "Start listening"}
         >
           {isProcessing ? (
@@ -141,7 +247,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
 
         <span className={`${styles.transcript} ${!displayText ? styles.placeholder : ""} ${isListening ? styles.interim : ""}`}>
           {isProcessing
-            ? "Processing…"
+            ? (voiceMode === "elevenlabs" ? "Synthesizing…" : "Processing…")
             : displayText || (isListening ? "Listening…" : "Press mic and speak")}
         </span>
 

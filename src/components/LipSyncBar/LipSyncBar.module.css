@@ -1,13 +1,12 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
 @keyframes pulseRing {
   0%   { transform: scale(1);   opacity: 0.6; }
   100% { transform: scale(2.2); opacity: 0; }
 }
 
-/* Outer wrapper: both rows stacked at the bottom */
+/* ── Wrapper ───────────────────────────────────────── */
 .wrapper {
   position: absolute;
   bottom: 0;
@@ -20,10 +19,87 @@
   z-index: 50;
 }
 
-/* ── Effect selector strip ── */
-.effects {
+/* ── Mode tabs ─────────────────────────────────────── */
+.modeTabs {
   display: flex;
   border-bottom: var(--border-width-thick) solid var(--color-border);
+}
+
+.modeTab {
+  flex: 1;
+  height: 1.6rem;
+  background: transparent;
+  border: none;
+  border-right: var(--border-width-thick) solid var(--color-border);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.1s, background-color 0.1s, color 0.1s;
+  letter-spacing: 0.02em;
+}
+.modeTab:last-child { border-right: none; }
+.modeTab:hover { opacity: 0.8; }
+.modeTab.modeActive {
+  opacity: 1;
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* ── Options row ───────────────────────────────────── */
+.optionsRow {
+  display: flex;
+  align-items: stretch;
+  border-bottom: var(--border-width-thick) solid var(--color-border);
+}
+
+/* Voice selector (ElevenLabs mode) */
+.voiceSelectWrap {
+  flex: 1.6;
+  display: flex;
+  align-items: center;
+  border-right: var(--border-width-thick) solid var(--color-border);
+  min-width: 0;
+}
+
+.voiceSelect {
+  width: 100%;
+  height: 100%;
+  padding: 0 0.5rem;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='currentColor' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  padding-right: 1.5rem;
+}
+
+.voiceSelect option {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.voiceLoading,
+.voiceError {
+  padding: 0 0.6rem;
+  font-size: 0.72rem;
+  opacity: 0.5;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+/* Effects strip */
+.effects {
+  display: flex;
+  flex: 1;
 }
 
 .effectBtn {
@@ -34,68 +110,49 @@
   border-right: var(--border-width-thick) solid var(--color-border);
   color: var(--color-text);
   font-family: inherit;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   cursor: pointer;
   opacity: 0.45;
   transition: opacity 0.1s, background-color 0.1s, color 0.1s;
 }
-
-.effectBtn:last-child {
-  border-right: none;
-}
-
-.effectBtn:hover:not(:disabled) {
-  opacity: 1;
-}
-
+.effectBtn:last-child { border-right: none; }
+.effectBtn:hover:not(:disabled) { opacity: 1; }
 .effectBtn.effectActive {
   opacity: 1;
   background-color: var(--color-text);
   color: var(--color-bg);
 }
+.effectBtn:disabled { cursor: not-allowed; }
 
-.effectBtn:disabled {
-  cursor: not-allowed;
-}
-
-/* Precise mode toggle — visually separated from effect group */
+/* Precise toggle */
 .preciseBtn {
   flex: 1;
   height: 1.75rem;
   background: transparent;
   border: none;
-  border-left: var(--border-width-thick) solid var(--color-border);
+  border-left: calc(var(--border-width-thick) * 2) solid var(--color-border);
   color: var(--color-text);
   font-family: inherit;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   cursor: pointer;
   opacity: 0.45;
   transition: opacity 0.1s, background-color 0.1s, color 0.1s;
-  border-left-width: calc(var(--border-width-thick) * 2);
 }
-
-.preciseBtn:hover:not(:disabled) {
-  opacity: 1;
-}
-
+.preciseBtn:hover:not(:disabled) { opacity: 1; }
 .preciseBtn.effectActive {
   opacity: 1;
   background-color: var(--color-text);
   color: var(--color-bg);
 }
+.preciseBtn:disabled { cursor: not-allowed; }
 
-.preciseBtn:disabled {
-  cursor: not-allowed;
-}
-
-/* ── Main mic bar ── */
+/* ── Mic bar ───────────────────────────────────────── */
 .bar {
   display: flex;
   align-items: center;
   height: 2.75rem;
 }
 
-/* Mic button */
 .micButton {
   position: relative;
   flex-shrink: 0;
@@ -109,23 +166,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.1s ease, color 0.1s ease;
+  transition: background-color 0.1s, color 0.1s;
 }
-
-.micButton:hover:not(:disabled) {
-  background-color: var(--color-text);
-  color: var(--color-bg);
-}
-
-.micButton.listening {
-  background-color: var(--color-text);
-  color: var(--color-bg);
-}
-
-.micButton:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+.micButton:hover:not(:disabled) { background-color: var(--color-text); color: var(--color-bg); }
+.micButton.listening    { background-color: var(--color-text); color: var(--color-bg); }
+.micButton:disabled     { opacity: 0.3; cursor: not-allowed; }
 
 .micIcon {
   width: 1.1rem;
@@ -143,7 +188,6 @@
   animation: spin 0.7s linear infinite;
 }
 
-/* Pulse ring while listening */
 .pulse {
   position: absolute;
   inset: 0;
@@ -157,29 +201,20 @@
   pointer-events: none;
 }
 
-/* Transcript text */
 .transcript {
   flex: 1;
   padding: 0 0.75rem;
-  font-family: inherit;
   font-size: 0.85rem;
   color: var(--color-text);
+  font-family: inherit;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
 }
+.transcript.placeholder { opacity: 0.4; }
+.transcript.interim     { opacity: 0.65; font-style: italic; }
 
-.transcript.placeholder {
-  opacity: 0.4;
-}
-
-.transcript.interim {
-  opacity: 0.65;
-  font-style: italic;
-}
-
-/* Stop button */
 .stopButton {
   flex-shrink: 0;
   width: 2.75rem;
@@ -192,38 +227,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.1s ease, color 0.1s ease;
+  transition: background-color 0.1s, color 0.1s;
 }
+.stopButton:hover { background-color: var(--color-text); color: var(--color-bg); }
 
-.stopButton:hover {
-  background-color: var(--color-text);
-  color: var(--color-bg);
-}
-
-.stopIcon {
-  width: 1.1rem;
-  height: 1.1rem;
-}
+.stopIcon { width: 1.1rem; height: 1.1rem; }
 
 .unsupported {
-  flex: 1;
   padding: 0 0.75rem;
   font-size: 0.75rem;
   color: var(--color-text);
   opacity: 0.4;
 }
 
+/* ── Mobile ────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .bar {
-    height: 2.5rem;
-  }
-
-  .micButton,
-  .stopButton {
-    width: 2.5rem;
-  }
-
-  .effectBtn {
-    font-size: 0.65rem;
-  }
+  .bar { height: 2.5rem; }
+  .micButton, .stopButton { width: 2.5rem; }
+  .effectBtn, .preciseBtn { font-size: 0.62rem; }
+  .modeTab { font-size: 0.65rem; }
 }
