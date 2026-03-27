@@ -13,6 +13,8 @@ import { loadAchievements, saveAchievements } from "./utils/achievementStore";
 import { useGuestbook } from "./hooks/useGuestbook";
 import LanguageSelector from "./components/LanguageSelector/LanguageSelector";
 import { useLanguage } from "./i18n/LanguageContext";
+import LipSyncBar from "./components/LipSyncBar/LipSyncBar";
+import { useLipSync } from "./hooks/useLipSync";
 
 const KONAMI_SEQUENCE = [
   "ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown",
@@ -186,6 +188,8 @@ function App() {
   const handleRiveReady = useCallback((rive) => {
     riveRef.current = rive;
   }, []);
+
+  const { speak, stop: stopLipSync, isPlaying: isLipSyncPlaying } = useLipSync(riveRef);
 
   // Watch Rive variables and trigger checkboxes
   useEffect(() => {
@@ -523,6 +527,7 @@ function App() {
         <DarkModeToggle onToggle={handleDarkModeToggle} isArtMode={activeTab === "art"} />
         <CaptureButton onCapture={handleCapture} isArtMode={activeTab === "art"} disabled={guestbook.cooldown} />
         <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} disabled={(isCodeOverlayActive || isArtOverlayActive) && !isAudioActive} />
+        <LipSyncBar onSpeak={speak} onStop={stopLipSync} isPlaying={isLipSyncPlaying} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel

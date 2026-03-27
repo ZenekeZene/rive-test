@@ -37,7 +37,7 @@ html.darkMode .leftPanel {
 }
 
 @media (min-width: 769px) {
-  .leftPanel > *:not(:first-child):not([data-video-overlay]) {
+  .leftPanel > *:not(:first-child):not([data-video-overlay]):not([data-lip-sync]) {
     display: none;
   }
 }

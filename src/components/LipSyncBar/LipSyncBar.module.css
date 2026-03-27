@@ -1,0 +1,135 @@
+@keyframes pulseRing {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex !important;
+  align-items: center;
+  gap: 0;
+  background-color: var(--color-bg);
+  border-top: var(--border-width-thick) solid var(--color-border);
+  z-index: 50;
+  height: 2.75rem;
+  overflow: hidden;
+}
+
+/* Mic button */
+.micButton {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 100%;
+  background: transparent;
+  border: none;
+  border-right: var(--border-width-thick) solid var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.micButton:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+.micButton.listening {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+.micIcon {
+  width: 1.1rem;
+  height: 1.1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Pulse ring animation while listening */
+.pulse {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  animation: pulseRing 1.2s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Transcript display */
+.transcript {
+  flex: 1;
+  padding: 0 0.75rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.transcript.placeholder {
+  opacity: 0.4;
+}
+
+.transcript.interim {
+  opacity: 0.65;
+  font-style: italic;
+}
+
+/* Stop button (shown while lip sync is playing) */
+.stopButton {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 100%;
+  background: transparent;
+  border: none;
+  border-left: var(--border-width-thick) solid var(--color-border);
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.stopButton:hover {
+  background-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+.stopIcon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Not supported message */
+.unsupported {
+  flex: 1;
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text);
+  opacity: 0.4;
+}
+
+@media (max-width: 768px) {
+  .bar {
+    height: 2.5rem;
+  }
+
+  .micButton,
+  .stopButton {
+    width: 2.5rem;
+  }
+}
