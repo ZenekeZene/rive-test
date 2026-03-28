@@ -130,7 +130,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
   const playbackRef = useRef(null);
 
   // Voice mode
-  const [voiceMode, setVoiceMode] = useState("myvoice"); // "myvoice" | "elevenlabs" | "chat"
+  const [voiceMode, setVoiceMode] = useState(() => localStorage.getItem("lsb_mode") ?? "myvoice");
 
   // My voice options
   const [selectedEffect, setSelectedEffect] = useState("natural");
@@ -138,13 +138,14 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
 
   // ElevenLabs options
   const [voices, setVoices] = useState([]);
-  const [selectedVoice, setSelectedVoice] = useState("");
+  const [selectedVoice, setSelectedVoice] = useState(() => localStorage.getItem("lsb_voice") ?? "");
   const [voicesLoaded, setVoicesLoaded] = useState(false);
   const [voicesError, setVoicesError] = useState(null);
 
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const cancelledRef = useRef(false);
   const [processingState, setProcessingState] = useState(""); // "thinking" | "synthesizing" | ""
 
   // Chat mode
@@ -176,6 +177,10 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
     }
   }, []);
 
+  // Persist mode and voice selection
+  useEffect(() => { localStorage.setItem("lsb_mode", voiceMode); }, [voiceMode]);
+  useEffect(() => { if (selectedVoice) localStorage.setItem("lsb_voice", selectedVoice); }, [selectedVoice]);
+
   // Fetch EL voices the first time the user switches to ElevenLabs or Chat mode
   useEffect(() => {
     if ((voiceMode !== "elevenlabs" && voiceMode !== "chat") || voicesLoaded) return;
@@ -194,6 +199,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
 
   // ── My voice flow ────────────────────────────────────────────────────────────
   const handleMyVoiceReady = useCallback(async (transcript, audioBlob, durationMs) => {
+    cancelledRef.current = false;
     const audioCtx = getAudioContext(audioCtxRef);
     const effectId = selectedEffect;
     const playbackRate = VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0;
@@ -205,6 +211,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
       setIsProcessing(true);
       try {
         const { words } = await transcribeAudio(audioBlob, language);
+        if (cancelledRef.current) return;
         const raw = wordsToVisemes(words, language);
         sequence = playbackRate === 1.0
           ? raw
@@ -233,6 +240,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
   // ── ElevenLabs flow ──────────────────────────────────────────────────────────
   const handleELReady = useCallback(async (transcript) => {
     if (!transcript?.trim() || !selectedVoice) return;
+    cancelledRef.current = false;
 
     const audioCtx = getAudioContext(audioCtxRef);
     const effectId = selectedEffect;
@@ -241,6 +249,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
     setProcessingState("synthesizing");
     try {
       const { blob, alignment } = await synthesize(transcript, selectedVoice, language);
+      if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
       const sequence = alignmentToVisemes(alignment);
       const subtitleChunks = buildSubtitleChunks(transcript, alignment);
 
@@ -260,6 +269,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
   // ── Chat flow ─────────────────────────────────────────────────────────────
   const handleChatReady = useCallback(async (transcript) => {
     if (!transcript?.trim() || !selectedVoice) return;
+    cancelledRef.current = false;
 
     const audioCtx = getAudioContext(audioCtxRef);
     const effectId = selectedEffect;
@@ -272,8 +282,8 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
 
     try {
       const { text, actions } = await sendMessage(conversationHistoryRef.current);
+      if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); conversationHistoryRef.current = conversationHistoryRef.current.slice(0, -1); return; }
 
-      // Use fallback phrase if model only returned tool calls without spoken text
       const fallbacks = language === "es"
         ? ["Toma.", "Ahí va.", "Hecho.", "Aquí tienes.", "Listo."]
         : ["There you go.", "Done.", "Here.", "Check it out.", "All yours."];
@@ -283,15 +293,16 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
 
       setProcessingState("synthesizing");
       const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
+      if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
       const sequence = alignmentToVisemes(alignment);
       const subtitleChunks = buildSubtitleChunks(spokenText, alignment);
 
-      // Dispatch actions as synthesis begins so scroll/UI changes happen while avatar speaks
       if (actions.length > 0) {
         window.dispatchEvent(new CustomEvent("portfolio-action", { detail: { actions } }));
       }
 
       playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
+        if (cancelledRef.current) return;
         setIsProcessing(false);
         setProcessingState("");
         onSpeakSequence(sequence, audioCtx);
@@ -317,6 +328,9 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
     }
   }, [voiceMode, handleELReady, handleChatReady, handleMyVoiceReady]);
 
+  const micButtonRef = useRef(null);
+  const levelRafRef = useRef(null);
+
   const {
     supported,
     isListening,
@@ -324,23 +338,62 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
     finalTranscript,
     start,
     stop: stopListening,
+    streamRef,
   } = useSpeechRecognition({ onReady: handleReady });
 
-  const handleMicClick = useCallback(() => {
-    if (isListening) {
-      stopListening();
-    } else {
-      if (isPlaying) onStop();
-      playbackRef.current?.stop();
-      clearSubtitles();
-      start();
-    }
-  }, [isListening, isPlaying, start, stopListening, onStop, clearSubtitles]);
+  // ── Audio level visualizer ───────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isListening || !streamRef.current) return;
+    const audioCtx = getAudioContext(audioCtxRef);
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.75;
+    const source = audioCtx.createMediaStreamSource(streamRef.current);
+    source.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+
+    const tick = () => {
+      analyser.getByteTimeDomainData(data);
+      let sum = 0;
+      for (let i = 0; i < data.length; i++) {
+        const v = (data[i] - 128) / 128;
+        sum += v * v;
+      }
+      const level = Math.min(1, Math.sqrt(sum / data.length) * 6);
+      micButtonRef.current?.style.setProperty("--audio-level", level);
+      levelRafRef.current = requestAnimationFrame(tick);
+    };
+    levelRafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(levelRafRef.current);
+      source.disconnect();
+      micButtonRef.current?.style.setProperty("--audio-level", 0);
+    };
+  }, [isListening]);
+
+  const interrupt = useCallback(() => {
+    cancelledRef.current = true;
+    playbackRef.current?.stop();
+    clearSubtitles();
+    setIsProcessing(false);
+    setProcessingState("");
+    onStop();
+  }, [clearSubtitles, onStop]);
 
   const handleStop = useCallback(() => {
     playbackRef.current?.stop();
     onStop();
   }, [onStop]);
+
+  const handleMicClick = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      interrupt();
+      start();
+    }
+  }, [isListening, start, stopListening, interrupt]);
 
   const handleModeSwitch = useCallback((mode) => {
     if (isListening || isProcessing) return;
@@ -362,9 +415,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
         if (isTextInput(e)) return;         // let space type in real inputs
         e.preventDefault();                 // block scroll / SELECT toggle / button click
         if (!e.repeat && !isListening) {
-          if (isPlaying) onStop();
-          playbackRef.current?.stop();
-          clearSubtitles();
+          interrupt();
           start();
         }
         return;
@@ -392,7 +443,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
       window.removeEventListener("keydown", onKeyDown, { capture: true });
       window.removeEventListener("keyup", onKeyUp, { capture: true });
     };
-  }, [isListening, isPlaying, start, stopListening, onStop, handleModeSwitch, clearSubtitles]);
+  }, [isListening, start, stopListening, interrupt, handleModeSwitch]);
 
   const effectList = voiceMode === "myvoice" ? MY_VOICE_EFFECTS : (voiceMode === "chat" ? CHAT_EFFECTS : EL_EFFECTS);
 
@@ -447,11 +498,13 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
       <div className={styles.bar}>
         {/* Mic */}
         <button
+          ref={micButtonRef}
           className={`${styles.micButton} ${isListening ? styles.listening : ""}`}
           onClick={handleMicClick}
           disabled={isProcessing}
           aria-label={isListening ? "Stop listening" : "Start listening"}
         >
+          {isListening && <span className={styles.levelRing} />}
           {isProcessing ? (
             <span className={styles.spinner} />
           ) : (
@@ -462,7 +515,6 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
                 <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <line x1="9" y1="21" x2="15" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              {isListening && <span className={styles.pulse} />}
             </>
           )}
         </button>

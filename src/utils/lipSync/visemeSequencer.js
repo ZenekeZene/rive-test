@@ -16,13 +16,13 @@ export class VisemeSequencer {
     return this._rafId !== null;
   }
 
-  play(sequence, audioCtx) {
+  play(sequence, audioCtx, audioStartTime = null) {
     this.stop();
     if (!sequence || sequence.length === 0) return;
 
     this._sequence = sequence;
     this._audioCtx = audioCtx || null;
-    this._startTime = audioCtx ? audioCtx.currentTime : null;
+    this._startTime = audioStartTime ?? (audioCtx ? audioCtx.currentTime : null);
     this._index = 0;
     this._elapsed = 0;
     this._lastTimestamp = null;

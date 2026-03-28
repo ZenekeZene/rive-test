@@ -136,5 +136,5 @@ export function useSpeechRecognition({ onReady } = {}) {
     };
   }, [stopStream]);
 
-  return { supported, isListening, interimTranscript, finalTranscript, start, stop };
+  return { supported, isListening, interimTranscript, finalTranscript, start, stop, streamRef };
 }

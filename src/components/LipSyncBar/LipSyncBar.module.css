@@ -81,6 +81,17 @@
   pointer-events: none;
 }
 
+.levelRing {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  transform: scale(calc(1 + var(--audio-level, 0) * 0.9));
+  opacity: calc(0.15 + var(--audio-level, 0) * 0.7);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
 /* ── Gear button ────────────────────────────────────── */
 .gearBtn {
   width: 2rem;
