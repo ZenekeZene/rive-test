@@ -87,6 +87,25 @@ function TabbedSections({ onTabChange, guestbook, onEasterEgg, onEasterEggPhrase
     }
   };
 
+  // Avatar navigation action
+  useEffect(() => {
+    const handler = (e) => {
+      const sectionId = e.detail?.section;
+      if (!sectionId) return;
+      const tab = TABS.find((t) => t.id === sectionId);
+      if (!tab) return;
+
+      if (isMobile) {
+        handleTabClick(tab);
+      } else {
+        const el = sectionRefs.current[sectionId];
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+    window.addEventListener("avatar-navigate-to-section", handler);
+    return () => window.removeEventListener("avatar-navigate-to-section", handler);
+  }, [isMobile]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Mobile: tabs + single active section
   if (isMobile) {
     const ActiveComponent = SECTION_COMPONENTS[activeTab];

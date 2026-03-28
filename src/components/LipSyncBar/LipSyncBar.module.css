@@ -6,37 +6,28 @@
   100% { transform: scale(2.4); opacity: 0; }
 }
 
-/* ── Wrapper: ghost overlay on the canvas ───────────── */
+/* ── Wrapper: vertical ghost column ─────────────────── */
 .wrapper {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0.75rem;
+  left: 0.5rem;
   display: flex !important;
   z-index: 50;
-  padding: 0 0.25rem 0.35rem;
-  transition: background-color 0.35s ease, backdrop-filter 0.35s ease;
+  padding: 0.4rem;
 }
 
-.wrapper:hover {
-  background-color: color-mix(in srgb, var(--color-bg) 55%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* ── Single bar ─────────────────────────────────────── */
+/* ── Vertical bar ───────────────────────────────────── */
 .bar {
   display: flex;
+  flex-direction: column-reverse; /* mic at bottom, controls above */
   align-items: center;
-  width: 100%;
-  height: 2.5rem;
-  gap: 1px;
+  gap: 4px;
 }
 
 /* ── Shared button base ─────────────────────────────── */
 .micButton,
-.filterBtn,
-.modeTab,
+.gearBtn,
+.settingsBtn,
 .stopButton {
   background: transparent;
   border: none;
@@ -90,47 +81,64 @@
   pointer-events: none;
 }
 
-/* ── Filter icon buttons ────────────────────────────── */
-.filterBtn {
-  flex: 1;
-  height: 100%;
-  opacity: 0.08;
-  border-radius: 4px;
-}
-.wrapper:hover .filterBtn                      { opacity: 0.28; }
-.wrapper:hover .filterBtn:hover:not(:disabled) { opacity: 0.65; }
-.wrapper:hover .filterBtn.filterActive         { opacity: 0.9; }
-.filterBtn.filterActive                        { opacity: 0.35; }
-.filterBtn:disabled                            { cursor: not-allowed; }
-
-/* ── Mode icon tabs ─────────────────────────────────── */
-.modeTab {
+/* ── Gear button ────────────────────────────────────── */
+.gearBtn {
   width: 2rem;
   height: 2rem;
   border-radius: 4px;
-  opacity: 0.1;
+  opacity: 0.08;
 }
-.wrapper:hover .modeTab            { opacity: 0.28; }
-.wrapper:hover .modeTab:hover      { opacity: 0.65; }
-.wrapper:hover .modeTab.modeActive { opacity: 0.9; }
-.modeTab.modeActive                { opacity: 0.4; }
+.wrapper:hover .gearBtn            { opacity: 0.28; }
+.wrapper:hover .gearBtn:hover      { opacity: 0.65; }
+.wrapper:hover .gearBtn.gearActive { opacity: 0.9; }
+.gearBtn.gearActive                { opacity: 0.45; }
+
+/* ── Settings panel ─────────────────────────────────── */
+.settingsWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.settingsPanel {
+  position: absolute;
+  left: calc(100% + 0.35rem);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.35rem 0.4rem;
+  background-color: var(--color-bg);
+  border: var(--border-width-thick) solid var(--color-border);
+  z-index: 70;
+}
+
+.settingsRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.settingsBtn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 4px;
+  opacity: 0.35;
+}
+.settingsBtn:hover:not(:disabled) { opacity: 0.75; }
+.settingsBtn.settingsActive        { opacity: 1; }
+.settingsBtn:disabled              { cursor: not-allowed; opacity: 0.2; }
 
 /* ── Voice selector ─────────────────────────────────── */
 .voiceSelectWrap {
-  flex: 1;
   display: flex;
   align-items: center;
-  min-width: 0;
-  max-width: 8rem;
-  opacity: 0.12;
-  transition: opacity 0.2s ease;
+  width: 100%;
 }
-.wrapper:hover .voiceSelectWrap        { opacity: 0.5; }
-.wrapper:hover .voiceSelectWrap:hover  { opacity: 0.85; }
 
 .voiceSelect {
   width: 100%;
-  height: 100%;
+  height: 2rem;
   padding: 0 0.4rem;
   background: transparent;
   border: none;
@@ -177,6 +185,108 @@
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   opacity: 0.6;
+}
+
+/* ── Subtitles (top of panel) ────────────────────────── */
+@keyframes wordPop {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.subtitle {
+  position: absolute;
+  top: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  padding: 0;
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #ffffff;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.55);
+  pointer-events: none;
+  z-index: 60;
+}
+
+.subtitleWord {
+  display: inline;
+  opacity: 0;
+  animation: wordPop 0.18s ease forwards;
+  animation-delay: var(--word-delay, 0ms);
+}
+
+.artMode .subtitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text);
+  text-shadow: none;
+}
+
+.artMode .subtitleWord {
+  animation-duration: 0.25s;
+}
+
+/* ── Bottom subtitles (above bar) ───────────────────── */
+.subtitleBottom {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  margin: 0;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.25;
+  color: #ffffff;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+  pointer-events: none;
+  z-index: 60;
+}
+
+/* ── Processing label (floats right of the bar) ─────── */
+.processingLabel {
+  position: absolute;
+  left: calc(100% + 0.4rem);
+  bottom: 0.25rem;
+  font-size: 0.65rem;
+  color: var(--color-text);
+  opacity: 0.5;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── Space hint ──────────────────────────────────────── */
+@keyframes hintBlink {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 0.25; }
+}
+
+.spaceHint {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffffff;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  animation: hintBlink 2.5s ease-in-out infinite;
+}
+
+.artMode .spaceHint {
+  color: var(--color-text);
 }
 
 /* ── Unsupported ─────────────────────────────────────── */

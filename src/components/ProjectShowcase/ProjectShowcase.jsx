@@ -163,6 +163,34 @@ function ProjectShowcase() {
     return () => window.removeEventListener("leave-code-section", handleLeaveCode);
   }, []);
 
+  // Avatar action: highlight a project by name
+  useEffect(() => {
+    const handler = (e) => {
+      const name = e.detail?.project_name?.toLowerCase();
+      if (!name || projects.length === 0) return;
+      const match = projects.find((p) => p.name.toLowerCase().includes(name) || name.includes(p.name.toLowerCase()));
+      if (!match) return;
+
+      setHoveredCardId(match.id);
+
+      const card = cardRefs.current[match.id];
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      if (isMobile) {
+        const idx = projects.findIndex((p) => p.id === match.id);
+        if (idx !== -1) setActiveProject(idx);
+      }
+    };
+    window.addEventListener("avatar-highlight-project", handler);
+    return () => window.removeEventListener("avatar-highlight-project", handler);
+  }, [projects, isMobile]);
+
+  useEffect(() => {
+    const handler = () => setHoveredCardId(null);
+    window.addEventListener("avatar-close-modal", handler);
+    return () => window.removeEventListener("avatar-close-modal", handler);
+  }, []);
+
   if (projects.length === 0) {
     return null;
   }

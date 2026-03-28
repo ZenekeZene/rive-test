@@ -64,9 +64,12 @@ export function useSpeechRecognition({ onReady } = {}) {
     recorder.onstop = () => {
       const durationMs = Date.now() - recordingStartRef.current;
       const blob = new Blob(chunksRef.current, { type: recorder.mimeType });
+      console.log("[recorder.onstop] transcript at stop time:", JSON.stringify(transcriptRef.current), "| duration:", durationMs, "ms");
       stopStream();
       if (transcriptRef.current) {
         onReadyRef.current?.(transcriptRef.current, blob, durationMs);
+      } else {
+        console.warn("[recorder.onstop] transcript vacío — onReady NO llamado");
       }
     };
     recorderRef.current = recorder;
@@ -74,6 +77,7 @@ export function useSpeechRecognition({ onReady } = {}) {
     // Set up SpeechRecognition
     const recognition = new SR();
     recognition.lang = LANG_MAP[language] ?? "en-US";
+    console.log("[recognition] lang configurado:", recognition.lang, "| language context:", language);
     recognition.interimResults = true;
     recognition.continuous = false;
     recognition.maxAlternatives = 1;
@@ -93,6 +97,7 @@ export function useSpeechRecognition({ onReady } = {}) {
         if (event.results[i].isFinal) final += t;
         else interim += t;
       }
+      console.log("[recognition.onresult] interim:", JSON.stringify(interim), "| final:", JSON.stringify(final));
       if (interim) setInterimTranscript(interim);
       if (final) {
         transcriptRef.current = final;
@@ -111,6 +116,7 @@ export function useSpeechRecognition({ onReady } = {}) {
     };
 
     recognition.onend = () => {
+      console.log("[recognition.onend] transcript al finalizar:", JSON.stringify(transcriptRef.current));
       setIsListening(false);
       setInterimTranscript("");
       // Stop recorder — onstop will fire and deliver the blob

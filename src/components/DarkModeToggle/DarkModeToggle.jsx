@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./DarkModeToggle.module.css";
 
 function DarkModeToggle({ onToggle, isArtMode }) {
@@ -10,6 +10,19 @@ function DarkModeToggle({ onToggle, isArtMode }) {
     document.documentElement.classList.toggle("darkMode", newValue);
     onToggle(newValue);
   };
+
+  useEffect(() => {
+    const handler = () => {
+      setIsDark((prev) => {
+        const newValue = !prev;
+        document.documentElement.classList.toggle("darkMode", newValue);
+        onToggle(newValue);
+        return newValue;
+      });
+    };
+    window.addEventListener("avatar-toggle-darkmode", handler);
+    return () => window.removeEventListener("avatar-toggle-darkmode", handler);
+  }, [onToggle]);
 
   return (
     <button

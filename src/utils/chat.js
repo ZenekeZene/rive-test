@@ -1,32 +1,114 @@
-const SYSTEM_PROMPT = `Eres Hector, un ingeniero de producto de Barakaldo (Bilbao) con más de 15 años de experiencia creando software, ilustración y juegos. Te encanta mezclar creatividad y código para construir cosas que cobren vida.
+import { SYSTEM_PROMPT } from "./chatSystemPrompt.js";
 
-Sobre ti ahora mismo:
-- Creando experiencias interactivas con Rive
-- Escuchando Fred Again, 6LACK y Essie Rodriguez
-- Dibujando con Procreate
-- Jugando con arte generativo
-
-Tu stack y disciplinas:
-- Creative Coding, UI/UX, Animación, Rive, Unity, TypeScript, CSS
-- Tres disciplinas: Software, Ilustración y Juegos
-
-Proyectos que has construido:
-- Portfolio interactivo con Rive, máquinas de estado y sistema de logros brutalista
-- Juego de toques con una araña dormilona, quiz CSS y Firebase
-- Arte generativo con campos de ruido, canvas-sketch y Tweakpane
-- Ilustraciones interactivas con parallax por capas (Spike Lee, Stranger Things)
-- Escena de ramen con overlay p5.js, reactividad de audio y modo glitch
-- App de dibujo estilo Picasso con morphing de SVG
-- Juego de mezcla de colores con Vue, Vuex y Howler.js
-- Experimento AR mezclando digital con el mundo real usando AR.js y Three.js
-- Retratos de gorila, espacio y personajes varios en Procreate
-
-Tu personalidad: respondes con sorna, eres irónico. Contestas de forma concisa (2-3 frases como máximo). Respondes siempre en el mismo idioma que te hablan. Si alguien pregunta algo técnico, puedes ser brillante pero sin perder el tono chulesco.`;
+const TOOLS = [
+  {
+    type: "function",
+    function: {
+      name: "scroll_to_section",
+      description: "Navigate the portfolio to a specific section",
+      parameters: {
+        type: "object",
+        properties: {
+          section: {
+            type: "string",
+            enum: ["experience", "code", "art", "others"],
+            description: "Section to navigate to",
+          },
+        },
+        required: ["section"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "highlight_project",
+      description: "Navigate to the code section and highlight a specific project card",
+      parameters: {
+        type: "object",
+        properties: {
+          project_name: { type: "string", description: "Name of the project to highlight" },
+        },
+        required: ["project_name"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "open_artwork",
+      description: "Navigate to the art section and open a specific artwork in the detail modal",
+      parameters: {
+        type: "object",
+        properties: {
+          artwork_title: { type: "string", description: "Title of the artwork to open" },
+        },
+        required: ["artwork_title"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "toggle_dark_mode",
+      description: "Toggle dark mode on or off",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "maximize_hero",
+      description: "Toggle fullscreen / maximized mode for the avatar panel",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "switch_language",
+      description: "Switch the portfolio display language",
+      parameters: {
+        type: "object",
+        properties: {
+          language: { type: "string", enum: ["en", "es"] },
+        },
+        required: ["language"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "change_outfit",
+      description: "Change the avatar's outfit in the Rive animation",
+      parameters: {
+        type: "object",
+        properties: {
+          outfit: {
+            type: "integer",
+            enum: [0, 1, 2, 3],
+            description: "0=casual (default), 1=code (matrix effect), 2=art (canvas), 3=contact",
+          },
+        },
+        required: ["outfit"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "close_modal",
+      description: "Close any open lightbox, artwork modal, or highlighted project. Use when the user says 'close', 'go back', 'hide it', 'quita', 'cierra', 'vuelve', etc.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+];
 
 /**
- * Sends a message to OpenAI Chat API and returns the assistant's reply.
+ * Sends a message to OpenAI Chat API and returns the assistant's reply + any actions.
  * @param {Array<{role: string, content: string}>} messages - full conversation history
- * @returns {Promise<string>} - assistant reply text
+ * @returns {Promise<{ text: string, actions: Array<{ name: string, args: object }> }>}
  */
 export async function sendMessage(messages) {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
@@ -44,7 +126,9 @@ export async function sendMessage(messages) {
         { role: "system", content: SYSTEM_PROMPT },
         ...messages,
       ],
-      max_tokens: 150,
+      tools: TOOLS,
+      tool_choice: "auto",
+      max_tokens: 300,
       temperature: 0.85,
     }),
   });
@@ -55,5 +139,13 @@ export async function sendMessage(messages) {
   }
 
   const data = await res.json();
-  return data.choices[0].message.content.trim();
+  const msg = data.choices[0].message;
+
+  return {
+    text: msg.content?.trim() || "",
+    actions: (msg.tool_calls || []).map((tc) => ({
+      name: tc.function.name,
+      args: JSON.parse(tc.function.arguments),
+    })),
+  };
 }

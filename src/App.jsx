@@ -15,6 +15,7 @@ import LanguageSelector from "./components/LanguageSelector/LanguageSelector";
 import { useLanguage } from "./i18n/LanguageContext";
 import LipSyncBar from "./components/LipSyncBar/LipSyncBar";
 import { useLipSync } from "./hooks/useLipSync";
+import { useAvatarActionRouter } from "./hooks/useAvatarActionRouter";
 
 const KONAMI_SEQUENCE = [
   "ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown",
@@ -409,6 +410,9 @@ function App() {
     setCapturedImage(null);
   }, []);
 
+  // ── Avatar action router ─────────────────────────────────────────────────────
+  useAvatarActionRouter(riveRef, handleMaximizeToggle);
+
   const handleDarkModeToggle = useCallback((isDark) => {
     if (isDark && !triggeredStates.current.tinieblas) {
       triggeredStates.current.tinieblas = true;
@@ -527,7 +531,7 @@ function App() {
         <DarkModeToggle onToggle={handleDarkModeToggle} isArtMode={activeTab === "art"} />
         <CaptureButton onCapture={handleCapture} isArtMode={activeTab === "art"} disabled={guestbook.cooldown} />
         <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} disabled={(isCodeOverlayActive || isArtOverlayActive) && !isAudioActive} />
-        <LipSyncBar onSpeak={speak} onSpeakSequence={speakSequence} onStop={stopLipSync} isPlaying={isLipSyncPlaying} />
+        <LipSyncBar onSpeak={speak} onSpeakSequence={speakSequence} onStop={stopLipSync} isPlaying={isLipSyncPlaying} isArtMode={activeTab === "art"} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel

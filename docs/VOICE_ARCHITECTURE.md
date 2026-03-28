@@ -457,7 +457,44 @@ All inter-component communication uses `window.dispatchEvent(new CustomEvent(nam
 
 ---
 
-## 6. Rive ViewModel Properties
+## 6. Subtitle System
+
+Subtitles are rendered as a React portal injected into the `#leftPanel` DOM node (the same container as the Rive canvas). The portal uses a `<div data-avatar-overlay>` wrapper — this attribute is whitelisted in the `App.css` rule that hides non-first children of `.leftPanel` on desktop.
+
+There are two subtitle layers:
+
+| Layer | Position | Content |
+|-------|----------|---------|
+| **Top subtitles** | `top: 4rem`, centered, 1.9rem bold white uppercase | Word-by-word TTS output (all three modes) |
+| **Bottom subtitles** | `bottom: 1rem`, centered, 0.78rem | Live browser transcript while recording |
+
+Both are controlled by the `subtitlesEnabled` toggle in the settings panel.
+
+### Word-by-word timing pipelines
+
+Subtitles are split into chunks of up to 5 words. Each word has a `delayMs` relative to the chunk start, driven by a CSS variable `--word-delay` and a `wordPop` keyframe animation. Chunks are scheduled with `setTimeout` via `scheduleSubtitles()`.
+
+| Mode | Source | Helper |
+|------|--------|--------|
+| **My Voice** (precise) | Whisper `words[].start` timestamps | `whisperWordsToSubtitleChunks(words)` |
+| **My Voice** (non-precise) | Total `durationMs` / word count (uniform) | `textToSubtitleChunks(text, durationMs)` |
+| **ElevenLabs** | ElevenLabs character-level alignment | `buildSubtitleChunks(text, alignment)` |
+| **Chat** | ElevenLabs character-level alignment (same as above) | `buildSubtitleChunks(text, alignment)` |
+
+### Scheduling flow
+
+```
+playWithEffect(blob, effect, audioCtx, onPlaybackStart) resolves
+  └─ onPlaybackStart() fires
+       ├─ onSpeakSequence(sequence)   ← starts viseme playback
+       └─ scheduleSubtitles(chunks)   ← sets setTimeout per chunk
+            └─ each timeout → setActiveSubtitle({ words, durationMs })
+                 └─ JSX renders <p.subtitle> with per-word <span> + animation-delay
+```
+
+---
+
+## 7. Rive ViewModel Properties
 
 The Rive state machine is `"portrait state machine"` in `/portrait.riv`. All properties are accessed via `riveRef.current.viewModelInstance`.
 
@@ -551,7 +588,7 @@ The system prompt instructs the model to vary its responses. If it still repeats
 
 ---
 
-## 7. File Map
+## 10. File Map
 
 | File | Role |
 |------|------|

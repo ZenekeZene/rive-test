@@ -267,6 +267,34 @@ function ImageGallery() {
     };
   }); // runs every render to capture latest selectedImage/closeModal
 
+  // Avatar action: open an artwork by title
+  const masonryItemRefs = useRef({});
+  useEffect(() => {
+    const handler = (e) => {
+      const title = e.detail?.artwork_title?.toLowerCase();
+      if (!title) return;
+      const match = PLACEHOLDER_IMAGES.find(
+        (img) => img.title.toLowerCase().includes(title) || title.includes(img.title.toLowerCase())
+      );
+      if (!match) return;
+
+      const el = masonryItemRefs.current[match.id];
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      // Small delay so scroll completes before transition fires
+      setTimeout(() => openModal(match), 300);
+    };
+    window.addEventListener("avatar-open-artwork", handler);
+    return () => window.removeEventListener("avatar-open-artwork", handler);
+  }); // runs every render to capture latest openModal
+
+  // Avatar action: close any open modal
+  useEffect(() => {
+    const handler = () => { if (selectedImage) closeModal(); };
+    window.addEventListener("avatar-close-modal", handler);
+    return () => window.removeEventListener("avatar-close-modal", handler);
+  }); // runs every render to capture latest selectedImage/closeModal
+
   const openModal = (image) => {
     // Preload first 3 non-video detail images
     if (image.details?.length) {
@@ -606,6 +634,7 @@ function ImageGallery() {
             {PLACEHOLDER_IMAGES.map((image, i) => (
               <button
                 key={image.id}
+                ref={(el) => (masonryItemRefs.current[image.id] = el)}
                 className={`${styles.masonryItem} ${selectedImage?.id === image.id ? styles.masonryItemActive : ""}`}
                 onClick={() => selectedImage?.id === image.id ? closeModal() : openModal(image)}
                 aria-label={image.title}
