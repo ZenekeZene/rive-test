@@ -5,12 +5,14 @@ import { wordsToVisemes } from "../../utils/lipSync/wordsToVisemes";
 import { alignmentToVisemes } from "../../utils/lipSync/alignmentToVisemes";
 import { synthesize, getVoices } from "../../utils/elevenlabs";
 import { playWithEffect, getAudioContext, VOICE_EFFECTS } from "../../utils/audioEffects";
+import { sendMessage } from "../../utils/chat";
 import { useLanguage } from "../../i18n/LanguageContext";
 import styles from "./LipSyncBar.module.css";
 
 // Effects available per mode
 const MY_VOICE_EFFECTS = ["natural", "chipmunk", "deep", "robot", "echo"];
 const EL_EFFECTS = ["natural", "robot", "echo"];
+const CHAT_EFFECTS = ["natural", "robot", "echo"];
 
 function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
   const { language } = useLanguage();
@@ -31,10 +33,15 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
   const [voicesError, setVoicesError] = useState(null);
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingState, setProcessingState] = useState(""); // "thinking" | "synthesizing" | ""
 
-  // Fetch EL voices the first time the user switches to ElevenLabs mode
+  // Chat mode
+  const conversationHistoryRef = useRef([]);
+  const [lastResponse, setLastResponse] = useState("");
+
+  // Fetch EL voices the first time the user switches to ElevenLabs or Chat mode
   useEffect(() => {
-    if (voiceMode !== "elevenlabs" || voicesLoaded) return;
+    if ((voiceMode !== "elevenlabs" && voiceMode !== "chat") || voicesLoaded) return;
     getVoices()
       .then((list) => {
         setVoices(list);
@@ -87,17 +94,55 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
     const effectId = selectedEffect;
 
     setIsProcessing(true);
+    setProcessingState("synthesizing");
     try {
       const { blob, alignment } = await synthesize(transcript, selectedVoice, language);
       const sequence = alignmentToVisemes(alignment);
 
       playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
         setIsProcessing(false);
+        setProcessingState("");
         onSpeakSequence(sequence);
       });
     } catch (err) {
       console.warn("[LipSyncBar] ElevenLabs failed:", err.message);
       setIsProcessing(false);
+      setProcessingState("");
+    }
+  }, [language, selectedVoice, selectedEffect, onSpeakSequence]);
+
+  // ── Chat flow ─────────────────────────────────────────────────────────────
+  const handleChatReady = useCallback(async (transcript) => {
+    if (!transcript?.trim() || !selectedVoice) return;
+
+    const audioCtx = getAudioContext(audioCtxRef);
+    const effectId = selectedEffect;
+
+    setIsProcessing(true);
+    setProcessingState("thinking");
+
+    const userMsg = { role: "user", content: transcript };
+    conversationHistoryRef.current = [...conversationHistoryRef.current, userMsg];
+
+    try {
+      const reply = await sendMessage(conversationHistoryRef.current);
+      conversationHistoryRef.current = [...conversationHistoryRef.current, { role: "assistant", content: reply }];
+      setLastResponse(reply);
+
+      setProcessingState("synthesizing");
+      const { blob, alignment } = await synthesize(reply, selectedVoice, language);
+      const sequence = alignmentToVisemes(alignment);
+
+      playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
+        setIsProcessing(false);
+        setProcessingState("");
+        onSpeakSequence(sequence);
+      });
+    } catch (err) {
+      console.warn("[LipSyncBar] Chat failed:", err.message);
+      setIsProcessing(false);
+      setProcessingState("");
+      conversationHistoryRef.current = conversationHistoryRef.current.slice(0, -1);
     }
   }, [language, selectedVoice, selectedEffect, onSpeakSequence]);
 
@@ -105,10 +150,12 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
   const handleReady = useCallback((transcript, blob, durationMs) => {
     if (voiceMode === "elevenlabs") {
       handleELReady(transcript);
+    } else if (voiceMode === "chat") {
+      handleChatReady(transcript);
     } else {
       handleMyVoiceReady(transcript, blob, durationMs);
     }
-  }, [voiceMode, handleELReady, handleMyVoiceReady]);
+  }, [voiceMode, handleELReady, handleChatReady, handleMyVoiceReady]);
 
   const {
     supported,
@@ -137,12 +184,16 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
   const handleModeSwitch = useCallback((mode) => {
     if (isListening || isProcessing) return;
     setVoiceMode(mode);
-    // Reset effect to natural when switching modes
     setSelectedEffect("natural");
+    if (mode !== "chat") setLastResponse("");
   }, [isListening, isProcessing]);
 
-  const displayText = isListening ? interimTranscript : finalTranscript;
-  const effectList = voiceMode === "myvoice" ? MY_VOICE_EFFECTS : EL_EFFECTS;
+  const displayText = isListening
+    ? interimTranscript
+    : (voiceMode === "chat" && lastResponse && !finalTranscript)
+      ? lastResponse
+      : finalTranscript;
+  const effectList = voiceMode === "myvoice" ? MY_VOICE_EFFECTS : (voiceMode === "chat" ? CHAT_EFFECTS : EL_EFFECTS);
 
   if (!supported) {
     return (
@@ -169,12 +220,18 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
         >
           ElevenLabs
         </button>
+        <button
+          className={`${styles.modeTab} ${voiceMode === "chat" ? styles.modeActive : ""}`}
+          onClick={() => handleModeSwitch("chat")}
+        >
+          Chat
+        </button>
       </div>
 
       {/* ── Options row ── */}
       <div className={styles.optionsRow}>
-        {/* ElevenLabs: voice selector */}
-        {voiceMode === "elevenlabs" && (
+        {/* ElevenLabs / Chat: voice selector */}
+        {(voiceMode === "elevenlabs" || voiceMode === "chat") && (
           <div className={styles.voiceSelectWrap}>
             {!voicesLoaded ? (
               <span className={styles.voiceLoading}>Loading voices…</span>
@@ -227,7 +284,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
         <button
           className={`${styles.micButton} ${isListening ? styles.listening : ""}`}
           onClick={handleMicClick}
-          disabled={isProcessing || (voiceMode === "elevenlabs" && !selectedVoice)}
+          disabled={isProcessing || ((voiceMode === "elevenlabs" || voiceMode === "chat") && !selectedVoice)}
           aria-label={isListening ? "Stop listening" : "Start listening"}
         >
           {isProcessing ? (
@@ -247,7 +304,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
 
         <span className={`${styles.transcript} ${!displayText ? styles.placeholder : ""} ${isListening ? styles.interim : ""}`}>
           {isProcessing
-            ? (voiceMode === "elevenlabs" ? "Synthesizing…" : "Processing…")
+            ? (processingState === "thinking" ? "Thinking…" : "Synthesizing…")
             : displayText || (isListening ? "Listening…" : "Press mic and speak")}
         </span>
 
