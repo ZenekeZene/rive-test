@@ -282,7 +282,7 @@ function ImageGallery() {
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
 
       // Small delay so scroll completes before transition fires
-      setTimeout(() => openModal(match), 300);
+      setTimeout(() => openModal(match, "avatar"), 300);
     };
     window.addEventListener("avatar-open-artwork", handler);
     return () => window.removeEventListener("avatar-open-artwork", handler);
@@ -295,7 +295,10 @@ function ImageGallery() {
     return () => window.removeEventListener("avatar-close-modal", handler);
   }); // runs every render to capture latest selectedImage/closeModal
 
-  const openModal = (image) => {
+  const openModal = (image, source = "user") => {
+    if (source === "user") {
+      window.dispatchEvent(new CustomEvent("user-opened-artwork", { detail: { artwork_title: image.title } }));
+    }
     // Preload first 3 non-video detail images
     if (image.details?.length) {
       let preloaded = 0;

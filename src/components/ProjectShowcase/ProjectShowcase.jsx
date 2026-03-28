@@ -370,6 +370,13 @@ function ProjectShowcase() {
               onMouseEnter={() => {
                 setHoveredCardId(project.id);
                 window.dispatchEvent(new CustomEvent("code-project-hover"));
+                const t = setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent("user-opened-project", { detail: { project_name: project.name } }));
+                }, 1500);
+                cardRefs.current[`__hover_${project.id}`] = t;
+              }}
+              onMouseLeave={() => {
+                clearTimeout(cardRefs.current[`__hover_${project.id}`]);
               }}
             >
               {renderProject(project)}

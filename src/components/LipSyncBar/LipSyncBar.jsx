@@ -150,9 +150,11 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   const [voicesError, setVoicesError] = useState(null);
 
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
+  const [proactiveEnabled, setProactiveEnabled] = useState(() => localStorage.getItem("lsb_proactive") !== "false");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const cancelledRef = useRef(false);
+  const idleTimerRef = useRef(null);
   const [processingState, setProcessingState] = useState(""); // "thinking" | "synthesizing" | ""
 
   // Chat mode — history persisted in sessionStorage
@@ -194,6 +196,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   // Persist mode and voice selection
   useEffect(() => { localStorage.setItem("lsb_mode", voiceMode); }, [voiceMode]);
   useEffect(() => { if (selectedVoice) localStorage.setItem("lsb_voice", selectedVoice); }, [selectedVoice]);
+  useEffect(() => { localStorage.setItem("lsb_proactive", proactiveEnabled); }, [proactiveEnabled]);
 
   // Fetch EL voices the first time the user switches to ElevenLabs or Chat mode
   useEffect(() => {
@@ -412,6 +415,108 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       start();
     }
   }, [isListening, start, stopListening, interrupt]);
+
+  // ── Proactive comments ───────────────────────────────────────────────────────
+  const handleProactiveComment = useCallback(async (prompt) => {
+    if (!proactiveEnabled || voiceMode === "myvoice" || !selectedVoice || isListening || isProcessing || isPlaying) return;
+
+    cancelledRef.current = false;
+    const audioCtx = getAudioContext(audioCtxRef);
+    const effectId = selectedEffect;
+
+    setIsProcessing(true);
+    setProcessingState("thinking");
+
+    try {
+      const sectionLabel = SECTION_LABELS[activeSection];
+      const context = sectionLabel
+        ? `Current context: the visitor is currently viewing the "${sectionLabel}" section of the portfolio.`
+        : null;
+      const { text } = await sendMessage([{ role: "user", content: prompt }], context);
+      if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
+
+      const spokenText = text;
+      if (!spokenText) { setIsProcessing(false); setProcessingState(""); return; }
+
+      updateHistory([
+        ...conversationHistoryRef.current,
+        { role: "user", content: prompt },
+        { role: "assistant", content: spokenText },
+      ]);
+
+      setProcessingState("synthesizing");
+      const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
+      if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
+
+      const sequence = alignmentToVisemes(alignment);
+      const subtitleChunks = buildSubtitleChunks(spokenText, alignment);
+
+      playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
+        if (cancelledRef.current) return;
+        setIsProcessing(false);
+        setProcessingState("");
+        onSpeakSequence(sequence, audioCtx);
+        scheduleSubtitles(subtitleChunks);
+      });
+    } catch (err) {
+      console.warn("[LipSyncBar] Proactive comment failed:", err.message);
+      setIsProcessing(false);
+      setProcessingState("");
+    }
+  }, [voiceMode, selectedVoice, proactiveEnabled, isListening, isProcessing, isPlaying, selectedEffect, activeSection, language, onSpeakSequence, scheduleSubtitles, updateHistory]);
+
+  useEffect(() => {
+    const onProject = (e) => {
+      const { project_name } = e.detail;
+      handleProactiveComment(`[Context] The visitor just opened the project "${project_name}". React to it naturally in one short sentence, as if you noticed them looking at it.`);
+    };
+    const onArtwork = (e) => {
+      const { artwork_title } = e.detail;
+      handleProactiveComment(`[Context] The visitor just opened the artwork "${artwork_title}". React to it naturally in one short sentence, as if you noticed them looking at it.`);
+    };
+    window.addEventListener("user-opened-project", onProject);
+    window.addEventListener("user-opened-artwork", onArtwork);
+    return () => {
+      window.removeEventListener("user-opened-project", onProject);
+      window.removeEventListener("user-opened-artwork", onArtwork);
+    };
+  }, [handleProactiveComment]);
+
+  // ── Idle state ───────────────────────────────────────────────────────────────
+  const IDLE_DELAY = 20_000;
+  const IDLE_DELAY_AFTER = 35_000;
+  const idleCountRef = useRef(0);
+
+  const IDLE_PROMPTS = {
+    es: [
+      "[Idle] El visitante lleva un rato sin interactuar. Dí algo natural y breve para reconectar, como si te hubieras dado cuenta de que sigue ahí. Puede ser una curiosidad sobre tu trabajo, una pregunta, o un comentario casual. Una sola frase.",
+      "[Idle] Silencio prolongado. Rompe el hielo con algo interesante sobre ti o tus proyectos. Una frase corta y natural.",
+      "[Idle] El visitante está en silencio. Anímale a explorar o hacer una pregunta. Sé natural, no robótico. Una frase.",
+    ],
+    en: [
+      "[Idle] The visitor hasn't interacted for a while. Say something natural and brief to re-engage, as if you just noticed they're still there. Could be a curiosity about your work, a question, or a casual remark. One sentence only.",
+      "[Idle] Long silence. Break the ice with something interesting about yourself or your projects. One short natural sentence.",
+      "[Idle] The visitor is quiet. Encourage them to explore or ask something. Be natural, not robotic. One sentence.",
+    ],
+  };
+
+  useEffect(() => {
+    if (!proactiveEnabled || voiceMode === "myvoice" || !selectedVoice) return;
+    if (isListening || isProcessing || isPlaying) {
+      clearTimeout(idleTimerRef.current);
+      return;
+    }
+
+    const delay = idleCountRef.current === 0 ? IDLE_DELAY : IDLE_DELAY_AFTER;
+    idleTimerRef.current = setTimeout(() => {
+      const prompts = IDLE_PROMPTS[language] ?? IDLE_PROMPTS.en;
+      const prompt = prompts[idleCountRef.current % prompts.length];
+      idleCountRef.current += 1;
+      handleProactiveComment(prompt);
+    }, delay);
+
+    return () => clearTimeout(idleTimerRef.current);
+  }, [isListening, isProcessing, isPlaying, proactiveEnabled, voiceMode, selectedVoice, language, handleProactiveComment]);
 
   const handleModeSwitch = useCallback((mode) => {
     if (isListening || isProcessing) return;
@@ -639,7 +744,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
                 )}
               </div>
 
-              {/* Subtitles */}
+              {/* Subtitles + proactive toggle */}
               <div className={styles.settingsRow}>
                 <button
                   className={`${styles.settingsBtn} ${subtitlesEnabled ? styles.settingsActive : ""}`}
@@ -651,6 +756,18 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
                     <line x1="3.5" y1="7.5" x2="7.5" y2="7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
                     <line x1="3.5" y1="10" x2="12.5" y2="10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
                     <line x1="9" y1="7.5" x2="12.5" y2="7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                  </svg>
+                </button>
+                <button
+                  className={`${styles.settingsBtn} ${proactiveEnabled ? styles.settingsActive : ""}`}
+                  onClick={() => setProactiveEnabled(v => !v)}
+                  title={proactiveEnabled ? "Comentarios proactivos: ON" : "Comentarios proactivos: OFF"}
+                >
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 1a5 5 0 0 1 3.5 8.5L13 14l-3-1.5A5 5 0 1 1 8 1z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+                    <circle cx="6" cy="8" r="0.8" fill="currentColor"/>
+                    <circle cx="8" cy="8" r="0.8" fill="currentColor"/>
+                    <circle cx="10" cy="8" r="0.8" fill="currentColor"/>
                   </svg>
                 </button>
               </div>
