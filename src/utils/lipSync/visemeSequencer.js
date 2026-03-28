@@ -7,6 +7,8 @@ export class VisemeSequencer {
     this._index = 0;
     this._elapsed = 0;
     this._lastTimestamp = null;
+    this._audioCtx = null;
+    this._startTime = null;
     this.onComplete = null;
   }
 
@@ -14,14 +16,21 @@ export class VisemeSequencer {
     return this._rafId !== null;
   }
 
-  play(sequence) {
+  play(sequence, audioCtx) {
     this.stop();
     if (!sequence || sequence.length === 0) return;
 
     this._sequence = sequence;
+    this._audioCtx = audioCtx || null;
+    this._startTime = audioCtx ? audioCtx.currentTime : null;
     this._index = 0;
     this._elapsed = 0;
     this._lastTimestamp = null;
+
+    // Apply first viseme immediately — don't wait one rAF frame
+    const first = sequence[0];
+    this._onChange(first.type === "viseme" ? first.value : 0);
+
     this._tick = this._tick.bind(this);
     this._rafId = requestAnimationFrame(this._tick);
   }
@@ -35,30 +44,51 @@ export class VisemeSequencer {
   }
 
   _tick(timestamp) {
-    if (this._lastTimestamp === null) {
+    if (this._audioCtx) {
+      // ── AudioContext mode: absolute time, no drift ──────────────────────────
+      const elapsedMs = (this._audioCtx.currentTime - this._startTime) * 1000;
+
+      // Scan forward to find the correct position in the sequence
+      let cumulative = 0;
+      let idx = 0;
+      while (idx < this._sequence.length && cumulative + this._sequence[idx].duration <= elapsedMs) {
+        cumulative += this._sequence[idx].duration;
+        idx++;
+      }
+
+      // Apply viseme only if the position changed
+      if (idx !== this._index && idx < this._sequence.length) {
+        const entry = this._sequence[idx];
+        this._onChange(entry.type === "viseme" ? entry.value : 0);
+      }
+      this._index = idx;
+
+    } else {
+      // ── Legacy delta mode (used by speak() without AudioContext) ─────────────
+      if (this._lastTimestamp === null) {
+        this._lastTimestamp = timestamp;
+      }
+
+      const delta = Math.min(timestamp - this._lastTimestamp, 100);
       this._lastTimestamp = timestamp;
-    }
+      this._elapsed += delta;
 
-    // Cap delta to 100ms to avoid huge jumps after tab was hidden
-    const delta = Math.min(timestamp - this._lastTimestamp, 100);
-    this._lastTimestamp = timestamp;
-    this._elapsed += delta;
+      while (this._index < this._sequence.length) {
+        const entry = this._sequence[this._index];
+        if (this._elapsed < entry.duration) break;
 
-    // Advance through as many entries as elapsed time covers
-    while (this._index < this._sequence.length) {
-      const entry = this._sequence[this._index];
-      if (this._elapsed < entry.duration) break;
+        this._elapsed -= entry.duration;
+        this._index++;
 
-      this._elapsed -= entry.duration;
-      this._index++;
-
-      if (this._index < this._sequence.length) {
-        const next = this._sequence[this._index];
-        if (next.type === "viseme") {
-          this._onChange(next.value);
-        } else {
-          this._onChange(0); // pause = mouth closed
+        if (this._index < this._sequence.length) {
+          const next = this._sequence[this._index];
+          this._onChange(next.type === "viseme" ? next.value : 0);
         }
+      }
+
+      if (this._index === 0 && this._elapsed === 0) {
+        const first = this._sequence[0];
+        this._onChange(first.type === "viseme" ? first.value : 0);
       }
     }
 
@@ -67,12 +97,6 @@ export class VisemeSequencer {
       this._onChange(0);
       if (this.onComplete) this.onComplete();
       return;
-    }
-
-    // Apply current entry if we're at the start
-    if (this._index === 0 && this._elapsed === 0) {
-      const first = this._sequence[0];
-      this._onChange(first.type === "viseme" ? first.value : 0);
     }
 
     this._rafId = requestAnimationFrame(this._tick);

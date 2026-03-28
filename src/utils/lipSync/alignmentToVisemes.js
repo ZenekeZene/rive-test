@@ -29,6 +29,7 @@ const MID_PUNCT = new Set([",", ";", ":", "—", "–"]);
 export function alignmentToVisemes(alignment) {
   const { characters, character_start_times_seconds, character_end_times_seconds } = alignment;
   const sequence = [];
+  let cursorMs = 0; // tracks where the sequencer is in absolute time
 
   for (let i = 0; i < characters.length; i++) {
     const char = characters[i];
@@ -36,18 +37,25 @@ export function alignmentToVisemes(alignment) {
     const endMs = Math.round(character_end_times_seconds[i] * 1000);
     const duration = Math.max(endMs - startMs, 16);
 
+    // Fill any gap between the last item and this character's start
+    const gap = startMs - cursorMs;
+    if (gap > 16) {
+      sequence.push({ type: "pause", duration: gap });
+    }
+    cursorMs = endMs;
+
     if (char === " " || char === "\n") {
-      if (duration > 20) sequence.push({ type: "pause", duration });
+      // The gap before this space is already pushed above.
+      // Also account for the space's own duration so cumulative time stays accurate.
+      if (duration > 16) sequence.push({ type: "pause", duration });
       continue;
     }
 
-    if (SENTENCE_PUNCT.has(char)) {
-      sequence.push({ type: "pause", duration: Math.max(duration, 300) });
-      continue;
-    }
-
-    if (MID_PUNCT.has(char)) {
-      sequence.push({ type: "pause", duration: Math.max(duration, 150) });
+    if (SENTENCE_PUNCT.has(char) || MID_PUNCT.has(char)) {
+      // Silence for the punctuation character itself — the gap before it is
+      // already pushed above, but we must also include its own duration so the
+      // cumulative sequence total matches the audio duration.
+      if (duration > 16) sequence.push({ type: "pause", duration });
       continue;
     }
 

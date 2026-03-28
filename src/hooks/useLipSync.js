@@ -50,11 +50,11 @@ export function useLipSync(riveRef) {
     setIsPlaying(true);
   }, [language]);
 
-  const speakSequence = useCallback((sequence) => {
+  const speakSequence = useCallback((sequence, audioCtx) => {
     const seq = sequencerRef.current;
     if (!seq || !sequence?.length) return;
     seq.onComplete = () => setIsPlaying(false);
-    seq.play(sequence);
+    seq.play(sequence, audioCtx);
     setIsPlaying(true);
   }, []);
 

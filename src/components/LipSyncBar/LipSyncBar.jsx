@@ -102,7 +102,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
       playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
         setIsProcessing(false);
         setProcessingState("");
-        onSpeakSequence(sequence);
+        onSpeakSequence(sequence, audioCtx);
       });
     } catch (err) {
       console.warn("[LipSyncBar] ElevenLabs failed:", err.message);
@@ -127,7 +127,6 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
     try {
       const reply = await sendMessage(conversationHistoryRef.current);
       conversationHistoryRef.current = [...conversationHistoryRef.current, { role: "assistant", content: reply }];
-      setLastResponse(reply);
 
       setProcessingState("synthesizing");
       const { blob, alignment } = await synthesize(reply, selectedVoice, language);
@@ -136,7 +135,8 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying }) {
       playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
         setIsProcessing(false);
         setProcessingState("");
-        onSpeakSequence(sequence);
+        setLastResponse(reply);
+        onSpeakSequence(sequence, audioCtx);
       });
     } catch (err) {
       console.warn("[LipSyncBar] Chat failed:", err.message);
