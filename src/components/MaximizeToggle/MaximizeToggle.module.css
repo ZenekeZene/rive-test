@@ -1,50 +1,44 @@
 .button {
   position: absolute;
-  bottom: 1.5rem;
+  top: 1.5rem;
   right: 1.5rem;
   width: 2.5rem;
   height: 2.5rem;
-  background-color: var(--color-bg);
-  border: var(--border-width-thick) solid var(--color-border);
-  color: var(--color-text);
+  background: transparent;
+  border: none;
+  color: white;
   cursor: pointer;
   display: flex !important;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.1s ease, color 0.1s ease;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
   z-index: 100;
 }
 
 .button:hover {
-  background-color: var(--color-text);
-  color: var(--color-bg);
+  opacity: 0.8;
 }
 
 .icon {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.8rem;
+  height: 1.8rem;
 }
 
 @media (max-width: 768px) {
   .button {
-    bottom: 1rem;
+    top: 1rem;
     right: 1rem;
     width: 2rem;
     height: 2rem;
-    background: none;
-    border: none;
-    opacity: 0.5;
-    color: white;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
   }
 
   .button:hover {
-    opacity: 1;
-    background: none;
+    opacity: 0.8;
   }
 
   .button.artMode {
-    color: var(--color-text);
+    color: white;
     filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.3));
   }
 
