@@ -124,7 +124,14 @@ const EFFECT_ICONS = {
   ),
 };
 
-function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) {
+const SECTION_LABELS = {
+  experience: "Experience / Work history",
+  code: "Projects / Code",
+  art: "Artwork / Art gallery",
+  others: "Contact / Other",
+};
+
+function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, activeSection }) {
   const { language } = useLanguage();
   const audioCtxRef = useRef(null);
   const playbackRef = useRef(null);
@@ -148,8 +155,15 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
   const cancelledRef = useRef(false);
   const [processingState, setProcessingState] = useState(""); // "thinking" | "synthesizing" | ""
 
-  // Chat mode
-  const conversationHistoryRef = useRef([]);
+  // Chat mode — history persisted in sessionStorage
+  const conversationHistoryRef = useRef(
+    (() => { try { const s = sessionStorage.getItem("lsb_chat_history"); return s ? JSON.parse(s) : []; } catch { return []; } })()
+  );
+
+  const updateHistory = useCallback((next) => {
+    conversationHistoryRef.current = next;
+    try { sessionStorage.setItem("lsb_chat_history", JSON.stringify(next)); } catch {}
+  }, []);
 
   // Subtitles
   const [activeSubtitle, setActiveSubtitle] = useState(null); // { text, durationMs }
@@ -278,18 +292,22 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
     setProcessingState("thinking");
 
     const userMsg = { role: "user", content: transcript };
-    conversationHistoryRef.current = [...conversationHistoryRef.current, userMsg];
+    updateHistory([...conversationHistoryRef.current, userMsg]);
 
     try {
-      const { text, actions } = await sendMessage(conversationHistoryRef.current);
-      if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); conversationHistoryRef.current = conversationHistoryRef.current.slice(0, -1); return; }
+      const sectionLabel = SECTION_LABELS[activeSection];
+      const context = sectionLabel
+        ? `Current context: the visitor is currently viewing the "${sectionLabel}" section of the portfolio.`
+        : null;
+      const { text, actions } = await sendMessage(conversationHistoryRef.current, context);
+      if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); updateHistory(conversationHistoryRef.current.slice(0, -1)); return; }
 
       const fallbacks = language === "es"
         ? ["Toma.", "Ahí va.", "Hecho.", "Aquí tienes.", "Listo."]
         : ["There you go.", "Done.", "Here.", "Check it out.", "All yours."];
       const spokenText = text || fallbacks[Math.floor(Math.random() * fallbacks.length)];
 
-      conversationHistoryRef.current = [...conversationHistoryRef.current, { role: "assistant", content: spokenText }];
+      updateHistory([...conversationHistoryRef.current, { role: "assistant", content: spokenText }]);
 
       setProcessingState("synthesizing");
       const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
@@ -312,9 +330,9 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
       console.warn("[LipSyncBar] Chat failed:", err.message);
       setIsProcessing(false);
       setProcessingState("");
-      conversationHistoryRef.current = conversationHistoryRef.current.slice(0, -1);
+      updateHistory(conversationHistoryRef.current.slice(0, -1));
     }
-  }, [language, selectedVoice, selectedEffect, onSpeakSequence, scheduleSubtitles]);
+  }, [language, selectedVoice, selectedEffect, activeSection, onSpeakSequence, scheduleSubtitles, updateHistory]);
 
   // ── Speech recognition ───────────────────────────────────────────────────────
   const handleReady = useCallback((transcript, blob, durationMs) => {
@@ -490,9 +508,10 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
         leftPanel
       )}
     <div className={styles.wrapper} data-lip-sync>
-      {processingLabel && (
-        <span className={styles.processingLabel}>{processingLabel}</span>
-      )}
+      {processingLabel
+        ? <span className={styles.processingLabel}>{processingLabel}</span>
+        : <span className={styles.modeBadge}>{voiceMode === "myvoice" ? "MV" : voiceMode === "elevenlabs" ? "EL" : "AI"}</span>
+      }
 
       {/* ── Single bar ── */}
       <div className={styles.bar}>
@@ -529,7 +548,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
                 <button
                   className={`${styles.settingsBtn} ${voiceMode === "myvoice" ? styles.settingsActive : ""}`}
                   onClick={() => handleModeSwitch("myvoice")}
-                  title="Mi voz (1)"
+                  title="Mi voz"
                 >
                   <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
                     <rect x="5.5" y="1" width="5" height="8" rx="2.5" fill="currentColor"/>
@@ -537,11 +556,12 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
                     <line x1="8" y1="13" x2="8" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     <line x1="6" y1="15" x2="10" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
+                  <span className={styles.shortcutHint}>1</span>
                 </button>
                 <button
                   className={`${styles.settingsBtn} ${voiceMode === "elevenlabs" ? styles.settingsActive : ""}`}
                   onClick={() => handleModeSwitch("elevenlabs")}
-                  title="ElevenLabs (2)"
+                  title="ElevenLabs"
                 >
                   <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
                     <rect x="1" y="6" width="2" height="4" rx="1"/>
@@ -549,15 +569,17 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode }) 
                     <rect x="8" y="1" width="2" height="14" rx="1"/>
                     <rect x="11.5" y="3.5" width="2" height="9" rx="1"/>
                   </svg>
+                  <span className={styles.shortcutHint}>2</span>
                 </button>
                 <button
                   className={`${styles.settingsBtn} ${voiceMode === "chat" ? styles.settingsActive : ""}`}
                   onClick={() => handleModeSwitch("chat")}
-                  title="Chat (3)"
+                  title="Chat"
                 >
                   <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
                     <path d="M2 2.5A1.5 1.5 0 0 1 3.5 1h9A1.5 1.5 0 0 1 14 2.5v7A1.5 1.5 0 0 1 12.5 11H5.5l-3.5 3V2.5z" fill="currentColor"/>
                   </svg>
+                  <span className={styles.shortcutHint}>3</span>
                 </button>
               </div>
 

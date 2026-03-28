@@ -131,6 +131,7 @@
 }
 
 .settingsBtn {
+  position: relative;
   width: 2rem;
   height: 2rem;
   border-radius: 4px;
@@ -261,17 +262,41 @@
   z-index: 60;
 }
 
-/* ── Processing label (floats right of the bar) ─────── */
+/* ── Mode badge + processing label (right of bar, bottom-aligned) ── */
+.modeBadge,
 .processingLabel {
   position: absolute;
   left: calc(100% + 0.4rem);
   bottom: 0.25rem;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: var(--color-text);
-  opacity: 0.5;
   white-space: nowrap;
   pointer-events: none;
 }
+
+.modeBadge {
+  opacity: 0.25;
+  transition: opacity 0.2s ease;
+}
+.wrapper:hover .modeBadge { opacity: 0.6; }
+
+.processingLabel { opacity: 0.5; }
+
+/* ── Shortcut hints on mode buttons ─────────────────── */
+.shortcutHint {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  font-size: 0.45rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.settingsPanel:hover .shortcutHint { opacity: 0.5; }
 
 /* ── Space hint ──────────────────────────────────────── */
 @keyframes hintBlink {

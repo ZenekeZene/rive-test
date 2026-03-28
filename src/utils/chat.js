@@ -108,9 +108,10 @@ const TOOLS = [
 /**
  * Sends a message to OpenAI Chat API and returns the assistant's reply + any actions.
  * @param {Array<{role: string, content: string}>} messages - full conversation history
+ * @param {string} [context] - optional situational context injected as a system message
  * @returns {Promise<{ text: string, actions: Array<{ name: string, args: object }> }>}
  */
-export async function sendMessage(messages) {
+export async function sendMessage(messages, context) {
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   if (!apiKey) throw new Error("VITE_OPENAI_API_KEY is not set");
 
@@ -124,6 +125,7 @@ export async function sendMessage(messages) {
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
+        ...(context ? [{ role: "system", content: context }] : []),
         ...messages,
       ],
       tools: TOOLS,

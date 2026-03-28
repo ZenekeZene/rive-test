@@ -531,7 +531,7 @@ function App() {
         <DarkModeToggle onToggle={handleDarkModeToggle} isArtMode={activeTab === "art"} />
         <CaptureButton onCapture={handleCapture} isArtMode={activeTab === "art"} disabled={guestbook.cooldown} />
         <AudioToggle onToggle={handleAudioToggle} isArtMode={activeTab === "art"} isActive={isAudioActive} disabled={(isCodeOverlayActive || isArtOverlayActive) && !isAudioActive} />
-        <LipSyncBar onSpeak={speak} onSpeakSequence={speakSequence} onStop={stopLipSync} isPlaying={isLipSyncPlaying} isArtMode={activeTab === "art"} />
+        <LipSyncBar onSpeak={speak} onSpeakSequence={speakSequence} onStop={stopLipSync} isPlaying={isLipSyncPlaying} isArtMode={activeTab === "art"} activeSection={activeTab} />
       </div>
       <div className="rightPanel" ref={rightPanelRef}>
         <ContentPanel
