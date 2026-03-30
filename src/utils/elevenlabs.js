@@ -1,3 +1,5 @@
+import { getCached, setCached } from "./ttsCache.js";
+
 const BASE = "https://api.elevenlabs.io/v1";
 
 function headers() {
@@ -21,29 +23,36 @@ export async function getVoices() {
  * @returns {{ blob: Blob, alignment: { characters, character_start_times_seconds, character_end_times_seconds } }}
  */
 export async function synthesize(text, voiceId, language) {
-  const res = await fetch(`${BASE}/text-to-speech/${voiceId}/with-timestamps`, {
-    method: "POST",
-    headers: { ...headers(), "Content-Type": "application/json" },
-    body: JSON.stringify({
-      text,
-      model_id: "eleven_multilingual_v2",
-      language_code: language === "es" ? "es" : "en",
-    }),
-  });
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    throw new Error(`ElevenLabs TTS ${res.status}: ${detail}`);
+  const cached = getCached(text, voiceId);
+  let audio_base64, alignment;
+
+  if (cached) {
+    console.info(`[TTS cache hit] "${text.slice(0, 60)}…"`);
+    ({ audio_base64, alignment } = cached);
+  } else {
+    const res = await fetch(`${BASE}/text-to-speech/${voiceId}/with-timestamps`, {
+      method: "POST",
+      headers: { ...headers(), "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text,
+        model_id: "eleven_multilingual_v2",
+        language_code: language === "es" ? "es" : "en",
+      }),
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(`ElevenLabs TTS ${res.status}: ${detail}`);
+    }
+    ({ audio_base64, alignment } = await res.json());
+    setCached(text, voiceId, audio_base64, alignment);
   }
 
-  const { audio_base64, alignment } = await res.json();
-
-  // Decode base64 → Blob
   const binary = atob(audio_base64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   const blob = new Blob([bytes], { type: "audio/mpeg" });
 
-  return { blob, alignment };
+  return { blob, alignment, audio_base64 };
 }
 
 /**

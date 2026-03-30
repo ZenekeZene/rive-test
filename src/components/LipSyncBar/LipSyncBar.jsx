@@ -349,6 +349,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
 
       const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
+
       const effectiveRate = (VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0) * speechRate;
       const raw = alignmentToVisemes(alignment);
       const sequence = effectiveRate === 1.0 ? raw : raw.map(e => ({ ...e, duration: Math.max(Math.round(e.duration / effectiveRate), 16) }));
@@ -548,6 +549,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       return;
     }
 
+    if (idleCountRef.current >= 3) return;
     const delay = idleCountRef.current === 0 ? IDLE_DELAY : IDLE_DELAY_AFTER;
     idleTimerRef.current = setTimeout(() => {
       const prompts = IDLE_PROMPTS[language] ?? IDLE_PROMPTS.en;
@@ -696,11 +698,9 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
                   onClick={() => handleModeSwitch("myvoice")}
                   title="Mi voz"
                 >
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                    <rect x="5.5" y="1" width="5" height="8" rx="2.5" fill="currentColor"/>
-                    <path d="M3 8a5 5 0 0 0 10 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                    <line x1="8" y1="13" x2="8" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                    <line x1="6" y1="15" x2="10" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M5 1.5h7a1.5 1.5 0 0 1 1.5 1.5v4A1.5 1.5 0 0 1 12 8.5H9L7 10.5V8.5H5A1.5 1.5 0 0 1 3.5 7V3A1.5 1.5 0 0 1 5 1.5z" opacity="0.45"/>
+                    <path d="M2 6h7a1.5 1.5 0 0 1 1.5 1.5v4A1.5 1.5 0 0 1 9 13H6.5L4 15v-2H2A1.5 1.5 0 0 1 .5 11.5v-4A1.5 1.5 0 0 1 2 6z"/>
                   </svg>
                   <span className={styles.shortcutHint}>1</span>
                 </button>
