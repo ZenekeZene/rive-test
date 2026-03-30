@@ -153,6 +153,11 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   const [proactiveEnabled, setProactiveEnabled] = useState(() => localStorage.getItem("lsb_proactive") !== "false");
   const [speechRate, setSpeechRate] = useState(() => parseFloat(localStorage.getItem("lsb_speech_rate") ?? "1.0"));
 
+  // ElevenLabs kill switch — env var forces off (dev), Ctrl+Shift+E toggles at runtime
+  const elForcedOff = Boolean(import.meta.env.VITE_DISABLE_ELEVENLABS);
+  const [elEnabled, setElEnabled] = useState(() => elForcedOff ? false : localStorage.getItem("lsb_el") !== "false");
+  const [elToast, setElToast] = useState(null); // "on" | "off" | null
+
   // Director mode — script prompt injected as system message
   const [scriptPrompt, setScriptPrompt] = useState(() => localStorage.getItem("lsb_script") ?? "");
   const [scriptEnabled, setScriptEnabled] = useState(() => localStorage.getItem("lsb_script_enabled") === "true");
@@ -215,6 +220,9 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   useEffect(() => { localStorage.setItem("lsb_mode", voiceMode); }, [voiceMode]);
   useEffect(() => { if (selectedVoice) localStorage.setItem("lsb_voice", selectedVoice); }, [selectedVoice]);
   useEffect(() => { localStorage.setItem("lsb_proactive", proactiveEnabled); }, [proactiveEnabled]);
+  useEffect(() => { if (!elForcedOff) localStorage.setItem("lsb_el", elEnabled); }, [elEnabled, elForcedOff]);
+  useEffect(() => { if (!elToast) return; const t = setTimeout(() => setElToast(null), 2500); return () => clearTimeout(t); }, [elToast]);
+  useEffect(() => { if (!elEnabled && voiceMode === "elevenlabs") setVoiceMode("chat"); }, [elEnabled, voiceMode]);
   useEffect(() => { localStorage.setItem("lsb_speech_rate", speechRate); }, [speechRate]);
   useEffect(() => {
     scriptRef.current.prompt = scriptPrompt;
@@ -294,7 +302,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
     setProcessingState("synthesizing");
 
     try {
-      const { blob, alignment } = await synthesize(transcript, selectedVoice, language);
+      const { blob, alignment } = await synthesize(transcript, selectedVoice, language, "flash");
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
       const effectiveRate = (VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0) * speechRate;
       const raw = alignmentToVisemes(alignment);
@@ -347,17 +355,41 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
 
       setProcessingState("synthesizing");
 
-      const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
+      if (actions.length > 0) {
+        window.dispatchEvent(new CustomEvent("portfolio-action", { detail: { actions } }));
+      }
+
+      if (!elEnabled) {
+        // Web Speech API fallback — no ElevenLabs cost
+        const estimatedDurationMs = (spokenText.trim().split(/\s+/).length / 150) * 60_000 * (1 / speechRate);
+        const utterance = new SpeechSynthesisUtterance(spokenText);
+        utterance.lang = language === "es" ? "es-ES" : "en-US";
+        utterance.rate = speechRate;
+        const wsVoices = speechSynthesis.getVoices();
+        const wsMatch = wsVoices.find(v => v.lang.startsWith(language === "es" ? "es" : "en") && !v.localService)
+                     ?? wsVoices.find(v => v.lang.startsWith(language === "es" ? "es" : "en"));
+        if (wsMatch) utterance.voice = wsMatch;
+        utterance.onstart = () => {
+          if (cancelledRef.current) { speechSynthesis.cancel(); return; }
+          setIsProcessing(false);
+          setProcessingState("");
+          onSpeak(spokenText, estimatedDurationMs);
+          scheduleSubtitles(textToSubtitleChunks(spokenText, estimatedDurationMs));
+        };
+        utterance.onend = () => { if (!cancelledRef.current) onStop(); };
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
+        playbackRef.current = { stop: () => speechSynthesis.cancel() };
+        return;
+      }
+
+      const { blob, alignment } = await synthesize(spokenText, selectedVoice, language, "flash");
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
 
       const effectiveRate = (VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0) * speechRate;
       const raw = alignmentToVisemes(alignment);
       const sequence = effectiveRate === 1.0 ? raw : raw.map(e => ({ ...e, duration: Math.max(Math.round(e.duration / effectiveRate), 16) }));
       const subtitleChunks = scaleChunks(buildSubtitleChunks(spokenText, alignment), effectiveRate);
-
-      if (actions.length > 0) {
-        window.dispatchEvent(new CustomEvent("portfolio-action", { detail: { actions } }));
-      }
 
       playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
         if (cancelledRef.current) return;
@@ -372,7 +404,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       setProcessingState("");
       updateHistory(conversationHistoryRef.current.slice(0, -1));
     }
-  }, [language, selectedVoice, selectedEffect, speechRate, activeSection, onSpeakSequence, scheduleSubtitles, scaleChunks, updateHistory]);
+  }, [language, selectedVoice, selectedEffect, speechRate, elEnabled, activeSection, onSpeak, onStop, onSpeakSequence, scheduleSubtitles, scaleChunks, updateHistory]);
 
   // ── Speech recognition ───────────────────────────────────────────────────────
   const handleReady = useCallback((transcript, blob, durationMs) => {
@@ -483,9 +515,11 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
         { role: "assistant", content: spokenText },
       ]);
 
+      if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
+
       setProcessingState("synthesizing");
 
-      const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
+      const { blob, alignment } = await synthesize(spokenText, selectedVoice, language, "flash");
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
 
       const effectiveRate = (VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0) * speechRate;
@@ -509,10 +543,14 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
 
   useEffect(() => {
     const onProject = (e) => {
+      if (proactiveCountRef.current >= 3) return;
+      proactiveCountRef.current += 1;
       const { project_name } = e.detail;
       handleProactiveComment(`[Context] The visitor just opened the project "${project_name}". React to it naturally in one short sentence, as if you noticed them looking at it.`);
     };
     const onArtwork = (e) => {
+      if (proactiveCountRef.current >= 3) return;
+      proactiveCountRef.current += 1;
       const { artwork_title } = e.detail;
       handleProactiveComment(`[Context] The visitor just opened the artwork "${artwork_title}". React to it naturally in one short sentence, as if you noticed them looking at it.`);
     };
@@ -528,6 +566,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   const IDLE_DELAY = 20_000;
   const IDLE_DELAY_AFTER = 35_000;
   const idleCountRef = useRef(0);
+  const proactiveCountRef = useRef(0);
 
   const IDLE_PROMPTS = {
     es: [
@@ -589,9 +628,20 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
 
       if (isTextInput(e)) return;
 
+      // Ctrl+Shift+E — toggle ElevenLabs (disabled if forced off by env)
+      if (e.code === "KeyE" && e.ctrlKey && e.shiftKey && !elForcedOff) {
+        e.preventDefault();
+        setElEnabled(prev => {
+          const next = !prev;
+          setElToast(next ? "on" : "off");
+          return next;
+        });
+        return;
+      }
+
       // Mode switching: 1 / 2 / 3
       if (e.code === "Digit1") { e.preventDefault(); handleModeSwitch("myvoice"); }
-      if (e.code === "Digit2") { e.preventDefault(); handleModeSwitch("elevenlabs"); }
+      if (e.code === "Digit2") { e.preventDefault(); if (elEnabled) handleModeSwitch("elevenlabs"); }
       if (e.code === "Digit3") { e.preventDefault(); handleModeSwitch("chat"); }
     };
 
@@ -609,7 +659,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       window.removeEventListener("keydown", onKeyDown, { capture: true });
       window.removeEventListener("keyup", onKeyUp, { capture: true });
     };
-  }, [isListening, start, stopListening, interrupt, handleModeSwitch]);
+  }, [isListening, start, stopListening, interrupt, handleModeSwitch, elEnabled, elForcedOff]);
 
   const effectList = voiceMode === "myvoice" ? MY_VOICE_EFFECTS : (voiceMode === "chat" ? CHAT_EFFECTS : EL_EFFECTS);
 
@@ -704,19 +754,21 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
                   </svg>
                   <span className={styles.shortcutHint}>1</span>
                 </button>
-                <button
-                  className={`${styles.settingsBtn} ${voiceMode === "elevenlabs" ? styles.settingsActive : ""}`}
-                  onClick={() => handleModeSwitch("elevenlabs")}
-                  title="ElevenLabs"
-                >
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
-                    <rect x="1" y="6" width="2" height="4" rx="1"/>
-                    <rect x="4.5" y="3.5" width="2" height="9" rx="1"/>
-                    <rect x="8" y="1" width="2" height="14" rx="1"/>
-                    <rect x="11.5" y="3.5" width="2" height="9" rx="1"/>
-                  </svg>
-                  <span className={styles.shortcutHint}>2</span>
-                </button>
+                {elEnabled && (
+                  <button
+                    className={`${styles.settingsBtn} ${voiceMode === "elevenlabs" ? styles.settingsActive : ""}`}
+                    onClick={() => handleModeSwitch("elevenlabs")}
+                    title="ElevenLabs"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+                      <rect x="1" y="6" width="2" height="4" rx="1"/>
+                      <rect x="4.5" y="3.5" width="2" height="9" rx="1"/>
+                      <rect x="8" y="1" width="2" height="14" rx="1"/>
+                      <rect x="11.5" y="3.5" width="2" height="9" rx="1"/>
+                    </svg>
+                    <span className={styles.shortcutHint}>2</span>
+                  </button>
+                )}
                 <button
                   className={`${styles.settingsBtn} ${voiceMode === "chat" ? styles.settingsActive : ""}`}
                   onClick={() => handleModeSwitch("chat")}
@@ -730,7 +782,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
               </div>
 
               {/* Voice selector (EL / Chat) */}
-              {(voiceMode === "elevenlabs" || voiceMode === "chat") && (
+              {elEnabled && (voiceMode === "elevenlabs" || voiceMode === "chat") && (
                 <div className={styles.settingsRow}>
                   <div className={styles.voiceSelectWrap}>
                     {!voicesLoaded ? (
@@ -881,6 +933,13 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
             </svg>
           </button>
         </div>
+
+        {/* ElevenLabs toggle toast */}
+        {elToast && (
+          <span className={styles.elToast} data-state={elToast}>
+            Modo ahorro {elToast === "on" ? "OFF" : "ON"}
+          </span>
+        )}
 
         {/* Stop */}
         {isPlaying && (

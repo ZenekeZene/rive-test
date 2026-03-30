@@ -22,8 +22,14 @@ export async function getVoices() {
  * Synthesizes text and returns character-level timing.
  * @returns {{ blob: Blob, alignment: { characters, character_start_times_seconds, character_end_times_seconds } }}
  */
-export async function synthesize(text, voiceId, language) {
-  const cached = getCached(text, voiceId);
+export const EL_MODELS = {
+  turbo: { id: "eleven_turbo_v2_5", label: "Turbo" },
+  flash: { id: "eleven_flash_v2_5", label: "Flash" },
+};
+
+export async function synthesize(text, voiceId, language, modelKey = "turbo") {
+  const modelId = EL_MODELS[modelKey]?.id ?? EL_MODELS.turbo.id;
+  const cached = getCached(text, voiceId + modelKey);
   let audio_base64, alignment;
 
   if (cached) {
@@ -35,7 +41,7 @@ export async function synthesize(text, voiceId, language) {
       headers: { ...headers(), "Content-Type": "application/json" },
       body: JSON.stringify({
         text,
-        model_id: "eleven_multilingual_v2",
+        model_id: modelId,
         language_code: language === "es" ? "es" : "en",
       }),
     });
@@ -44,7 +50,7 @@ export async function synthesize(text, voiceId, language) {
       throw new Error(`ElevenLabs TTS ${res.status}: ${detail}`);
     }
     ({ audio_base64, alignment } = await res.json());
-    setCached(text, voiceId, audio_base64, alignment);
+    setCached(text, voiceId + modelKey, audio_base64, alignment);
   }
 
   const binary = atob(audio_base64);
@@ -66,7 +72,7 @@ export async function* synthesizeStream(text, voiceId, language) {
     headers: { ...headers(), "Content-Type": "application/json" },
     body: JSON.stringify({
       text,
-      model_id: "eleven_multilingual_v2",
+      model_id: "eleven_turbo_v2_5",
       language_code: language === "es" ? "es" : "en",
     }),
   });
