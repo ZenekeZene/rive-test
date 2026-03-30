@@ -137,7 +137,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   const playbackRef = useRef(null);
 
   // Voice mode
-  const [voiceMode, setVoiceMode] = useState(() => localStorage.getItem("lsb_mode") ?? "myvoice");
+  const [voiceMode, setVoiceMode] = useState(() => localStorage.getItem("lsb_mode") ?? "chat");
 
   // My voice options
   const [selectedEffect, setSelectedEffect] = useState("natural");
