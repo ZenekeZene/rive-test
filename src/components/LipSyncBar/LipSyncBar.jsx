@@ -151,6 +151,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
 
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
   const [proactiveEnabled, setProactiveEnabled] = useState(() => localStorage.getItem("lsb_proactive") !== "false");
+  const [speechRate, setSpeechRate] = useState(() => parseFloat(localStorage.getItem("lsb_speech_rate") ?? "1.0"));
 
   // Director mode — script prompt injected as system message
   const [scriptPrompt, setScriptPrompt] = useState(() => localStorage.getItem("lsb_script") ?? "");
@@ -183,6 +184,16 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
     setActiveSubtitle(null);
   }, []);
 
+  const scaleChunks = useCallback((chunks, rate) => {
+    if (rate === 1.0) return chunks;
+    return chunks.map(c => ({
+      ...c,
+      startMs: c.startMs / rate,
+      endMs: c.endMs / rate,
+      words: c.words.map(w => ({ ...w, delayMs: w.delayMs / rate })),
+    }));
+  }, []);
+
   const scheduleSubtitles = useCallback((chunks) => {
     subtitleTimeoutsRef.current.forEach(clearTimeout);
     subtitleTimeoutsRef.current = [];
@@ -204,6 +215,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   useEffect(() => { localStorage.setItem("lsb_mode", voiceMode); }, [voiceMode]);
   useEffect(() => { if (selectedVoice) localStorage.setItem("lsb_voice", selectedVoice); }, [selectedVoice]);
   useEffect(() => { localStorage.setItem("lsb_proactive", proactiveEnabled); }, [proactiveEnabled]);
+  useEffect(() => { localStorage.setItem("lsb_speech_rate", speechRate); }, [speechRate]);
   useEffect(() => {
     scriptRef.current.prompt = scriptPrompt;
     localStorage.setItem("lsb_script", scriptPrompt);
@@ -234,7 +246,8 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
     cancelledRef.current = false;
     const audioCtx = getAudioContext(audioCtxRef);
     const effectId = selectedEffect;
-    const playbackRate = VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0;
+    const effectRate = VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0;
+    const effectiveRate = effectRate * speechRate;
 
     let sequence = null;
     let subtitleChunks = [];
@@ -245,9 +258,9 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
         const { words } = await transcribeAudio(audioBlob, language);
         if (cancelledRef.current) return;
         const raw = wordsToVisemes(words, language);
-        sequence = playbackRate === 1.0
+        sequence = effectiveRate === 1.0
           ? raw
-          : raw.map((e) => ({ ...e, duration: Math.max(Math.round(e.duration / playbackRate), 16) }));
+          : raw.map((e) => ({ ...e, duration: Math.max(Math.round(e.duration / effectiveRate), 16) }));
         subtitleChunks = whisperWordsToSubtitleChunks(words);
       } catch (err) {
         console.warn("[LipSyncBar] Whisper failed, text fallback:", err.message);
@@ -262,12 +275,12 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
         setIsProcessing(false);
         sequence ? onSpeakSequence(sequence) : onSpeak(transcript, durationMs);
         scheduleSubtitles(subtitleChunks);
-      });
+      }, speechRate);
     } catch (err) {
       console.warn("[LipSyncBar] Playback failed:", err);
       setIsProcessing(false);
     }
-  }, [language, selectedEffect, preciseMode, onSpeak, onSpeakSequence, scheduleSubtitles]);
+  }, [language, selectedEffect, preciseMode, speechRate, onSpeak, onSpeakSequence, scheduleSubtitles]);
 
   // ── ElevenLabs flow ──────────────────────────────────────────────────────────
   const handleELReady = useCallback(async (transcript) => {
@@ -283,21 +296,23 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
     try {
       const { blob, alignment } = await synthesize(transcript, selectedVoice, language);
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
-      const sequence = alignmentToVisemes(alignment);
-      const subtitleChunks = buildSubtitleChunks(transcript, alignment);
+      const effectiveRate = (VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0) * speechRate;
+      const raw = alignmentToVisemes(alignment);
+      const sequence = effectiveRate === 1.0 ? raw : raw.map(e => ({ ...e, duration: Math.max(Math.round(e.duration / effectiveRate), 16) }));
+      const subtitleChunks = scaleChunks(buildSubtitleChunks(transcript, alignment), effectiveRate);
 
       playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
         setIsProcessing(false);
         setProcessingState("");
         onSpeakSequence(sequence, audioCtx);
         scheduleSubtitles(subtitleChunks);
-      });
+      }, speechRate);
     } catch (err) {
       console.warn("[LipSyncBar] ElevenLabs failed:", err.message);
       setIsProcessing(false);
       setProcessingState("");
     }
-  }, [language, selectedVoice, selectedEffect, onSpeakSequence, scheduleSubtitles]);
+  }, [language, selectedVoice, selectedEffect, speechRate, onSpeakSequence, scheduleSubtitles, scaleChunks]);
 
   // ── Chat flow ─────────────────────────────────────────────────────────────
   const handleChatReady = useCallback(async (transcript) => {
@@ -334,8 +349,10 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
 
       const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
-      const sequence = alignmentToVisemes(alignment);
-      const subtitleChunks = buildSubtitleChunks(spokenText, alignment);
+      const effectiveRate = (VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0) * speechRate;
+      const raw = alignmentToVisemes(alignment);
+      const sequence = effectiveRate === 1.0 ? raw : raw.map(e => ({ ...e, duration: Math.max(Math.round(e.duration / effectiveRate), 16) }));
+      const subtitleChunks = scaleChunks(buildSubtitleChunks(spokenText, alignment), effectiveRate);
 
       if (actions.length > 0) {
         window.dispatchEvent(new CustomEvent("portfolio-action", { detail: { actions } }));
@@ -347,14 +364,14 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
         setProcessingState("");
         onSpeakSequence(sequence, audioCtx);
         scheduleSubtitles(subtitleChunks);
-      });
+      }, speechRate);
     } catch (err) {
       console.warn("[LipSyncBar] Chat failed:", err.message);
       setIsProcessing(false);
       setProcessingState("");
       updateHistory(conversationHistoryRef.current.slice(0, -1));
     }
-  }, [language, selectedVoice, selectedEffect, activeSection, onSpeakSequence, scheduleSubtitles, updateHistory]);
+  }, [language, selectedVoice, selectedEffect, speechRate, activeSection, onSpeakSequence, scheduleSubtitles, scaleChunks, updateHistory]);
 
   // ── Speech recognition ───────────────────────────────────────────────────────
   const handleReady = useCallback((transcript, blob, durationMs) => {
@@ -470,8 +487,10 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
 
-      const sequence = alignmentToVisemes(alignment);
-      const subtitleChunks = buildSubtitleChunks(spokenText, alignment);
+      const effectiveRate = (VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0) * speechRate;
+      const raw = alignmentToVisemes(alignment);
+      const sequence = effectiveRate === 1.0 ? raw : raw.map(e => ({ ...e, duration: Math.max(Math.round(e.duration / effectiveRate), 16) }));
+      const subtitleChunks = scaleChunks(buildSubtitleChunks(spokenText, alignment), effectiveRate);
 
       playbackRef.current = await playWithEffect(blob, effectId, audioCtx, () => {
         if (cancelledRef.current) return;
@@ -479,13 +498,13 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
         setProcessingState("");
         onSpeakSequence(sequence, audioCtx);
         scheduleSubtitles(subtitleChunks);
-      });
+      }, speechRate);
     } catch (err) {
       console.warn("[LipSyncBar] Proactive comment failed:", err.message);
       setIsProcessing(false);
       setProcessingState("");
     }
-  }, [voiceMode, selectedVoice, proactiveEnabled, isListening, isProcessing, isPlaying, selectedEffect, activeSection, language, onSpeakSequence, scheduleSubtitles, updateHistory]);
+  }, [voiceMode, selectedVoice, proactiveEnabled, isListening, isProcessing, isPlaying, selectedEffect, speechRate, activeSection, language, onSpeakSequence, scheduleSubtitles, scaleChunks, updateHistory]);
 
   useEffect(() => {
     const onProject = (e) => {
@@ -765,6 +784,23 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
                   </button>
                 )}
               </div>
+
+              {/* Speed rate (EL / Chat) */}
+              {voiceMode !== "myvoice" && (
+                <div className={styles.settingsRow}>
+                  {[0.8, 1.0, 1.2, 1.5].map((rate) => (
+                    <button
+                      key={rate}
+                      className={`${styles.settingsBtn} ${speechRate === rate ? styles.settingsActive : ""}`}
+                      onClick={() => setSpeechRate(rate)}
+                      disabled={isListening || isProcessing}
+                      title={`Velocidad ${rate}x`}
+                    >
+                      <span style={{ fontSize: "9px", fontWeight: 600, letterSpacing: "-0.3px" }}>{rate}x</span>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Director script textarea */}
               {scriptPanelOpen && (

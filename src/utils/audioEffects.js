@@ -15,13 +15,14 @@ export const VOICE_EFFECTS = {
  * @param {() => void} onStart - called when playback actually begins
  * @returns {{ stop: () => void }}
  */
-export async function playWithEffect(blob, effectId, audioCtx, onStart) {
+export async function playWithEffect(blob, effectId, audioCtx, onStart, speedMultiplier = 1.0) {
   const arrayBuffer = await blob.arrayBuffer();
   const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
   const source = audioCtx.createBufferSource();
   source.buffer = audioBuffer;
-  source.playbackRate.value = VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0;
+  source.playbackRate.value = (VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0) * speedMultiplier;
+  if (speedMultiplier !== 1.0) source.preservesPitch = true;
 
   const destination = audioCtx.destination;
   let chain = source; // current tail of the effect chain
