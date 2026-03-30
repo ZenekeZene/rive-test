@@ -154,7 +154,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   const [speechRate, setSpeechRate] = useState(() => parseFloat(localStorage.getItem("lsb_speech_rate") ?? "1.0"));
 
   // ElevenLabs kill switch — env var forces off (dev), Ctrl+Shift+E toggles at runtime
-  const elForcedOff = Boolean(import.meta.env.VITE_DISABLE_ELEVENLABS);
+  const elForcedOff = import.meta.env.VITE_DISABLE_ELEVENLABS === "true";
   const [elEnabled, setElEnabled] = useState(() => elForcedOff ? false : localStorage.getItem("lsb_el") !== "false");
   const [elToast, setElToast] = useState(null); // "on" | "off" | null
 
