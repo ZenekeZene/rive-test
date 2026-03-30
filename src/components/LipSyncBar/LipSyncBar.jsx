@@ -151,6 +151,13 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
 
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
   const [proactiveEnabled, setProactiveEnabled] = useState(() => localStorage.getItem("lsb_proactive") !== "false");
+
+  // Director mode — script prompt injected as system message
+  const [scriptPrompt, setScriptPrompt] = useState(() => localStorage.getItem("lsb_script") ?? "");
+  const [scriptEnabled, setScriptEnabled] = useState(() => localStorage.getItem("lsb_script_enabled") === "true");
+  const [scriptPanelOpen, setScriptPanelOpen] = useState(false);
+  // Ref so callbacks don't need to re-bind on every keystroke
+  const scriptRef = useRef({ prompt: scriptPrompt, enabled: scriptEnabled });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const cancelledRef = useRef(false);
@@ -197,6 +204,14 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   useEffect(() => { localStorage.setItem("lsb_mode", voiceMode); }, [voiceMode]);
   useEffect(() => { if (selectedVoice) localStorage.setItem("lsb_voice", selectedVoice); }, [selectedVoice]);
   useEffect(() => { localStorage.setItem("lsb_proactive", proactiveEnabled); }, [proactiveEnabled]);
+  useEffect(() => {
+    scriptRef.current.prompt = scriptPrompt;
+    localStorage.setItem("lsb_script", scriptPrompt);
+  }, [scriptPrompt]);
+  useEffect(() => {
+    scriptRef.current.enabled = scriptEnabled;
+    localStorage.setItem("lsb_script_enabled", scriptEnabled);
+  }, [scriptEnabled]);
 
   // Fetch EL voices the first time the user switches to ElevenLabs or Chat mode
   useEffect(() => {
@@ -264,6 +279,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
 
     setIsProcessing(true);
     setProcessingState("synthesizing");
+
     try {
       const { blob, alignment } = await synthesize(transcript, selectedVoice, language);
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
@@ -302,7 +318,9 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       const context = sectionLabel
         ? `Current context: the visitor is currently viewing the "${sectionLabel}" section of the portfolio.`
         : null;
-      const { text, actions } = await sendMessage(conversationHistoryRef.current, context);
+      const activeScript = scriptRef.current.enabled && scriptRef.current.prompt.trim()
+        ? scriptRef.current.prompt.trim() : null;
+      const { text, actions } = await sendMessage(conversationHistoryRef.current, context, activeScript);
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); updateHistory(conversationHistoryRef.current.slice(0, -1)); return; }
 
       const fallbacks = language === "es"
@@ -313,6 +331,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       updateHistory([...conversationHistoryRef.current, { role: "assistant", content: spokenText }]);
 
       setProcessingState("synthesizing");
+
       const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
       const sequence = alignmentToVisemes(alignment);
@@ -432,7 +451,9 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       const context = sectionLabel
         ? `Current context: the visitor is currently viewing the "${sectionLabel}" section of the portfolio.`
         : null;
-      const { text } = await sendMessage([{ role: "user", content: prompt }], context);
+      const activeScript = scriptRef.current.enabled && scriptRef.current.prompt.trim()
+        ? scriptRef.current.prompt.trim() : null;
+      const { text } = await sendMessage([{ role: "user", content: prompt }], context, activeScript);
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
 
       const spokenText = text;
@@ -445,6 +466,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       ]);
 
       setProcessingState("synthesizing");
+
       const { blob, alignment } = await synthesize(spokenText, selectedVoice, language);
       if (cancelledRef.current) { setIsProcessing(false); setProcessingState(""); return; }
 
@@ -744,7 +766,20 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
                 )}
               </div>
 
-              {/* Subtitles + proactive toggle */}
+              {/* Director script textarea */}
+              {scriptPanelOpen && (
+                <div className={styles.settingsRow}>
+                  <textarea
+                    className={styles.scriptTextarea}
+                    value={scriptPrompt}
+                    onChange={(e) => setScriptPrompt(e.target.value)}
+                    placeholder={language === "es" ? "Instrucciones de guión para el avatar…" : "Script instructions for the avatar…"}
+                    spellCheck={false}
+                  />
+                </div>
+              )}
+
+              {/* Subtitles + proactive + director toggle */}
               <div className={styles.settingsRow}>
                 <button
                   className={`${styles.settingsBtn} ${subtitlesEnabled ? styles.settingsActive : ""}`}
@@ -770,6 +805,31 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
                     <circle cx="10" cy="8" r="0.8" fill="currentColor"/>
                   </svg>
                 </button>
+                {/* Director: open panel */}
+                <button
+                  className={`${styles.settingsBtn} ${scriptPanelOpen ? styles.settingsActive : ""}`}
+                  onClick={() => setScriptPanelOpen(v => !v)}
+                  title="Director mode"
+                >
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <rect x="1" y="5" width="14" height="9" rx="1" stroke="currentColor" strokeWidth="1.3"/>
+                    <path d="M1 7l3-3 3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 7l3-3 3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                  </svg>
+                </button>
+                {/* Director: enable/disable script */}
+                {scriptPanelOpen && (
+                  <button
+                    className={`${styles.settingsBtn} ${scriptEnabled ? styles.settingsActive : ""}`}
+                    onClick={() => setScriptEnabled(v => !v)}
+                    title={scriptEnabled ? "Script: ON" : "Script: OFF"}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M6 3.5L13 8l-7 4.5V3.5z"/>
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
           )}

@@ -325,6 +325,28 @@
   color: var(--color-text);
 }
 
+/* ── Director script textarea ───────────────────────── */
+.scriptTextarea {
+  width: 15rem;
+  height: 7rem;
+  padding: 0.4rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+}
+.scriptTextarea::placeholder {
+  opacity: 0.3;
+}
+.scriptTextarea:focus {
+  border-color: var(--color-text);
+  opacity: 1;
+}
+
 /* ── Unsupported ─────────────────────────────────────── */
 .unsupported {
   padding: 0.5rem 0.75rem;
