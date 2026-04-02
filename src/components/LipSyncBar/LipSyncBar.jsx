@@ -451,10 +451,20 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePermissionAccept = useCallback(async () => {
-    // Create + unlock AudioContext synchronously within the tap gesture.
-    // iOS marks it as "user-unlocked" permanently; resume() will work
-    // even after async network calls complete later.
-    getAudioContext(audioCtxRef);
+    // iOS Safari requires that audio is actually *scheduled* (source.start)
+    // within the synchronous user gesture — creating the context and calling
+    // resume() is not enough. A 1-sample silent buffer does the job and
+    // permanently unlocks the AudioContext for the rest of the session.
+    const audioCtx = getAudioContext(audioCtxRef);
+    try {
+      const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(audioCtx.destination);
+      src.start(0); // ← this is the actual iOS unlock trigger
+    } catch {}
+
+    // Now request mic permission (async — will show Safari's native dialog)
     const granted = await prewarm();
     const next = granted ? "granted" : "denied";
     localStorage.setItem("lsb_audio_permission", next);
