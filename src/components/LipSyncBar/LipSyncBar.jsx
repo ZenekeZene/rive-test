@@ -428,6 +428,8 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
     finalTranscript,
     start,
     stop: stopListening,
+    prewarm,
+    micPermissionRef,
     streamRef,
   } = useSpeechRecognition({ onReady: handleReady });
 
@@ -488,17 +490,27 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
     }
   }, [isListening, start, stopListening, interrupt]);
 
-  // Mobile: press-and-hold — touchstart starts, touchend stops
+  // Mobile: press-and-hold — touchstart starts, touchend stops.
+  // On first touch, permission hasn't been granted yet — iOS would show a dialog
+  // that interrupts the gesture. We pre-request permission and bail early;
+  // the next press-and-hold will work instantly (getUserMedia resolves with no dialog).
   const handleMicTouchStart = useCallback((e) => {
     e.preventDefault(); // prevent ghost click from also firing
     if (isProcessing) return;
     // Unlock AudioContext synchronously within the user gesture
     getAudioContext(audioCtxRef);
+
+    if (!micPermissionRef.current) {
+      // First touch: request permission only, don't start recording yet
+      prewarm();
+      return;
+    }
+
     if (!isListening) {
       interrupt();
       start();
     }
-  }, [isProcessing, isListening, interrupt, start]);
+  }, [isProcessing, isListening, interrupt, start, prewarm, micPermissionRef]);
 
   const handleMicTouchEnd = useCallback((e) => {
     e.preventDefault();

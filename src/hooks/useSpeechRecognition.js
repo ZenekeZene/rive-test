@@ -33,6 +33,7 @@ export function useSpeechRecognition({ onReady } = {}) {
   const chunksRef = useRef([]);
   const transcriptRef = useRef("");   // stores final transcript until recorder stops
   const recordingStartRef = useRef(0);
+  const micPermissionRef = useRef(false); // true once getUserMedia has been granted
   const onReadyRef = useRef(onReady);
   useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
 
@@ -42,6 +43,20 @@ export function useSpeechRecognition({ onReady } = {}) {
 
   const supported = typeof window !== "undefined" &&
     !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+  // Request mic permission without starting a recording.
+  // Call this on first touch so iOS shows the dialog before press-and-hold.
+  const prewarm = useCallback(async () => {
+    if (micPermissionRef.current) return true;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+      micPermissionRef.current = true;
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -76,6 +91,7 @@ export function useSpeechRecognition({ onReady } = {}) {
       console.warn("[useSpeechRecognition] Microphone access denied");
       return;
     }
+    micPermissionRef.current = true;
     streamRef.current = stream;
     chunksRef.current = [];
     transcriptRef.current = "";
@@ -212,5 +228,5 @@ export function useSpeechRecognition({ onReady } = {}) {
     };
   }, [stopStream]);
 
-  return { supported, isListening, interimTranscript, finalTranscript, start, stop, streamRef };
+  return { supported, isListening, interimTranscript, finalTranscript, start, stop, prewarm, micPermissionRef, streamRef };
 }
