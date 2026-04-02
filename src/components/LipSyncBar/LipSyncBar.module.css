@@ -347,6 +347,69 @@
   opacity: 1;
 }
 
+/* ── Mobile overrides (≤ 768px) ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .wrapper {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0.65rem 0.75rem;
+    /* Respect iOS notch / home-bar */
+    padding-bottom: max(0.65rem, env(safe-area-inset-bottom));
+  }
+
+  .bar {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+  }
+
+  /* Mic takes all available horizontal space */
+  .micButton {
+    flex: 1;
+    width: auto;
+    height: 3.5rem;
+    touch-action: none; /* prevent scroll hijack during press-and-hold */
+  }
+
+  /* Gear and stop match the mic height */
+  .gearBtn {
+    width: 2.75rem;
+    height: 3.5rem;
+    opacity: 0.35;
+    border-radius: 4px;
+    border: var(--border-width-thick) solid var(--color-border);
+  }
+  .wrapper:hover .gearBtn            { opacity: 0.5; }
+  .wrapper:hover .gearBtn:hover      { opacity: 0.8; }
+  .wrapper:hover .gearBtn.gearActive { opacity: 1; }
+  .gearBtn.gearActive                { opacity: 0.7; }
+
+  .stopButton {
+    width: 2.75rem;
+    height: 3.5rem;
+    opacity: 0.5;
+    border-radius: 4px;
+    border: var(--border-width-thick) solid var(--color-border);
+  }
+  .wrapper:hover .stopButton       { opacity: 0.7; }
+  .wrapper:hover .stopButton:hover { opacity: 1; }
+
+  /* Settings panel opens upward on mobile (goes off-screen to the right otherwise) */
+  .settingsPanel {
+    left: auto;
+    right: 0;
+    bottom: calc(100% + 0.35rem);
+  }
+
+  /* Badge/label has no room on a full-width bar */
+  .modeBadge,
+  .processingLabel {
+    display: none;
+  }
+}
+
 /* ── Unsupported ─────────────────────────────────────── */
 .unsupported {
   padding: 0.5rem 0.75rem;

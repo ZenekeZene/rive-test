@@ -8,6 +8,7 @@ import { synthesize, getVoices } from "../../utils/elevenlabs";
 import { playWithEffect, getAudioContext, VOICE_EFFECTS } from "../../utils/audioEffects";
 import { sendMessage } from "../../utils/chat";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useIsMobile } from "../../hooks/useIsMobile";
 import styles from "./LipSyncBar.module.css";
 
 // Build subtitle chunks from ElevenLabs character-level alignment data.
@@ -133,6 +134,7 @@ const SECTION_LABELS = {
 
 function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, activeSection }) {
   const { language } = useLanguage();
+  const isMobile = useIsMobile();
   const audioCtxRef = useRef(null);
   const playbackRef = useRef(null);
 
@@ -717,7 +719,10 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
         <div data-avatar-overlay className={isArtMode ? styles.artMode : ""}>
           {!isListening && !isProcessing && !isPlaying && (
             <p className={styles.spaceHint}>
-              {language === "es" ? "Pulsa ESPACIO para hablar" : "Press SPACE to speak"}
+              {isMobile
+                ? (language === "es" ? "Mantén pulsado para hablar" : "Hold to speak")
+                : (language === "es" ? "Pulsa ESPACIO para hablar" : "Press SPACE to speak")
+              }
             </p>
           )}
           {activeSubtitle && subtitlesEnabled && (
