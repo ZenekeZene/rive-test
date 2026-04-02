@@ -10,7 +10,8 @@ The portfolio avatar supports real-time speech interaction through three voice m
 
 | Layer | Technology |
 |-------|-----------|
-| Speech capture | Web Speech API (browser, Google servers) + `MediaRecorder` |
+| Speech capture (desktop) | Web Speech API (browser, Google servers) + `MediaRecorder` |
+| Speech capture (mobile) | `MediaRecorder` only → Whisper transcription (SpeechRecognition unreliable on iOS) |
 | Precise transcription | OpenAI Whisper (`whisper-1`, `verbose_json` with word timestamps) |
 | TTS synthesis | ElevenLabs (`eleven_multilingual_v2`, `/with-timestamps` endpoint) |
 | Conversational AI | OpenAI Chat (`gpt-4o-mini` with function calling) |
@@ -25,7 +26,8 @@ The portfolio avatar supports real-time speech interaction through three voice m
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐   │
 │  │              useSpeechRecognition                        │   │
-│  │   SpeechRecognition API  +  MediaRecorder                │   │
+│  │   Desktop: SpeechRecognition API + MediaRecorder         │   │
+│  │   Mobile:  MediaRecorder only → Whisper fallback         │   │
 │  │   → transcript (string)  +  blob (audio)                 │   │
 │  └───────────────────────────┬──────────────────────────────┘   │
 │                              │ onReady(transcript, blob, ms)    │
@@ -531,27 +533,77 @@ Both keys are sent directly from the browser (no backend proxy). Keep them restr
 
 ## 9. Troubleshooting
 
-### Transcript is empty — avatar does nothing after recording
+### Mobile: mic button does nothing
 
-The `onReady` callback in `useSpeechRecognition` only fires if `transcriptRef.current` is non-empty. If it's empty, nothing happens and no error is shown.
+On mobile browsers (iOS Safari, Android Chrome), the recording flow uses a different path because `webkitSpeechRecognition` is unreliable on mobile (frequent `network`, `not-allowed`, and `no-speech` errors) and `MediaRecorder` on iOS only supports `audio/mp4`.
+
+**How the mobile path works (Whisper-only mode):**
+
+```
+[Tap mic button]
+     │
+     ▼
+getUserMedia({ audio: true })   ← requires HTTPS + mic permission
+     │
+     ▼
+MediaRecorder (mimeType auto-detected: audio/mp4 on iOS, audio/webm on others)
+     │ recording…
+     ▼
+[Tap mic button again]
+     │
+     ▼
+recorder.stop() → recorder.onstop
+     │
+     ▼
+transcribeAudio(blob, language)   ← Whisper via /api/transcribe
+     │
+     ▼
+onReady(transcript, blob, durationMs)   ← same path as desktop
+```
+
+No interim transcript is shown in the UI during recording on mobile (SpeechRecognition is bypassed entirely). All three modes (myvoice, elevenlabs, chat) work via this path.
+
+**Diagnostic logs (mobile):**
+```
+[useSpeechRecognition] Whisper-only mode (mobile or no SR support)
+[recorder.onstop] transcript: "" | duration: 2340ms | mime: audio/mp4
+[recorder.onstop] No SR transcript, using Whisper fallback...
+[transcript] <whisper result>
+```
+
+**Common causes of failure on mobile:**
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| No permission prompt, button does nothing | Page served over HTTP (not HTTPS) | Serve over HTTPS — `getUserMedia` is blocked on insecure origins |
+| Permission denied, silent failure | User denied mic permission | Reset mic permission in browser settings |
+| `grabación demasiado corta` in log | Recording stopped in <400 ms | Tap and hold for at least 0.5 s before releasing |
+| `Whisper fallback failed` in log | Backend `/api/transcribe` unreachable or returned error | Check `VITE_API_URL` and backend logs |
+| `MediaRecorder not supported` in log | iOS < 14.3 | Update iOS. MediaRecorder requires iOS 14.3+ |
+
+---
+
+### Transcript is empty — avatar does nothing after recording (desktop)
+
+On desktop, `onReady` is called with the SpeechRecognition transcript. If SR produces no transcript, `useSpeechRecognition` automatically falls back to Whisper (same as mobile) provided the recording lasted >400 ms.
 
 **Diagnostic logs to check in the browser console:**
 
 ```
-[recognition] lang configurado: en-US | language context: en
+[recognition] lang: en-US
 [recognition.onresult] interim: "..." | final: "..."
-[recognition.onend] transcript al finalizar: "..."
-[recorder.onstop] transcript at stop time: "..." | duration: ...ms
+[recognition.onend] transcript: "..."
+[recorder.onstop] transcript: "..." | duration: ...ms | mime: audio/webm
 [transcript] <final value>
 ```
 
-**Common causes:**
+**Common causes (desktop):**
 
 | Symptom in logs | Cause | Fix |
 |----------------|-------|-----|
-| `lang configurado: en-US` but user speaks Spanish | `useLanguage()` context returning `"en"` — portfolio language is set to English | Switch portfolio language to Spanish before recording |
-| `onresult` fires with interim results but `final: ""` at `onend` | Web Speech API sent results to Google but no `isFinal` came back before timeout | Usually a network hiccup; retry. Can also happen with very short utterances (<0.5 s) |
-| No `onresult` at all, then `transcript vacío` | Web Speech API got no audio (mic permission denied, wrong input device, or utterance too quiet) | Check browser mic permissions and input device |
+| `lang: en-US` but user speaks Spanish | `useLanguage()` context returning `"en"` — portfolio language is set to English | Switch portfolio language to Spanish before recording |
+| `onresult` fires with interim results but `final: ""` at `onend` | Web Speech API sent results to Google but no `isFinal` came back before timeout | SR error triggers Whisper fallback automatically; if Whisper also fails check network |
+| No `onresult` at all | Web Speech API got no audio (mic permission denied, wrong input device, or utterance too quiet) | Check browser mic permissions and input device |
 | `onresult` shows garbled English for Spanish speech | Language mismatch (see above) | Same fix: switch portfolio language |
 
 ---
@@ -562,11 +614,12 @@ In rare cases `recognition.onend` fires with `transcriptRef.current` still empty
 
 ```
 [recognition.onresult] interim: "hola" | final: ""
-[recognition.onend] transcript al finalizar: ""       ← final never arrived
-[recorder.onstop] transcript vacío — onReady NO llamado
+[recognition.onend] transcript: ""                    ← final never arrived
+[recorder.onstop] No SR transcript, using Whisper fallback...
+[transcript] <whisper result>
 ```
 
-This is a known Web Speech API limitation. If it recurs frequently, the mitigation is to add a short wait in `recognition.onend` before stopping the recorder.
+Previously this caused a silent failure. Now `useSpeechRecognition` automatically falls back to Whisper when the transcript is empty and the recording lasted >400 ms.
 
 ---
 
@@ -593,7 +646,7 @@ The system prompt instructs the model to vary its responses. If it still repeats
 | File | Role |
 |------|------|
 | `src/components/LipSyncBar/LipSyncBar.jsx` | Main orchestrator. All mode logic, UI controls, mic button, keyboard shortcuts (`Space`, `1`/`2`/`3`). Holds conversation history ref. |
-| `src/hooks/useSpeechRecognition.js` | Manages `SpeechRecognition` + `MediaRecorder` in tandem. Fires `onReady(transcript, blob, durationMs)` when both complete. Language-aware (`en-US` / `es-ES`). |
+| `src/hooks/useSpeechRecognition.js` | Manages audio capture and transcription. **Desktop:** `SpeechRecognition` + `MediaRecorder` in tandem; if SR produces no transcript, falls back to Whisper. **Mobile** (`/iPhone|iPad|iPod|Android/i`): `MediaRecorder`-only, transcribes via Whisper on stop. MIME type auto-detected (`audio/mp4` on iOS, `audio/webm` on others). Fires `onReady(transcript, blob, durationMs)` when transcript is ready. |
 | `src/hooks/useLipSync.js` | Bridge between viseme data and Rive ViewModel. Exposes `speak(text, ms)` and `speakSequence(sequence, audioCtx?)`. |
 | `src/utils/lipSync/visemeSequencer.js` | rAF-based playback engine. Two timing modes: AudioContext (drift-free) and delta (legacy). |
 | `src/utils/lipSync/visemeMap.js` | Lookup tables: `ARPABET_TO_VISEME`, `SPANISH_TO_VISEME`, `VOWEL_VISEMES` set. |
