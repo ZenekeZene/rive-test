@@ -476,7 +476,10 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
     onStop();
   }, [onStop]);
 
+  // Desktop: toggle on click
   const handleMicClick = useCallback(() => {
+    // Unlock AudioContext during the gesture so iOS can play audio later
+    getAudioContext(audioCtxRef);
     if (isListening) {
       stopListening();
     } else {
@@ -484,6 +487,23 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
       start();
     }
   }, [isListening, start, stopListening, interrupt]);
+
+  // Mobile: press-and-hold — touchstart starts, touchend stops
+  const handleMicTouchStart = useCallback((e) => {
+    e.preventDefault(); // prevent ghost click from also firing
+    if (isProcessing) return;
+    // Unlock AudioContext synchronously within the user gesture
+    getAudioContext(audioCtxRef);
+    if (!isListening) {
+      interrupt();
+      start();
+    }
+  }, [isProcessing, isListening, interrupt, start]);
+
+  const handleMicTouchEnd = useCallback((e) => {
+    e.preventDefault();
+    if (isListening) stopListening();
+  }, [isListening, stopListening]);
 
   // ── Proactive comments ───────────────────────────────────────────────────────
   const handleProactiveComment = useCallback(async (prompt) => {
@@ -718,6 +738,8 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
           ref={micButtonRef}
           className={`${styles.micButton} ${isListening ? styles.listening : ""}`}
           onClick={handleMicClick}
+          onTouchStart={handleMicTouchStart}
+          onTouchEnd={handleMicTouchEnd}
           disabled={isProcessing}
           aria-label={isListening ? "Stop listening" : "Start listening"}
         >

@@ -540,16 +540,18 @@ On mobile browsers (iOS Safari, Android Chrome), the recording flow uses a diffe
 **How the mobile path works (Whisper-only mode):**
 
 ```
-[Tap mic button]
+[Press and hold mic button]  ← onTouchStart
+     │
+     ├── AudioContext created/resumed synchronously (unlocks iOS audio)
      │
      ▼
 getUserMedia({ audio: true })   ← requires HTTPS + mic permission
      │
      ▼
 MediaRecorder (mimeType auto-detected: audio/mp4 on iOS, audio/webm on others)
-     │ recording…
+     │ recording while finger held down…
      ▼
-[Tap mic button again]
+[Release mic button]  ← onTouchEnd
      │
      ▼
 recorder.stop() → recorder.onstop
@@ -559,7 +561,14 @@ transcribeAudio(blob, language)   ← Whisper via /api/transcribe
      │
      ▼
 onReady(transcript, blob, durationMs)   ← same path as desktop
+     │
+     ▼
+playWithEffect(blob, audioCtx, …)   ← AudioContext already unlocked → audio plays
 ```
+
+**Interaction model**: press-and-hold to record, release to stop. `onTouchStart` begins recording; `onTouchEnd` stops it. Both call `e.preventDefault()` to suppress the ghost `click` event that would otherwise double-fire.
+
+**AudioContext unlock**: iOS requires `new AudioContext()` or `audioCtx.resume()` to be called synchronously within a user gesture. `getAudioContext(audioCtxRef)` is called in `onTouchStart` (and in `onClick` on desktop) to unlock it at gesture time. By the time `playWithEffect` runs — after async network calls — the context is already unlocked and audio plays without issue.
 
 No interim transcript is shown in the UI during recording on mobile (SpeechRecognition is bypassed entirely). All three modes (myvoice, elevenlabs, chat) work via this path.
 
@@ -577,7 +586,8 @@ No interim transcript is shown in the UI during recording on mobile (SpeechRecog
 |---------|-------|-----|
 | No permission prompt, button does nothing | Page served over HTTP (not HTTPS) | Serve over HTTPS — `getUserMedia` is blocked on insecure origins |
 | Permission denied, silent failure | User denied mic permission | Reset mic permission in browser settings |
-| `grabación demasiado corta` in log | Recording stopped in <400 ms | Tap and hold for at least 0.5 s before releasing |
+| Recording starts but no audio plays back | `AudioContext` not unlocked (old code path) | Should be fixed — `getAudioContext` is now called in `onTouchStart` synchronously |
+| `grabación demasiado corta` in log | Finger released in <400 ms | Hold the button for at least 0.5 s before releasing |
 | `Whisper fallback failed` in log | Backend `/api/transcribe` unreachable or returned error | Check `VITE_API_URL` and backend logs |
 | `MediaRecorder not supported` in log | iOS < 14.3 | Update iOS. MediaRecorder requires iOS 14.3+ |
 
