@@ -122,3 +122,26 @@ export function getAudioContext(ref) {
   if (ref.current.state === "suspended") ref.current.resume();
   return ref.current;
 }
+
+/**
+ * Fully unlocks an AudioContext on iOS Safari.
+ *
+ * iOS requires that audio is actually *scheduled* (source.start) within
+ * the synchronous user-gesture call stack — not just resume(). Without
+ * this, the context may report state === "running" but silently discard
+ * any subsequent playback until the next user gesture.
+ *
+ * Call this in every button handler that will eventually play audio.
+ * A 1-sample silent buffer is completely inaudible.
+ */
+export function unlockAudioContext(ref) {
+  const ctx = getAudioContext(ref);
+  try {
+    const buf = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+  } catch {}
+  return ctx;
+}

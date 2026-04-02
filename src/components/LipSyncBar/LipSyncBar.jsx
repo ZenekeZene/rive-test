@@ -5,7 +5,7 @@ import { transcribeAudio } from "../../utils/whisper";
 import { wordsToVisemes } from "../../utils/lipSync/wordsToVisemes";
 import { alignmentToVisemes } from "../../utils/lipSync/alignmentToVisemes";
 import { synthesize, getVoices } from "../../utils/elevenlabs";
-import { playWithEffect, getAudioContext, VOICE_EFFECTS } from "../../utils/audioEffects";
+import { playWithEffect, getAudioContext, unlockAudioContext, VOICE_EFFECTS } from "../../utils/audioEffects";
 import { sendMessage } from "../../utils/chat";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useIsMobile } from "../../hooks/useIsMobile";
@@ -451,18 +451,8 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePermissionAccept = useCallback(async () => {
-    // iOS Safari requires that audio is actually *scheduled* (source.start)
-    // within the synchronous user gesture — creating the context and calling
-    // resume() is not enough. A 1-sample silent buffer does the job and
-    // permanently unlocks the AudioContext for the rest of the session.
-    const audioCtx = getAudioContext(audioCtxRef);
-    try {
-      const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
-      const src = audioCtx.createBufferSource();
-      src.buffer = buf;
-      src.connect(audioCtx.destination);
-      src.start(0); // ← this is the actual iOS unlock trigger
-    } catch {}
+    // Same unlock used on every mic press — sets the baseline for this session.
+    unlockAudioContext(audioCtxRef);
 
     // Now request mic permission (async — will show Safari's native dialog)
     const granted = await prewarm();
@@ -535,8 +525,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
 
   // Desktop: toggle on click
   const handleMicClick = useCallback(() => {
-    // Unlock AudioContext during the gesture so iOS can play audio later
-    getAudioContext(audioCtxRef);
+    unlockAudioContext(audioCtxRef);
     if (isListening) {
       stopListening();
     } else {
@@ -552,8 +541,8 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   const handleMicTouchStart = useCallback((e) => {
     e.preventDefault(); // prevent ghost click from also firing
     if (isProcessing) return;
-    // Unlock AudioContext synchronously within the user gesture
-    getAudioContext(audioCtxRef);
+    // Re-unlock on every press — iOS can re-suspend between gestures
+    unlockAudioContext(audioCtxRef);
 
     if (!micPermissionRef.current) {
       // First touch: request permission only, don't start recording yet
