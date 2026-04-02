@@ -6,7 +6,8 @@
  * @returns {Promise<{ text: string, actions: Array<{ name: string, args: object }> }>}
  */
 export async function sendMessage(messages, context, scriptPrompt) {
-  const res = await fetch('/api/chat', {
+  const API_BASE = import.meta.env.VITE_API_URL ?? ''
+  const res = await fetch(`${API_BASE}/api/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages, context, scriptPrompt }),

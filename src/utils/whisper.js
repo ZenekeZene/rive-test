@@ -11,7 +11,8 @@ export async function transcribeAudio(blob, language) {
   body.append('file', file)
   if (language) body.append('language', language)
 
-  const res = await fetch('/api/transcribe', { method: 'POST', body })
+  const API_BASE = import.meta.env.VITE_API_URL ?? ''
+  const res = await fetch(`${API_BASE}/api/transcribe`, { method: 'POST', body })
 
   if (!res.ok) {
     const detail = await res.text().catch(() => '')
