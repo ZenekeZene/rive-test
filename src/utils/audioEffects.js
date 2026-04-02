@@ -114,12 +114,11 @@ export async function playWithEffect(blob, effectId, audioCtx, onStart, speedMul
   return { stop: () => { try { source.stop(); } catch {} } };
 }
 
-/** Creates (or resumes) a shared AudioContext. Call from a user gesture. */
+/** Creates (or resumes) a shared AudioContext. Call from a user gesture.
+ *  On iOS, new AudioContext() starts suspended even inside a gesture —
+ *  always call resume() so it's unlocked for the lifetime of the session. */
 export function getAudioContext(ref) {
-  if (!ref.current) {
-    ref.current = new AudioContext();
-  } else if (ref.current.state === "suspended") {
-    ref.current.resume();
-  }
+  if (!ref.current) ref.current = new AudioContext();
+  if (ref.current.state === "suspended") ref.current.resume();
   return ref.current;
 }

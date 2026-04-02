@@ -138,6 +138,11 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   const audioCtxRef = useRef(null);
   const playbackRef = useRef(null);
 
+  // Mobile audio permission: "unknown" | "granted" | "denied"
+  const [permissionState, setPermissionState] = useState(
+    () => localStorage.getItem("lsb_audio_permission") ?? "unknown"
+  );
+
   // Voice mode
   const [voiceMode, setVoiceMode] = useState(() => localStorage.getItem("lsb_mode") ?? "chat");
 
@@ -435,6 +440,31 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
     micPermissionRef,
     streamRef,
   } = useSpeechRecognition({ onReady: handleReady });
+
+  // ── Mobile permission bootstrap ──────────────────────────────────────────────
+  // On returning visits the permission is already saved — mark micPermissionRef
+  // so the first press immediately records without a prewarm round-trip.
+  useEffect(() => {
+    if (localStorage.getItem("lsb_audio_permission") === "granted") {
+      micPermissionRef.current = true;
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handlePermissionAccept = useCallback(async () => {
+    // Create + unlock AudioContext synchronously within the tap gesture.
+    // iOS marks it as "user-unlocked" permanently; resume() will work
+    // even after async network calls complete later.
+    getAudioContext(audioCtxRef);
+    const granted = await prewarm();
+    const next = granted ? "granted" : "denied";
+    localStorage.setItem("lsb_audio_permission", next);
+    setPermissionState(next);
+  }, [prewarm]);
+
+  const handlePermissionDeny = useCallback(() => {
+    localStorage.setItem("lsb_audio_permission", "denied");
+    setPermissionState("denied");
+  }, []);
 
   // ── Audio level visualizer ───────────────────────────────────────────────────
   useEffect(() => {
@@ -755,6 +785,40 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
         </div>,
         leftPanel
       )}
+
+      {/* Permission modal — mobile only, first visit */}
+      {leftPanel && isMobile && permissionState === "unknown" && createPortal(
+        <div className={styles.permissionOverlay}>
+          <div className={styles.permissionCard}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className={styles.permissionIcon}>
+              <rect x="9" y="2" width="6" height="11" rx="3" fill="currentColor" />
+              <path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <line x1="9" y1="21" x2="15" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <p className={styles.permissionTitle}>
+              {language === "es" ? "Habla con el avatar" : "Talk to the avatar"}
+            </p>
+            <p className={styles.permissionText}>
+              {language === "es"
+                ? "Necesitamos acceso a tu micrófono para que puedas interactuar con voz."
+                : "We need access to your microphone so you can interact by voice."}
+            </p>
+            <div className={styles.permissionActions}>
+              <button className={styles.permissionAccept} onClick={handlePermissionAccept}>
+                {language === "es" ? "Activar micrófono" : "Enable microphone"}
+              </button>
+              <button className={styles.permissionDeny} onClick={handlePermissionDeny}>
+                {language === "es" ? "Omitir" : "Skip"}
+              </button>
+            </div>
+          </div>
+        </div>,
+        leftPanel
+      )}
+
+    {/* Hide the recording bar on mobile if permission was denied */}
+    {!(isMobile && permissionState === "denied") && (
     <div className={styles.wrapper} data-lip-sync>
       {processingLabel
         ? <span className={styles.processingLabel}>{processingLabel}</span>
@@ -1013,6 +1077,7 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
         )}
       </div>
     </div>
+    )}
     </>
   );
 }
