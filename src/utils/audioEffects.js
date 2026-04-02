@@ -16,6 +16,10 @@ export const VOICE_EFFECTS = {
  * @returns {{ stop: () => void }}
  */
 export async function playWithEffect(blob, effectId, audioCtx, onStart, speedMultiplier = 1.0) {
+  // iOS suspends AudioContext after inactivity or page-focus loss.
+  // Resume before touching any nodes — this is safe to call even if already running.
+  if (audioCtx.state !== "running") await audioCtx.resume();
+
   const arrayBuffer = await blob.arrayBuffer();
   const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 

@@ -347,6 +347,30 @@
   opacity: 1;
 }
 
+/* ── Waveform (mobile recording) ────────────────────────────────────────────── */
+.waveform {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 0 0.65rem;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.waveBar {
+  width: 3px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 99px;
+  background: currentColor;
+  transform-origin: center;
+  transform: scaleY(var(--lv, 0.08));
+  will-change: transform;
+}
+
 /* ── Mobile overrides (≤ 768px) ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .wrapper {
@@ -371,6 +395,7 @@
     width: auto;
     height: 3.5rem;
     touch-action: none; /* prevent scroll hijack during press-and-hold */
+    overflow: hidden;   /* clip waveform bars to button bounds */
   }
 
   /* Gear and stop match the mic height */

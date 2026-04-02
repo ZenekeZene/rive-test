@@ -421,7 +421,8 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
   }, [voiceMode, handleELReady, handleChatReady, handleMyVoiceReady]);
 
   const micButtonRef = useRef(null);
-  const levelRafRef = useRef(null);
+  const waveRef      = useRef(null);
+  const levelRafRef  = useRef(null);
 
   const {
     supported,
@@ -441,20 +442,32 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
     const audioCtx = getAudioContext(audioCtxRef);
     const analyser = audioCtx.createAnalyser();
     analyser.fftSize = 256;
-    analyser.smoothingTimeConstant = 0.75;
+    analyser.smoothingTimeConstant = 0.8;
     const source = audioCtx.createMediaStreamSource(streamRef.current);
     source.connect(analyser);
-    const data = new Uint8Array(analyser.frequencyBinCount);
+    const freqData  = new Uint8Array(analyser.frequencyBinCount); // for waveform bars
+    const timeData  = new Uint8Array(analyser.frequencyBinCount); // for level ring
 
     const tick = () => {
-      analyser.getByteTimeDomainData(data);
-      let sum = 0;
-      for (let i = 0; i < data.length; i++) {
-        const v = (data[i] - 128) / 128;
-        sum += v * v;
+      if (waveRef.current) {
+        // Mobile: drive each bar with its own frequency bin (vocal range 0-55)
+        analyser.getByteFrequencyData(freqData);
+        const bars = waveRef.current.children;
+        const count = bars.length;
+        for (let i = 0; i < count; i++) {
+          const bin = Math.floor((i / count) * 55);
+          bars[i].style.setProperty("--lv", Math.max(0.08, freqData[bin] / 255));
+        }
+      } else {
+        // Desktop: single RMS level for the ring
+        analyser.getByteTimeDomainData(timeData);
+        let sum = 0;
+        for (let i = 0; i < timeData.length; i++) {
+          const v = (timeData[i] - 128) / 128;
+          sum += v * v;
+        }
+        micButtonRef.current?.style.setProperty("--audio-level", Math.min(1, Math.sqrt(sum / timeData.length) * 6));
       }
-      const level = Math.min(1, Math.sqrt(sum / data.length) * 6);
-      micButtonRef.current?.style.setProperty("--audio-level", level);
       levelRafRef.current = requestAnimationFrame(tick);
     };
     levelRafRef.current = requestAnimationFrame(tick);
@@ -760,18 +773,27 @@ function LipSyncBar({ onSpeak, onSpeakSequence, onStop, isPlaying, isArtMode, ac
           disabled={isProcessing}
           aria-label={isListening ? "Stop listening" : "Start listening"}
         >
-          {isListening && <span className={styles.levelRing} />}
+          {isListening && (
+            isMobile
+              ? (
+                <span className={styles.waveform} ref={waveRef}>
+                  {Array.from({ length: 24 }, (_, i) => <span key={i} className={styles.waveBar} />)}
+                </span>
+              )
+              : <span className={styles.levelRing} />
+          )}
           {isProcessing ? (
             <span className={styles.spinner} />
           ) : (
-            <>
+            /* On mobile, hide the mic icon while the waveform is shown */
+            (!isMobile || !isListening) && (
               <svg className={styles.micIcon} viewBox="0 0 24 24" fill="none">
                 <rect x="9" y="2" width="6" height="11" rx="3" fill="currentColor" />
                 <path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <line x1="9" y1="21" x2="15" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
-            </>
+            )
           )}
         </button>
 
