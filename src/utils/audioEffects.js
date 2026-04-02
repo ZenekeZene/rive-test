@@ -114,6 +114,49 @@ export async function playWithEffect(blob, effectId, audioCtx, onStart, speedMul
   return { stop: () => { try { source.stop(); } catch {} } };
 }
 
+/**
+ * Plays an audio Blob using HTMLAudioElement — reliable on iOS Safari/Chrome mobile
+ * where AudioContext gets re-suspended between gesture and delayed playback.
+ *
+ * Robot and echo degrade to natural (DSP requires Web Audio; acceptable tradeoff).
+ *
+ * @param {Blob} blob
+ * @param {string} effectId - key of VOICE_EFFECTS
+ * @param {() => void} onStart - called when playback actually begins
+ * @param {number} speedMultiplier
+ * @returns {{ stop: () => void }}
+ */
+export function playWithAudioElement(blob, effectId, onStart, speedMultiplier = 1.0) {
+  const url = URL.createObjectURL(blob);
+  const audio = new Audio(url);
+
+  const effectRate = VOICE_EFFECTS[effectId]?.playbackRate ?? 1.0;
+  // chipmunk/deep: change rate but preserve no pitch shift (same as Web Audio approach)
+  audio.playbackRate = effectRate * speedMultiplier;
+  // preservesPitch = false lets the pitch shift with rate (same behavior as Web Audio)
+  if ("preservesPitch" in audio) audio.preservesPitch = false;
+  else if ("mozPreservesPitch" in audio) audio.mozPreservesPitch = false;
+  else if ("webkitPreservesPitch" in audio) audio.webkitPreservesPitch = false;
+
+  const cleanup = () => URL.revokeObjectURL(url);
+
+  audio.onplaying = () => {
+    console.log("[audioEffects] <audio> playing event fired");
+    onStart?.();
+  };
+  audio.onended = cleanup;
+  audio.onerror = (e) => {
+    console.error("[audioEffects] <audio> error:", e);
+    cleanup();
+  };
+
+  audio.play()
+    .then(() => console.log("[audioEffects] <audio>.play() resolved"))
+    .catch((err) => console.error("[audioEffects] <audio>.play() rejected:", err));
+
+  return { stop: () => { audio.pause(); audio.currentTime = 0; cleanup(); } };
+}
+
 /** Creates (or resumes) a shared AudioContext. Call from a user gesture.
  *  On iOS, new AudioContext() starts suspended even inside a gesture —
  *  always call resume() so it's unlocked for the lifetime of the session. */
